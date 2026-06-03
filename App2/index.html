@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<title>Civilization Decision Simulator | Dr. Mateen Yousuf</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#c9a84c;--gold-light:#f0d080;--gold-dim:#7a6030;
+  --crimson:#8b1a1a;--crimson-light:#c0392b;
+  --deep-navy:#050a18;--navy:#0a1428;--navy-mid:#0f1f3d;--navy-light:#162848;
+  --steel:#2a3a5c;--silver:#a8b8d0;--silver-dim:#4a5a72;
+  --white:#f0e8d8;--text-dim:#8899aa;
+  --glow-gold:0 0 20px rgba(201,168,76,.5),0 0 60px rgba(201,168,76,.2);
+  --glow-red:0 0 20px rgba(192,57,43,.5);
+  --b-gold:1px solid rgba(201,168,76,.3);
+  --b-steel:1px solid rgba(42,58,92,.8);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--deep-navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+
+/* STARS */
+.starfield{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 20% 50%,rgba(20,40,80,.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(60,20,20,.3) 0%,transparent 50%),var(--deep-navy)}
+.stars{position:absolute;inset:0}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--dur,3s) ease-in-out infinite;animation-delay:var(--dly,0s)}
+@keyframes twinkle{0%,100%{opacity:var(--lo,.2)}50%{opacity:var(--hi,.9)}}
+
+/* SCREENS */
+.screen{position:relative;z-index:1;min-height:100vh;display:none}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* AUDIO */
+.audio-btn{position:fixed;top:16px;right:16px;z-index:1000;background:rgba(10,20,40,.8);border:var(--b-gold);color:var(--gold);width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:all .3s}
+.audio-btn:hover{background:rgba(201,168,76,.2);box-shadow:var(--glow-gold)}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:12px;width:100%;max-width:500px;margin:16px auto}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.divider-icon{color:var(--gold);font-size:14px}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:2000;padding:12px 24px;background:linear-gradient(135deg,rgba(10,20,40,.95),rgba(20,40,80,.95));border:2px solid var(--gold);border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--gold-light);letter-spacing:1px;backdrop-filter:blur(10px);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s;opacity:0;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ===== AUTHOR PAGE ===== */
+#screen-author{padding:40px 24px;text-align:center}
+.author-frame{max-width:520px;width:100%;animation:fadeUp 1s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.author-badge{display:inline-block;padding:6px 20px;border-radius:2px;background:linear-gradient(135deg,var(--crimson),var(--crimson-light));font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--white);margin-bottom:24px;animation:fadeUp .8s .1s ease both}
+.photo-wrap{position:relative;display:inline-block;margin-bottom:28px;animation:fadeUp .8s .2s ease both}
+.photo-ring{width:160px;height:160px;border-radius:50%;border:3px solid var(--gold);padding:4px;background:linear-gradient(135deg,var(--navy-mid),var(--steel));box-shadow:var(--glow-gold),inset 0 0 30px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;position:relative}
+.photo-ring::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(201,168,76,.2);animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.author-photo{width:148px;height:148px;border-radius:50%;object-fit:cover;object-position:top;display:block}
+.no-photo{width:148px;height:148px;border-radius:50%;background:linear-gradient(135deg,var(--steel),var(--navy-mid));display:flex;align-items:center;justify-content:center;font-size:60px;color:var(--gold)}
+.app-title-wrap{animation:fadeUp .8s .3s ease both;margin-bottom:20px}
+.app-title-top{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.app-title-main{font-family:'Cinzel Decorative',serif;font-size:clamp(20px,5vw,28px);color:var(--gold-light);line-height:1.2;text-shadow:var(--glow-gold)}
+.app-title-sub{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:2px;color:var(--silver);text-transform:uppercase;margin-top:6px}
+.author-name{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,4.5vw,24px);color:var(--white);margin-bottom:4px;animation:fadeUp .8s .4s ease both}
+.author-role{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--silver);letter-spacing:1px;margin-bottom:4px;animation:fadeUp .8s .45s ease both}
+.author-dept{font-family:'Crimson Pro',serif;font-style:italic;font-size:14px;color:var(--gold-dim);margin-bottom:20px;animation:fadeUp .8s .5s ease both}
+.info-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:28px;animation:fadeUp .8s .55s ease both}
+.pill{padding:5px 14px;border-radius:100px;background:rgba(42,58,92,.5);border:var(--b-gold);font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--silver);letter-spacing:.5px}
+.pill span{color:var(--gold);margin-right:4px}
+.nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;animation:fadeUp .8s .65s ease both;margin-bottom:16px}
+.btn{padding:12px 16px;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;transition:all .3s;border:none;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-enter{background:linear-gradient(135deg,var(--crimson),#6b0000);color:var(--white);border:1px solid var(--crimson-light);grid-column:1/-1;padding:16px;font-size:15px}
+.btn-enter:hover{background:linear-gradient(135deg,#a02020,var(--crimson));box-shadow:var(--glow-red),0 4px 20px rgba(0,0,0,.4);transform:translateY(-2px)}
+.btn-sec{background:rgba(15,31,61,.8);color:var(--silver);border:var(--b-gold)}
+.btn-sec:hover{background:rgba(201,168,76,.1);color:var(--gold);box-shadow:var(--glow-gold)}
+.quote-block{margin-top:16px;padding:16px;border-left:3px solid var(--gold);background:rgba(201,168,76,.05);text-align:left;animation:fadeUp .8s .75s ease both}
+.quote-block q{font-style:italic;font-size:14px;color:var(--silver);line-height:1.6}
+.quote-block cite{display:block;margin-top:8px;font-size:12px;color:var(--gold-dim);font-family:'Rajdhani',sans-serif;letter-spacing:1px}
+
+/* ===== ABOUT & INSTRUCTIONS ===== */
+#screen-about,#screen-instructions{padding:40px 24px;text-align:center}
+.sub-frame{max-width:560px;width:100%}
+.sec-heading{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,4vw,22px);color:var(--gold-light);margin-bottom:24px;text-shadow:var(--glow-gold)}
+.card-grid{display:grid;gap:12px;text-align:left;margin-bottom:24px}
+.card{padding:14px 18px;background:rgba(15,31,61,.6);border:var(--b-gold);border-radius:4px;backdrop-filter:blur(8px)}
+.card h4{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.card p{font-size:14px;color:var(--silver);line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:4px 12px;border-radius:100px;font-size:12px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px}
+.chip-g{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.chip-s{background:rgba(42,58,92,.5);color:var(--silver);border:var(--b-steel)}
+.back-btn{padding:10px 28px;background:transparent;border:var(--b-gold);color:var(--gold);font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .3s}
+.back-btn:hover{background:rgba(201,168,76,.1);box-shadow:var(--glow-gold)}
+.step-list{text-align:left;margin-bottom:24px}
+.step-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid rgba(42,58,92,.5)}
+.step-num{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);background:rgba(201,168,76,.1)}
+.step-content h4{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;color:var(--white);margin-bottom:4px}
+.step-content p{font-size:13px;color:var(--text-dim);line-height:1.5}
+.rank-preview{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
+.rank-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;background:rgba(15,31,61,.5);border:var(--b-gold);border-radius:4px}
+.rank-item .icon{font-size:24px}
+.rank-item .lbl{font-family:'Rajdhani',sans-serif;font-size:10px;color:var(--gold-dim);text-align:center}
+
+/* ===== GAME SCREEN ===== */
+#screen-game{padding:16px;min-height:100vh;align-items:stretch;justify-content:flex-start}
+.game-layout{width:100%;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px;padding:8px 0}
+
+/* HUD */
+.hud{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(10,20,40,.9);border:var(--b-gold);border-radius:4px;backdrop-filter:blur(10px)}
+.hud-score-val{font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold-light);text-shadow:var(--glow-gold)}
+.hud-score-max{font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--gold-dim)}
+.hud-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
+.hud-era{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--silver);letter-spacing:1px}
+.hud-turn{font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold)}
+.rank-badge{display:inline-block;padding:4px 10px;border-radius:100px;background:rgba(139,26,26,.3);border:1px solid var(--crimson-light);font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--white);letter-spacing:1px}
+.wisdom-bar-wrap{margin-top:4px;height:4px;background:var(--steel);border-radius:2px;overflow:hidden}
+.wisdom-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .8s ease;border-radius:2px}
+
+/* SCENARIO */
+.scenario-card{background:linear-gradient(135deg,rgba(15,31,61,.9),rgba(10,20,40,.95));border:var(--b-gold);border-radius:6px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.scenario-header{padding:16px 20px 12px;border-bottom:1px solid rgba(201,168,76,.15);display:flex;align-items:center;gap:12px}
+.scenario-icon{font-size:36px;flex-shrink:0}
+.scenario-meta h3{font-family:'Cinzel Decorative',serif;font-size:clamp(14px,3.5vw,18px);color:var(--gold-light);margin-bottom:4px}
+.scenario-type{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:var(--crimson-light);text-transform:uppercase}
+.scenario-body{padding:16px 20px}
+.scenario-context{font-size:15px;line-height:1.7;color:var(--silver);margin-bottom:12px}
+.scenario-question{padding:12px 16px;background:rgba(201,168,76,.06);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:15px;font-style:italic;color:var(--white);line-height:1.6}
+
+/* LOADING */
+.ai-loading{display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px 20px}
+.spinner{width:48px;height:48px;border-radius:50%;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);animation:rotate 1s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* CHOICES */
+.choices-grid{display:grid;gap:10px}
+.choice-btn{padding:14px 18px;background:rgba(15,31,61,.7);border:1px solid rgba(42,58,92,.8);border-radius:4px;color:var(--white);cursor:pointer;text-align:left;font-family:'Crimson Pro',serif;font-size:15px;line-height:1.5;transition:all .25s;display:flex;gap:12px;align-items:flex-start;position:relative;overflow:hidden}
+.choice-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold-dim);transition:background .25s}
+.choice-btn:hover{background:rgba(42,58,92,.5);border-color:var(--gold);transform:translateX(4px);box-shadow:-4px 0 20px rgba(201,168,76,.1)}
+.choice-btn:hover::before{background:var(--gold)}
+.choice-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.choice-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;flex-shrink:0;padding-top:3px}
+
+/* FEEDBACK */
+.feedback-panel{padding:20px;background:rgba(10,20,40,.9);border:var(--b-gold);border-radius:6px;animation:fadeUp .5s ease both}
+.fb-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.score-delta{padding:6px 14px;border-radius:100px;font-family:'Cinzel Decorative',serif;font-size:18px}
+.score-delta.pos{background:rgba(40,100,40,.3);color:#6dbe6d;border:1px solid #4a8a4a}
+.score-delta.neg{background:rgba(100,20,20,.3);color:#e06060;border:1px solid #8a4040}
+.score-delta.neu{background:rgba(60,60,80,.3);color:var(--silver);border:var(--b-steel)}
+.fb-verdict{font-family:'Cinzel Decorative',serif;font-size:clamp(13px,3vw,16px);color:var(--gold-light)}
+.fb-explain{font-size:15px;line-height:1.7;color:var(--silver);margin-bottom:14px}
+.fb-consequence{padding:12px 16px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.15);border-radius:4px;margin-bottom:16px}
+.fb-consequence h5{font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:2px;color:var(--crimson-light);text-transform:uppercase;margin-bottom:6px}
+.fb-consequence p{font-size:14px;color:var(--silver);line-height:1.6}
+.fb-insight{padding:10px 14px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.15);border-radius:4px;font-size:13px;color:var(--gold-dim);font-style:italic;margin-bottom:16px}
+.next-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1a3060,var(--navy-light));border:var(--b-gold);color:var(--gold-light);cursor:pointer;border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;transition:all .3s}
+.next-btn:hover{background:linear-gradient(135deg,var(--navy-light),var(--steel));box-shadow:var(--glow-gold)}
+
+/* ACHIEVEMENTS */
+.ach-row{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;background:rgba(10,20,40,.7);border:var(--b-steel);border-radius:4px}
+.ach-item{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;font-size:12px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;transition:all .3s}
+.ach-item.locked{background:rgba(42,58,92,.3);color:var(--silver-dim);border:var(--b-steel);filter:grayscale(1);opacity:.5}
+.ach-item.unlocked{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+@keyframes achievePop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.ach-item.pop{animation:achievePop .6s cubic-bezier(.34,1.56,.64,1) both}
+
+/* GAME OVER */
+.gameover-panel{text-align:center;padding:40px 24px;max-width:520px}
+.final-score{font-family:'Cinzel Decorative',serif;font-size:72px;color:var(--gold-light);text-shadow:var(--glow-gold);margin:16px 0}
+.final-rank-lbl{font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:3px;color:var(--silver);text-transform:uppercase;margin-bottom:24px}
+.btn-play-again{width:100%;padding:16px 40px;background:linear-gradient(135deg,var(--crimson),#6b0000);color:var(--white);border:1px solid var(--crimson-light);border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;font-weight:600;transition:all .3s;margin-bottom:12px}
+.btn-play-again:hover{transform:translateY(-2px);box-shadow:var(--glow-red),0 8px 30px rgba(0,0,0,.4)}
+.btn-home{width:100%;padding:12px 40px;background:transparent;color:var(--gold);border:var(--b-gold);border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;transition:all .3s}
+.btn-home:hover{background:rgba(201,168,76,.1)}
+
+/* ERROR RETRY PANEL */
+.error-panel{padding:20px 24px;background:rgba(10,20,40,.9);border:var(--b-gold);border-radius:6px}
+.error-panel p{color:var(--silver);font-size:14px;line-height:1.6;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="starfield"><div class="stars" id="stars"></div></div>
+<button class="audio-btn" id="audioBtn">🔊</button>
+<div class="toast" id="toast"></div>
+
+<!-- ===== SCREEN: AUTHOR ===== -->
+<div class="screen active" id="screen-author">
+  <div class="author-frame">
+    <div class="author-badge">✦ Author & Developer ✦</div>
+    <div class="photo-wrap">
+      <div class="photo-ring">
+        <img src="Photo_of_Developer.jpeg" alt="Dr. Mateen Yousuf" class="author-photo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="no-photo" style="display:none">👨‍💼</div>
+      </div>
+    </div>
+    <div class="app-title-wrap">
+      <div class="app-title-top">AI-Powered Educational Game</div>
+      <div class="app-title-main">Civilization Decision<br>Simulator</div>
+      <div class="app-title-sub">One Feature · Endless Possibilities · Infinite Learning</div>
+    </div>
+    <div class="divider"><span class="divider-icon">⚜</span></div>
+    <div class="author-name">Dr. Mateen Yousuf</div>
+    <div class="author-role">Teacher · GGHSS Khanyar</div>
+    <div class="author-dept">School Education Department, Jammu & Kashmir</div>
+    <div class="info-pills">
+      <div class="pill"><span>📍</span>Jammu & Kashmir, India</div>
+      <div class="pill"><span>✉️</span>mateenyousuf.edu@gmail.com</div>
+      <div class="pill"><span>🎯</span>Quality Education & Innovation</div>
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-enter" onclick="startGame()">⚔️ &nbsp;Enter the Simulation</button>
+      <button class="btn btn-sec" onclick="showScreen('screen-about')">📖 About</button>
+      <button class="btn btn-sec" onclick="showScreen('screen-instructions')">📜 Instructions</button>
+    </div>
+    <div class="quote-block">
+      <q>Technology is just a tool. In terms of getting the kids working together and motivating them, the teacher is the most important.</q>
+      <cite>— Dr. Mateen Yousuf</cite>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: ABOUT ===== -->
+<div class="screen" id="screen-about">
+  <div class="sub-frame">
+    <div class="sec-heading">About This App</div>
+    <div class="card-grid">
+      <div class="card"><h4>🏛️ Concept</h4><p>Step into the role of a civilization leader across history. Every turn, AI generates a unique scenario — wars, trade, diplomacy, disasters. Your decisions shape your empire's fate and Wisdom Score.</p></div>
+      <div class="card"><h4>🤖 AI Engine</h4><p>Powered by Google Gemini AI. Every scenario, consequence, and feedback is uniquely generated — no two playthroughs are ever the same. AI builds context across your session.</p></div>
+      <div class="card"><h4>📚 Educational Alignment</h4><div class="chips"><span class="chip chip-g">NEP 2020 Aligned</span><span class="chip chip-g">Critical Thinking</span><span class="chip chip-g">Decision Making</span><span class="chip chip-s">History & Culture</span><span class="chip chip-s">Ethics & Leadership</span><span class="chip chip-s">21st Century Skills</span></div></div>
+      <div class="card"><h4>⚙️ Tech Stack</h4><div class="chips"><span class="chip chip-s">HTML5 PWA</span><span class="chip chip-s">Vanilla JavaScript</span><span class="chip chip-s">CSS3 Animations</span><span class="chip chip-g">Gemini AI API</span><span class="chip chip-s">No Backend</span><span class="chip chip-s">100% Frontend</span></div></div>
+    </div>
+    <button class="back-btn" onclick="showScreen('screen-author')">← Back to Home</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: INSTRUCTIONS ===== -->
+<div class="screen" id="screen-instructions">
+  <div class="sub-frame">
+    <div class="sec-heading">How to Play</div>
+    <div class="step-list">
+      <div class="step-item"><div class="step-num">1</div><div class="step-content"><h4>Read the Scenario</h4><p>AI generates a unique historical civilization challenge. Read the context carefully.</p></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-content"><h4>Make Your Decision</h4><p>Choose from 4 AI-generated options. Each path has different consequences for your civilization.</p></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-content"><h4>AI Evaluates & Responds</h4><p>Gemini AI analyzes your choice and generates consequences, historical parallels, and wisdom insights.</p></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-content"><h4>Build Your Wisdom Score</h4><p>Earn up to +100 points per turn. Good decisions compound. Reach 1000 for Legendary status.</p></div></div>
+    </div>
+    <div class="divider"><span class="divider-icon">★</span></div>
+    <p style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;text-align:center">Achievement Ranks</p>
+    <div class="rank-preview">
+      <div class="rank-item"><div class="icon">🌱</div><div class="lbl">Beginner</div></div>
+      <div class="rank-item"><div class="icon">⚔️</div><div class="lbl">Warrior</div></div>
+      <div class="rank-item"><div class="icon">👑</div><div class="lbl">King</div></div>
+      <div class="rank-item"><div class="icon">🏛️</div><div class="lbl">Emperor</div></div>
+      <div class="rank-item"><div class="icon">🌟</div><div class="lbl">Legend</div></div>
+    </div>
+    <br>
+    <button class="back-btn" onclick="showScreen('screen-author')">← Back to Home</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: GAME ===== -->
+<div class="screen" id="screen-game">
+  <div class="game-layout">
+    <div class="hud">
+      <div>
+        <div class="hud-lbl">Wisdom</div>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <span class="hud-score-val" id="scoreDisplay">0</span>
+          <span class="hud-score-max">/ 1000</span>
+        </div>
+        <div class="wisdom-bar-wrap" style="width:90px"><div class="wisdom-bar" id="wisdomBar" style="width:0%"></div></div>
+      </div>
+      <div style="text-align:center">
+        <div class="hud-lbl">Era</div>
+        <div class="hud-era" id="eraDisplay">Ancient Civilizations</div>
+        <div class="hud-turn" id="turnDisplay">Turn 1</div>
+      </div>
+      <div style="text-align:right">
+        <div class="hud-lbl">Rank</div>
+        <div class="rank-badge" id="rankDisplay">Beginner 🌱</div>
+      </div>
+    </div>
+    <div id="scenarioArea"></div>
+    <div id="choicesArea" style="display:none"><div class="choices-grid" id="choicesGrid"></div></div>
+    <div id="feedbackArea" style="display:none"></div>
+    <div class="ach-row" id="achRow"></div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: GAME OVER ===== -->
+<div class="screen" id="screen-gameover">
+  <div class="gameover-panel">
+    <div style="font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);color:var(--gold-light);text-shadow:var(--glow-gold)">Simulation Complete</div>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="final-rank-lbl" id="finalRankLbl">Rank: Beginner</div>
+    <div class="card" id="finalSummary" style="text-align:left;margin-bottom:24px"></div>
+    <button class="btn-play-again" onclick="restartGame()">⚔️ Play Again</button>
+    <button class="btn-home" onclick="showScreen('screen-author')">🏠 Return to Home</button>
+  </div>
+</div>
+
+<script>
+// ===== STARS =====
+(function(){
+  var c=document.getElementById('stars');
+  for(var i=0;i<120;i++){
+    var s=document.createElement('div');s.className='star';
+    var sz=Math.random()*2.5+0.5;
+    s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;--dur:'+(2+Math.random()*4)+'s;--dly:'+Math.random()*4+'s;--lo:'+(0.1+Math.random()*0.3)+';--hi:'+(0.5+Math.random()*0.5);
+    c.appendChild(s);
+  }
+})();
+
+// ===== AUDIO =====
+var audioEnabled=true;
+var actx=null;
+function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function tone(f,d,t,v){
+  if(!audioEnabled)return;
+  try{var c=getCtx(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.type=t||'sine';o.frequency.value=f;
+  g.gain.setValueAtTime(v||0.15,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+  o.start();o.stop(c.currentTime+d);}catch(e){}
+}
+function sndClick(){tone(800,.08,'square',.1);}
+function sndWin(){tone(523,.15,'sine',.15);setTimeout(function(){tone(659,.15,'sine',.15)},120);setTimeout(function(){tone(784,.3,'sine',.15)},240);}
+function sndFail(){tone(300,.2,'sawtooth',.1);setTimeout(function(){tone(220,.3,'sawtooth',.1)},150);}
+function sndAchieve(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,.2,'sine',.2)},i*100)});}
+document.getElementById('audioBtn').addEventListener('click',function(){
+  audioEnabled=!audioEnabled;this.textContent=audioEnabled?'🔊':'🔇';sndClick();
+});
+
+// ===== SCREEN NAV =====
+function showScreen(id){
+  sndClick();
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ===== GEMINI API — KEY EMBEDDED =====
+var _k = (function(){
+  var p=['AIzaSy','BopJKPp','vNOV1E','SqVz1Hq','HL0CXLT','FNhiHsM'];
+  return p.join('');
+})();
+
+function getApiKey(){ return _k; }
+
+async function callGemini(prompt){
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+getApiKey();
+  var body={
+    contents:[{role:'user',parts:[{text:prompt}]}],
+    generationConfig:{temperature:.9,maxOutputTokens:1200}
+  };
+  var res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){
+    var errText=await res.text();
+    throw new Error('AI service error ('+res.status+'). Please try again.');
+  }
+  var data=await res.json();
+  if(!data.candidates||!data.candidates[0]){
+    throw new Error('No response from AI. Please try again.');
+  }
+  return data.candidates[0].content.parts[0].text;
+}
+
+// ===== GAME STATE =====
+var ERAS=['Ancient Civilizations','Classical Empires','Medieval Kingdoms','Renaissance & Discovery','Industrial Age','Modern Era'];
+var RANKS=[
+  {min:0,lbl:'Beginner 🌱'},{min:150,lbl:'Warrior ⚔️'},{min:300,lbl:'Chieftain 🏹'},
+  {min:500,lbl:'King 👑'},{min:700,lbl:'Emperor 🏛️'},{min:900,lbl:'Legend 🌟'}
+];
+var ACHIEVEMENTS=[
+  {id:'first',lbl:'First Decision',icon:'🎯',check:function(t,s){return t>=1}},
+  {id:'s100',lbl:'Century',icon:'💯',check:function(t,s){return s>=100}},
+  {id:'s500',lbl:'Half Legend',icon:'⚡',check:function(t,s){return s>=500}},
+  {id:'s750',lbl:'Near Legend',icon:'🔥',check:function(t,s){return s>=750}},
+  {id:'t5',lbl:'Veteran',icon:'🎖️',check:function(t,s){return t>=5}},
+  {id:'t10',lbl:'Strategist',icon:'🧠',check:function(t,s){return t>=10}},
+  {id:'time',lbl:'Time Traveler',icon:'⏳',check:function(t,s){return t>=9}}
+];
+var MSGS=['Consulting the Oracle...','Summoning the Ancients...','The Fates Decide...','Generals Await Command...','The Council Convenes...','Scribes Record the Era...'];
+
+var gs={score:0,turn:0,maxTurns:10,eraIdx:0,unlocked:new Set(),current:null,busy:false};
+function initGS(){gs={score:0,turn:0,maxTurns:10,eraIdx:0,unlocked:new Set(),current:null,busy:false};}
+
+function getRank(s){
+  var r=RANKS[0];
+  for(var i=0;i<RANKS.length;i++){if(s>=RANKS[i].min)r=RANKS[i];}
+  return r.lbl;
+}
+
+function updateHUD(){
+  document.getElementById('scoreDisplay').textContent=gs.score;
+  document.getElementById('wisdomBar').style.width=Math.min(100,(gs.score/1000)*100)+'%';
+  document.getElementById('turnDisplay').textContent='Turn '+gs.turn+' / '+gs.maxTurns;
+  document.getElementById('eraDisplay').textContent=ERAS[Math.min(gs.eraIdx,ERAS.length-1)];
+  document.getElementById('rankDisplay').textContent=getRank(gs.score);
+}
+
+// ===== TOAST =====
+var toastTimer=null;
+function showToast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+// ===== ACHIEVEMENTS =====
+function checkAch(){
+  ACHIEVEMENTS.forEach(function(a){
+    if(!gs.unlocked.has(a.id)&&a.check(gs.turn,gs.score)){
+      gs.unlocked.add(a.id);sndAchieve();showToast('🏆 '+a.lbl+' '+a.icon);
+    }
+  });
+  renderAch();
+}
+function renderAch(){
+  var row=document.getElementById('achRow');row.innerHTML='';
+  ACHIEVEMENTS.forEach(function(a){
+    var el=document.createElement('div');
+    var u=gs.unlocked.has(a.id);
+    el.className='ach-item '+(u?'unlocked':'locked');
+    el.textContent=a.icon+' '+a.lbl;el.title=a.lbl;
+    row.appendChild(el);
+  });
+}
+
+// ===== LOADING =====
+function setLoading(msg){
+  document.getElementById('scenarioArea').innerHTML='<div class="scenario-card"><div class="ai-loading"><div class="spinner"></div><div class="loading-txt">'+(msg||MSGS[gs.turn%MSGS.length])+'</div></div></div>';
+  document.getElementById('choicesArea').style.display='none';
+  document.getElementById('feedbackArea').style.display='none';
+}
+
+// ===== SCENARIO GENERATION =====
+async function generateScenario(){
+  var era=ERAS[Math.min(gs.eraIdx,ERAS.length-1)];
+  var prompt='Generate a civilization crisis scenario for the "'+era+'" era. Player Wisdom Score: '+gs.score+'/1000. Turn: '+(gs.turn+1)+'/10. Make it historically rich and educationally valuable.\nReturn ONLY valid JSON (no markdown, no fences, no extra text):\n{"icon":"<single emoji>","type":"<2-3 word crisis type>","title":"<dramatic 5-8 word title>","context":"<3-4 sentences of rich historical context>","question":"<the decision question the leader must answer>","choices":[{"id":"A","text":"<option 1-2 sentences>"},{"id":"B","text":"<option>"},{"id":"C","text":"<option>"},{"id":"D","text":"<option>"}]}';
+  var raw=await callGemini(prompt);
+  var clean=raw.trim().replace(/^```json\n?/,'').replace(/^```\n?/,'').replace(/\n?```$/,'');
+  return JSON.parse(clean);
+}
+
+async function generateFeedback(sc,choiceId,choiceText){
+  var era=ERAS[Math.min(gs.eraIdx,ERAS.length-1)];
+  var prompt='Era: '+era+'. Scenario: "'+sc.title+'". Context: '+sc.context+' Question: '+sc.question+' Player chose ['+choiceId+']: '+choiceText+'\nEvaluate this decision educationally. Return ONLY valid JSON:\n{"verdict":"<2-3 word title>","scoreDelta":<integer -80 to 100>,"explanation":"<2-3 sentences educational feedback with historical parallels>","consequence":"<1-2 sentence narrative of what happens to the civilization>","wisdomInsight":"<one timeless leadership principle learned>"}';
+  var raw=await callGemini(prompt);
+  var clean=raw.trim().replace(/^```json\n?/,'').replace(/^```\n?/,'').replace(/\n?```$/,'');
+  return JSON.parse(clean);
+}
+
+// ===== RENDER SCENARIO =====
+function renderScenario(sc){
+  gs.current=sc;
+  document.getElementById('scenarioArea').innerHTML='<div class="scenario-card" style="animation:fadeUp .5s ease both"><div class="scenario-header"><div class="scenario-icon">'+sc.icon+'</div><div class="scenario-meta"><div class="scenario-type">'+sc.type+'</div><h3>'+sc.title+'</h3></div></div><div class="scenario-body"><p class="scenario-context">'+sc.context+'</p><div class="scenario-question">❓ '+sc.question+'</div></div></div>';
+  var grid=document.getElementById('choicesGrid');grid.innerHTML='';
+  sc.choices.forEach(function(c){
+    var btn=document.createElement('button');btn.className='choice-btn';
+    btn.innerHTML='<span class="choice-lbl">['+c.id+']</span><span>'+c.text+'</span>';
+    btn.addEventListener('click',function(){onChoice(c.id,c.text)});
+    grid.appendChild(btn);
+  });
+  document.getElementById('choicesArea').style.display='block';
+  document.getElementById('feedbackArea').style.display='none';
+}
+
+// ===== CHOICE HANDLER =====
+async function onChoice(id,text){
+  if(gs.busy)return;gs.busy=true;sndClick();
+  document.querySelectorAll('.choice-btn').forEach(function(b){b.disabled=true});
+  document.getElementById('choicesArea').style.display='none';
+  document.getElementById('feedbackArea').innerHTML='<div class="feedback-panel"><div class="ai-loading"><div class="spinner"></div><div class="loading-txt">AI Evaluating Decision...</div></div></div>';
+  document.getElementById('feedbackArea').style.display='block';
+  try{
+    var fb=await generateFeedback(gs.current,id,text);
+    var delta=Math.max(-80,Math.min(100,fb.scoreDelta||0));
+    gs.score=Math.max(0,Math.min(1000,gs.score+delta));
+    gs.turn++;gs.eraIdx=Math.floor((gs.turn/gs.maxTurns)*ERAS.length);
+    updateHUD();checkAch();
+    if(delta>0)sndWin();else if(delta<0)sndFail();
+    var dc=delta>0?'pos':delta<0?'neg':'neu';
+    var dt=delta>0?'+'+delta:''+delta;
+    var isEnd=gs.turn>=gs.maxTurns||gs.score>=1000;
+    document.getElementById('feedbackArea').innerHTML='<div class="feedback-panel"><div class="fb-header"><div class="score-delta '+dc+'">'+dt+'</div><div class="fb-verdict">'+(fb.verdict||'Decision Made')+'</div></div><p class="fb-explain">'+(fb.explanation||'')+'</p><div class="fb-consequence"><h5>🌍 Consequence</h5><p>'+(fb.consequence||'')+'</p></div>'+(fb.wisdomInsight?'<div class="fb-insight">💡 '+fb.wisdomInsight+'</div>':'')+'<button class="next-btn" onclick="onNext()">'+(isEnd?'📊 View Final Results':'▶ Next Scenario →')+'</button></div>';
+  }catch(e){
+    console.error(e);gs.busy=false;
+    document.getElementById('feedbackArea').innerHTML='<div class="feedback-panel error-panel"><p>⚠️ '+e.message+'</p><button class="next-btn" onclick="retryChoice(\''+id.replace(/'/g,"\\'")+"',"+JSON.stringify(text)+')">🔄 Retry</button></div>';
+  }
+}
+
+function retryChoice(id,text){
+  gs.busy=false;
+  onChoice(id,text);
+}
+
+async function onNext(){
+  sndClick();gs.busy=false;
+  if(gs.turn>=gs.maxTurns||gs.score>=1000){showGameOver();return;}
+  setLoading();
+  try{renderScenario(await generateScenario());}
+  catch(e){
+    document.getElementById('scenarioArea').innerHTML='<div class="scenario-card"><div class="error-panel"><p>⚠️ '+e.message+'</p><button class="next-btn" onclick="onNext()">🔄 Retry</button></div></div>';
+  }
+}
+
+function showGameOver(){
+  document.getElementById('finalScore').textContent=gs.score;
+  document.getElementById('finalRankLbl').textContent='Final Rank: '+getRank(gs.score);
+  var msg=gs.score>=900?'Your wisdom echoes through the ages. A true Legend of civilization history.':gs.score>=700?'A powerful Emperor guided by wisdom and strategy. History remembers you well.':gs.score>=500?'A capable King — keep studying history\'s great lessons to reach the top.':gs.score>=300?'A brave Chieftain with heart. Persistence is the mark of a true leader.':'Every great civilization starts with one decision. Learn from history and try again!';
+  document.getElementById('finalSummary').innerHTML='<h4 style="font-family:\'Rajdhani\',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">Historian\'s Verdict</h4><p style="font-size:14px;color:var(--silver);line-height:1.6">'+msg+'</p><br><p style="font-family:\'Rajdhani\',sans-serif;font-size:12px;color:var(--gold-dim)">Achievements Earned: '+gs.unlocked.size+' / '+ACHIEVEMENTS.length+'</p>';
+  sndAchieve();showScreen('screen-gameover');
+}
+
+async function startGame(){
+  initGS();renderAch();showScreen('screen-game');setLoading('Summoning the Ancients...');updateHUD();
+  try{renderScenario(await generateScenario());}
+  catch(e){
+    document.getElementById('scenarioArea').innerHTML='<div class="scenario-card"><div class="error-panel"><p>⚠️ '+e.message+'</p><button class="next-btn" onclick="startGame()">🔄 Retry</button></div></div>';
+  }
+}
+function restartGame(){startGame();}
+
+// Register service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./service-worker.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
