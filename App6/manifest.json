@@ -1,0 +1,29 @@
+{
+  "name": "Habitat Hero – Who Lives Where?",
+  "short_name": "Habitat Hero",
+  "description": "An interactive educational game for learning animal and plant habitats. Perfect for EVS students!",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1f14",
+  "theme_color": "#1a3a2a",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "en",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231a3a2a'/><text y='130' x='96' font-size='120' text-anchor='middle'>🌍</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%231a3a2a'/><text y='360' x='256' font-size='320' text-anchor='middle'>🌍</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

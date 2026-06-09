@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a3a2a">
+<meta name="description" content="Habitat Hero - Learn animal habitats in a fun interactive game!">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Habitat Hero">
+<link rel="manifest" href="manifest.json">
+<title>Habitat Hero 🌍</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap');
+
+  :root {
+    --forest: #2d6a4f;
+    --forest-light: #40916c;
+    --ocean: #0077b6;
+    --ocean-light: #00b4d8;
+    --desert: #e9c46a;
+    --desert-dark: #c97d3a;
+    --polar: #90e0ef;
+    --polar-dark: #5aa7c9;
+    --water: #48cae4;
+    --grassland: #95d5b2;
+    --bg: #0d1f14;
+    --card: #162d1f;
+    --card2: #1e3a28;
+    --text: #f0faf4;
+    --muted: #7aad90;
+    --accent: #57cc99;
+    --gold: #ffd166;
+    --red: #ef476f;
+    --radius: 18px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    background: radial-gradient(ellipse at 30% 40%, #1a4a2e 0%, #0d1f14 70%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px;
+    transition: opacity 0.6s ease;
+  }
+  #splash .globe {
+    font-size: 90px;
+    animation: spin 3s linear infinite;
+  }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  #splash h1 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  #splash p { color: var(--muted); font-size: 1.1rem; }
+  #splash .bar {
+    width: 220px; height: 6px;
+    background: #1e3a28;
+    border-radius: 99px; overflow: hidden;
+    margin-top: 10px;
+  }
+  #splash .bar-fill {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 99px;
+    animation: load 1.8s ease forwards 0.3s;
+  }
+  @keyframes load { to { width: 100%; } }
+  #splash.hidden { opacity: 0; pointer-events: none; }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,31,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1e3a28;
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header-stats {
+    display: flex; gap: 12px; align-items: center;
+  }
+  .stat-pill {
+    background: var(--card2);
+    border: 1px solid #2a4a35;
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .stat-pill span { color: var(--gold); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 20px 16px 100px; max-width: 600px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  /* ── HOME ── */
+  .hero-card {
+    background: linear-gradient(135deg, #162d1f 0%, #1a3f2b 100%);
+    border: 1px solid #2a5040;
+    border-radius: 24px;
+    padding: 28px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(87,204,153,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-emoji { font-size: 64px; display: block; margin-bottom: 12px; }
+  .hero-card h2 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .hero-card p { color: var(--muted); line-height: 1.6; }
+
+  .mode-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; margin-bottom: 20px;
+  }
+  .mode-card {
+    background: var(--card);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+  }
+  .mode-card:hover, .mode-card:active { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .mode-card.selected { border-color: var(--accent); background: #1a3a28; }
+  .mode-card .m-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+  .mode-card .m-name { font-weight: 800; font-size: 0.95rem; }
+  .mode-card .m-desc { color: var(--muted); font-size: 0.78rem; margin-top: 4px; }
+  .mode-card .m-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--gold);
+    color: #1a1a1a;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  .btn {
+    display: block; width: 100%;
+    padding: 16px;
+    border: none; border-radius: var(--radius);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #38b077);
+    color: #0d1f14;
+    box-shadow: 0 4px 20px rgba(87,204,153,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(87,204,153,0.5); }
+  .btn-secondary {
+    background: var(--card2);
+    color: var(--text);
+    border: 1px solid #2a4a35;
+    margin-top: 10px;
+  }
+
+  /* ── GAME ── */
+  .progress-bar {
+    height: 6px;
+    background: var(--card2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .game-meta {
+    display: flex; justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .game-meta strong { color: var(--text); }
+
+  .animal-card {
+    background: var(--card);
+    border: 2px solid #2a4a35;
+    border-radius: 24px;
+    padding: 32px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    animation: cardIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform: scale(0.88) translateY(20px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .animal-emoji { font-size: 80px; display: block; margin-bottom: 12px; line-height: 1; }
+  .animal-name {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 2rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .animal-type-badge {
+    display: inline-block;
+    background: var(--card2);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .question-text {
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .option-btn {
+    background: var(--card);
+    border: 2px solid #2a4a35;
+    border-radius: var(--radius);
+    padding: 16px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: #1a3a28; }
+  .option-btn .opt-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+  .option-btn .opt-name { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+  .option-btn.correct {
+    background: rgba(87,204,153,0.2);
+    border-color: var(--accent);
+    animation: pulse-green 0.4s;
+  }
+  .option-btn.wrong {
+    background: rgba(239,71,111,0.2);
+    border-color: var(--red);
+    animation: shake 0.4s;
+  }
+  @keyframes pulse-green {
+    0%,100%{transform:scale(1)} 50%{transform:scale(1.06)}
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
+  }
+
+  /* feedback overlay */
+  .feedback-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0 16px 40px;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .feedback-overlay.hidden { opacity: 0; }
+  .feedback-toast {
+    background: var(--card);
+    border: 2px solid #2a4a35;
+    border-radius: 20px;
+    padding: 16px 24px;
+    text-align: center;
+    max-width: 360px;
+    width: 100%;
+    pointer-events: all;
+    animation: toastUp 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+  @keyframes toastUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .feedback-toast.correct-toast { border-color: var(--accent); }
+  .feedback-toast.wrong-toast   { border-color: var(--red); }
+  .feedback-big { font-size: 2rem; }
+  .feedback-msg { font-weight: 800; font-size: 1.1rem; margin: 4px 0; }
+  .feedback-fact { font-size: 0.85rem; color: var(--muted); }
+  .feedback-next {
+    margin-top: 10px;
+    padding: 10px 24px;
+    background: var(--accent);
+    color: #0d1f14;
+    border: none;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  /* ── RESULTS ── */
+  .result-card {
+    background: var(--card);
+    border: 2px solid #2a4a35;
+    border-radius: 24px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .result-trophy { font-size: 72px; animation: bounce 1s ease infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-12px)} }
+  .result-title {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 2rem;
+    margin: 12px 0 6px;
+  }
+  .result-score {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .result-total { color: var(--muted); font-size: 1rem; margin-top: 4px; }
+  .result-stars {
+    font-size: 2rem;
+    margin: 16px 0;
+    letter-spacing: 6px;
+  }
+  .result-message { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+
+  .stats-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-bottom: 20px;
+  }
+  .stats-box {
+    background: var(--card);
+    border: 1px solid #2a4a35;
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stats-box .s-num { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+  .stats-box .s-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+
+  /* ── LEADERBOARD ── */
+  .lb-row {
+    background: var(--card);
+    border: 1px solid #2a4a35;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 10px;
+  }
+  .lb-rank {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.4rem;
+    width: 36px; text-align: center;
+  }
+  .lb-info { flex: 1; }
+  .lb-name { font-weight: 800; }
+  .lb-detail { font-size: 0.8rem; color: var(--muted); }
+  .lb-score { font-weight: 900; color: var(--gold); font-size: 1.1rem; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(13,31,20,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #1e3a28;
+    display: flex;
+    z-index: 100;
+  }
+  .nav-btn {
+    flex: 1; border: none; background: transparent;
+    padding: 10px 0 14px;
+    cursor: pointer; color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    transition: color 0.2s;
+  }
+  .nav-btn .nav-icon { font-size: 22px; display: block; }
+  .nav-btn .nav-label { font-size: 0.7rem; font-weight: 700; display: block; margin-top: 2px; }
+  .nav-btn.active { color: var(--accent); }
+
+  /* section titles */
+  .section-title {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* habitat chips */
+  .habitat-filter {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding-bottom: 8px; margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+  .habitat-filter::-webkit-scrollbar { display: none; }
+  .hab-chip {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background: var(--card);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .hab-chip.active { border-color: var(--accent); background: #1a3a28; color: var(--accent); }
+
+  /* streak badge */
+  .streak-banner {
+    background: linear-gradient(135deg, #3d2000, #5a3100);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .streak-banner .s-num {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 2rem;
+    color: var(--gold);
+  }
+  .streak-banner .s-text { font-size: 0.85rem; color: #e0c060; line-height: 1.4; }
+  .streak-banner .s-icon { font-size: 2rem; }
+
+  /* ── responsive ── */
+  @media(min-width:500px){
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <span class="globe">🌍</span>
+  <h1>Habitat Hero</h1>
+  <p>Who Lives Where?</p>
+  <div class="bar"><div class="bar-fill"></div></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🌿 Habitat Hero</div>
+  <div class="header-stats">
+    <div class="stat-pill">🔥 <span id="header-streak">0</span></div>
+    <div class="stat-pill">⭐ <span id="header-points">0</span></div>
+  </div>
+</header>
+
+<!-- HOME SCREEN -->
+<div id="screen-home" class="screen active">
+  <div class="hero-card">
+    <span class="hero-emoji">🦁</span>
+    <h2>Who Lives Where?</h2>
+    <p>Match animals & plants to their natural habitats. Learn ecosystems through play!</p>
+  </div>
+
+  <div id="streak-banner-home" style="display:none;" class="streak-banner">
+    <span class="s-icon">🔥</span>
+    <div>
+      <div class="s-num" id="streak-num">0</div>
+      <div class="s-text">Day streak!<br>Keep going, Habitat Hero!</div>
+    </div>
+  </div>
+
+  <h3 class="section-title">🎮 Choose Mode</h3>
+  <div class="mode-grid">
+    <div class="mode-card selected" data-mode="quick" onclick="selectMode(this)">
+      <span class="m-icon">⚡</span>
+      <div class="m-name">Quick Play</div>
+      <div class="m-desc">10 questions</div>
+    </div>
+    <div class="mode-card" data-mode="standard" onclick="selectMode(this)">
+      <span class="m-icon">🎯</span>
+      <div class="m-name">Standard</div>
+      <div class="m-desc">25 questions</div>
+    </div>
+    <div class="mode-card" data-mode="marathon" onclick="selectMode(this)">
+      <span class="m-icon">🏆</span>
+      <div class="m-name">Marathon</div>
+      <div class="m-desc">50 questions</div>
+      <div class="m-badge">HARD</div>
+    </div>
+    <div class="mode-card" data-mode="survival" onclick="selectMode(this)">
+      <span class="m-icon">💀</span>
+      <div class="m-name">Survival</div>
+      <div class="m-desc">No wrong answers!</div>
+      <div class="m-badge">🔥</div>
+    </div>
+  </div>
+
+  <h3 class="section-title">🌍 Focus Habitat</h3>
+  <div class="habitat-filter" id="home-filter">
+    <div class="hab-chip active" data-hab="all" onclick="selectHabitat(this)">All 🌐</div>
+    <div class="hab-chip" data-hab="Forest" onclick="selectHabitat(this)">Forest 🌲</div>
+    <div class="hab-chip" data-hab="Grassland" onclick="selectHabitat(this)">Grassland 🌾</div>
+    <div class="hab-chip" data-hab="Ocean" onclick="selectHabitat(this)">Ocean 🌊</div>
+    <div class="hab-chip" data-hab="Water" onclick="selectHabitat(this)">Water 💧</div>
+    <div class="hab-chip" data-hab="Desert" onclick="selectHabitat(this)">Desert 🌵</div>
+    <div class="hab-chip" data-hab="Polar" onclick="selectHabitat(this)">Polar ❄️</div>
+  </div>
+
+  <button class="btn btn-primary" onclick="startGame()">🚀 Start Game</button>
+  <button class="btn btn-secondary" onclick="showScreen('leaderboard')">🏅 Leaderboard</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="game-meta">
+    <span>Question <strong id="q-current">1</strong> / <strong id="q-total">10</strong></span>
+    <span>Score <strong id="g-score">0</strong></span>
+    <span>❤️ <strong id="g-lives">3</strong></span>
+  </div>
+  <div class="animal-card" id="animal-card">
+    <span class="animal-emoji" id="a-emoji">🦁</span>
+    <div class="animal-name" id="a-name">Lion</div>
+    <span class="animal-type-badge" id="a-type">Animal</span>
+  </div>
+  <p class="question-text">🏡 Where does this creature live?</p>
+  <div class="options-grid" id="options-grid"></div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="screen-result" class="screen">
+  <div class="result-card">
+    <div class="result-trophy" id="r-trophy">🏆</div>
+    <div class="result-title" id="r-title">Amazing!</div>
+    <div class="result-score" id="r-score">0</div>
+    <div class="result-total" id="r-total">out of 10 correct</div>
+    <div class="result-stars" id="r-stars">⭐⭐⭐</div>
+    <div class="result-message" id="r-msg"></div>
+  </div>
+  <div class="stats-row">
+    <div class="stats-box">
+      <div class="s-num" id="rs-correct">0</div>
+      <div class="s-label">✅ Correct</div>
+    </div>
+    <div class="stats-box">
+      <div class="s-num" id="rs-wrong">0</div>
+      <div class="s-label">❌ Wrong</div>
+    </div>
+    <div class="stats-box">
+      <div class="s-num" id="rs-acc">0%</div>
+      <div class="s-label">🎯 Accuracy</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="startGame()">🔄 Play Again</button>
+  <button class="btn btn-secondary" onclick="showScreen('home')">🏠 Home</button>
+</div>
+
+<!-- LEADERBOARD SCREEN -->
+<div id="screen-leaderboard" class="screen">
+  <h2 class="section-title">🏅 Hall of Fame</h2>
+  <div id="lb-list"></div>
+  <button class="btn btn-secondary" onclick="showScreen('home')">← Back</button>
+</div>
+
+<!-- LEARN SCREEN -->
+<div id="screen-learn" class="screen">
+  <h2 class="section-title">📚 Habitat Guide</h2>
+  <div class="habitat-filter" id="learn-filter">
+    <div class="hab-chip active" data-hab="all" onclick="filterLearn(this)">All 🌐</div>
+    <div class="hab-chip" data-hab="Forest" onclick="filterLearn(this)">Forest 🌲</div>
+    <div class="hab-chip" data-hab="Grassland" onclick="filterLearn(this)">Grassland 🌾</div>
+    <div class="hab-chip" data-hab="Ocean" onclick="filterLearn(this)">Ocean 🌊</div>
+    <div class="hab-chip" data-hab="Water" onclick="filterLearn(this)">Water 💧</div>
+    <div class="hab-chip" data-hab="Desert" onclick="filterLearn(this)">Desert 🌵</div>
+    <div class="hab-chip" data-hab="Polar" onclick="filterLearn(this)">Polar ❄️</div>
+  </div>
+  <div id="learn-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+</div>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="feedback-overlay hidden" id="feedback-overlay">
+  <div class="feedback-toast" id="feedback-toast">
+    <div class="feedback-big" id="fb-emoji">✅</div>
+    <div class="feedback-msg" id="fb-msg">Correct!</div>
+    <div class="feedback-fact" id="fb-fact"></div>
+    <button class="feedback-next" onclick="nextQuestion()">Next →</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+  </button>
+  <button class="nav-btn" id="nav-game" onclick="startGame()">
+    <span class="nav-icon">🎮</span><span class="nav-label">Play</span>
+  </button>
+  <button class="nav-btn" id="nav-learn" onclick="showScreen('learn')">
+    <span class="nav-icon">📚</span><span class="nav-label">Learn</span>
+  </button>
+  <button class="nav-btn" id="nav-leaderboard" onclick="showScreen('leaderboard')">
+    <span class="nav-icon">🏅</span><span class="nav-label">Scores</span>
+  </button>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATASET
+// ═══════════════════════════════════════════════
+const ALL_QUESTIONS = [
+  // FOREST
+  {name:"Lion",emoji:"🦁",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Lions live in forests and open grasslands of Africa."},
+  {name:"Tiger",emoji:"🐯",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Tigers are found in dense forests across Asia."},
+  {name:"Elephant",emoji:"🐘",type:"Animal",habitat:"Forest",options:["Forest","Ocean","Desert","Polar"],fact:"Elephants roam forests and savannas across Africa and Asia."},
+  {name:"Deer",emoji:"🦌",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Deer are common in temperate forests worldwide."},
+  {name:"Monkey",emoji:"🐒",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Monkeys thrive in tropical and subtropical forests."},
+  {name:"Leopard",emoji:"🐆",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Leopards are agile tree climbers found in African and Asian forests."},
+  {name:"Bear",emoji:"🐻",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Brown bears inhabit large forests in North America, Europe, and Asia."},
+  {name:"Fox",emoji:"🦊",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Foxes are adaptable animals living in forests and woodlands."},
+  {name:"Wolf",emoji:"🐺",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Wolves are pack hunters living in forests and tundras."},
+  {name:"Rabbit",emoji:"🐰",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Wild rabbits live in forests, meadows, and grasslands."},
+  {name:"Squirrel",emoji:"🐿️",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Squirrels are expert tree climbers found in forests globally."},
+  {name:"Owl",emoji:"🦉",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Most owls nest in hollow trees in dense forests."},
+  {name:"Snake",emoji:"🐍",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Many snake species live on the forest floor."},
+  {name:"Parrot",emoji:"🦜",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Parrots are tropical birds that nest in forest trees."},
+  {name:"Gorilla",emoji:"🦍",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Gorillas live in the tropical rainforests of Africa."},
+  {name:"Chimpanzee",emoji:"🐵",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Chimpanzees live in tropical forests and woodlands."},
+  {name:"Wild Boar",emoji:"🐗",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Wild boars live in forests and scrublands."},
+  {name:"Panda",emoji:"🐼",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Giant pandas live in bamboo forests of central China."},
+  {name:"Woodpecker",emoji:"🐦",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Woodpeckers drill into tree bark in forests to find insects."},
+  {name:"Peacock",emoji:"🦚",type:"Animal",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Peacocks live in forest edges and open woodland areas."},
+  // GRASSLAND
+  {name:"Zebra",emoji:"🦓",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Polar","Forest"],fact:"Zebras are iconic animals of the African savanna grasslands."},
+  {name:"Giraffe",emoji:"🦒",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Desert","Polar"],fact:"Giraffes browse on treetops in African savannas."},
+  {name:"Buffalo",emoji:"🦬",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Desert","Polar"],fact:"Buffalo graze in large herds on open grasslands."},
+  {name:"Cheetah",emoji:"🐆",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Desert","Polar"],fact:"Cheetahs are the fastest land animals, sprinting across savannas."},
+  {name:"Hyena",emoji:"🐕",type:"Animal",habitat:"Grassland",options:["Grassland","Forest","Desert","Polar"],fact:"Hyenas are scavengers of the African savanna."},
+  {name:"Ostrich",emoji:"🦃",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Forest","Polar"],fact:"Ostriches are the world's largest birds, living on open plains."},
+  {name:"Kangaroo",emoji:"🦘",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Desert","Polar"],fact:"Kangaroos live in Australian grasslands and open woodlands."},
+  {name:"Rhino",emoji:"🦏",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Polar","Desert"],fact:"Rhinos graze in African and Asian grasslands and savannas."},
+  {name:"Horse",emoji:"🐴",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Desert","Polar"],fact:"Wild horses roam open plains and grasslands."},
+  {name:"Bison",emoji:"🦬",type:"Animal",habitat:"Grassland",options:["Grassland","Ocean","Forest","Polar"],fact:"Bison once roamed the vast North American prairies in millions."},
+  // OCEAN
+  {name:"Fish",emoji:"🐟",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Fish are found in virtually every ocean and sea."},
+  {name:"Dolphin",emoji:"🐬",type:"Animal",habitat:"Ocean",options:["Ocean","Desert","Forest","Polar"],fact:"Dolphins are highly intelligent marine mammals."},
+  {name:"Shark",emoji:"🦈",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Sharks are apex predators of the world's oceans."},
+  {name:"Whale",emoji:"🐋",type:"Animal",habitat:"Ocean",options:["Ocean","Desert","Forest","Polar"],fact:"Whales are the largest animals on Earth, living in all oceans."},
+  {name:"Octopus",emoji:"🐙",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Octopuses are intelligent invertebrates found in ocean depths."},
+  {name:"Sea Turtle",emoji:"🐢",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Sea turtles spend most of their lives in the open ocean."},
+  {name:"Jellyfish",emoji:"🪼",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Jellyfish float in ocean currents worldwide."},
+  {name:"Crab",emoji:"🦀",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Crabs live along ocean floors and rocky shores."},
+  {name:"Starfish",emoji:"⭐",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Starfish are found on the ocean floor around coral reefs."},
+  {name:"Seahorse",emoji:"🐠",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Seahorses live in shallow ocean waters and coral reefs."},
+  {name:"Clownfish",emoji:"🐡",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Clownfish live among sea anemones in tropical ocean reefs."},
+  {name:"Lobster",emoji:"🦞",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Lobsters live on the rocky ocean floor."},
+  {name:"Squid",emoji:"🦑",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Squids are found in all the world's oceans."},
+  {name:"Manta Ray",emoji:"🐟",type:"Animal",habitat:"Ocean",options:["Ocean","Forest","Desert","Polar"],fact:"Manta rays are large, graceful rays that swim in open oceans."},
+  // WATER (freshwater)
+  {name:"Frog",emoji:"🐸",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Frogs need both land and fresh water to survive."},
+  {name:"Crocodile",emoji:"🐊",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Crocodiles live near rivers, lakes, and wetlands in tropical areas."},
+  {name:"Hippo",emoji:"🦛",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Hippos spend most of the day submerged in rivers and lakes."},
+  {name:"Otter",emoji:"🦦",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Otters are playful mammals that live in rivers and streams."},
+  {name:"Swan",emoji:"🦢",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Swans glide gracefully on lakes, rivers, and ponds."},
+  {name:"Duck",emoji:"🦆",type:"Animal",habitat:"Water",options:["Water","Forest","Desert","Polar"],fact:"Ducks are found near ponds, rivers, and wetlands."},
+  {name:"Flamingo",emoji:"🦩",type:"Animal",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Flamingos wade in shallow lakes and lagoons."},
+  {name:"Turtle",emoji:"🐢",type:"Animal",habitat:"Water",options:["Water","Forest","Desert","Polar"],fact:"Freshwater turtles live in ponds, lakes, and slow rivers."},
+  // DESERT
+  {name:"Camel",emoji:"🐪",type:"Animal",habitat:"Desert",options:["Desert","Ocean","Forest","Polar"],fact:"Camels store fat in their humps to survive in the desert."},
+  {name:"Lizard",emoji:"🦎",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Desert lizards absorb heat from sun-warmed rocks."},
+  {name:"Scorpion",emoji:"🦂",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Scorpions are nocturnal hunters of the desert."},
+  {name:"Fennec Fox",emoji:"🦊",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"The Fennec fox's large ears help it stay cool in the desert."},
+  {name:"Desert Snake",emoji:"🐍",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Desert rattlesnakes are adapted to hunt in dry, sandy conditions."},
+  {name:"Roadrunner",emoji:"🐦",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Roadrunners are fast-running birds of North American deserts."},
+  {name:"Gecko",emoji:"🦎",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Geckos are small lizards that live in desert and rocky areas."},
+  {name:"Vulture",emoji:"🦅",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Vultures soar on hot air currents over deserts searching for food."},
+  {name:"Coyote",emoji:"🐕",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Coyotes are adaptable canines found in deserts and plains."},
+  {name:"Sandgrouse",emoji:"🐦",type:"Animal",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Sandgrouse are birds adapted to living in arid desert regions."},
+  // POLAR
+  {name:"Penguin",emoji:"🐧",type:"Animal",habitat:"Polar",options:["Polar","Desert","Forest","Ocean"],fact:"Penguins are flightless birds that live in Antarctica."},
+  {name:"Polar Bear",emoji:"🐻‍❄️",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Polar bears depend on sea ice and the Arctic Ocean for survival."},
+  {name:"Arctic Fox",emoji:"🦊",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"The Arctic fox's white coat camouflages it in polar snow."},
+  {name:"Walrus",emoji:"🦭",type:"Animal",habitat:"Polar",options:["Polar","Ocean","Forest","Desert"],fact:"Walruses live on Arctic sea ice and feed on the ocean floor."},
+  {name:"Snowy Owl",emoji:"🦉",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Snowy owls nest on the Arctic tundra and hunt lemmings."},
+  {name:"Arctic Hare",emoji:"🐰",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Arctic hares have thick white fur to survive polar winters."},
+  {name:"Reindeer",emoji:"🦌",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Reindeer live in Arctic and sub-Arctic regions worldwide."},
+  {name:"Seal",emoji:"🦭",type:"Animal",habitat:"Polar",options:["Polar","Ocean","Forest","Desert"],fact:"Seals rest on ice floes and hunt fish in polar waters."},
+  {name:"Narwhal",emoji:"🐟",type:"Animal",habitat:"Polar",options:["Polar","Ocean","Forest","Desert"],fact:"Narwhals are called 'unicorns of the sea' in the Arctic."},
+  {name:"Musk Ox",emoji:"🐂",type:"Animal",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Musk oxen are sturdy Arctic animals with thick woolly coats."},
+  // PLANTS
+  {name:"Cactus",emoji:"🌵",type:"Plant",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Cacti store water in their thick stems to survive droughts."},
+  {name:"Pine Tree",emoji:"🌲",type:"Plant",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Pine trees are conifers found in forests across the Northern Hemisphere."},
+  {name:"Lotus",emoji:"🪷",type:"Plant",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Lotus flowers grow in shallow ponds and are sacred in many cultures."},
+  {name:"Coconut Tree",emoji:"🌴",type:"Plant",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Coconut trees grow in tropical coastal forests near the sea."},
+  {name:"Bamboo",emoji:"🎋",type:"Plant",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Bamboo is the world's fastest-growing plant, found in tropical forests."},
+  {name:"Seaweed",emoji:"🌿",type:"Plant",habitat:"Ocean",options:["Ocean","Desert","Forest","Polar"],fact:"Seaweed (algae) is a crucial part of ocean ecosystems."},
+  {name:"Grass",emoji:"🌾",type:"Plant",habitat:"Grassland",options:["Grassland","Desert","Ocean","Polar"],fact:"Grasses are the dominant plants of the world's great plains."},
+  {name:"Date Palm",emoji:"🌴",type:"Plant",habitat:"Desert",options:["Desert","Forest","Ocean","Polar"],fact:"Date palms are iconic trees that grow in desert oases."},
+  {name:"Water Lily",emoji:"🌸",type:"Plant",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Water lilies float on the surface of ponds and slow streams."},
+  {name:"Oak Tree",emoji:"🌳",type:"Plant",habitat:"Forest",options:["Forest","Desert","Ocean","Polar"],fact:"Oak trees are a cornerstone species of temperate forests."},
+  {name:"Mangrove",emoji:"🌿",type:"Plant",habitat:"Water",options:["Water","Desert","Forest","Polar"],fact:"Mangroves grow in coastal saltwater and brackish water environments."},
+  {name:"Tundra Moss",emoji:"🌿",type:"Plant",habitat:"Polar",options:["Polar","Forest","Desert","Ocean"],fact:"Mosses are among the only plants that can survive on the polar tundra."},
+  {name:"Sunflower",emoji:"🌻",type:"Plant",habitat:"Grassland",options:["Grassland","Desert","Ocean","Polar"],fact:"Sunflowers thrive in open fields and grasslands."},
+  {name:"Algae",emoji:"🟢",type:"Plant",habitat:"Ocean",options:["Ocean","Desert","Forest","Polar"],fact:"Algae produce over 50% of Earth's oxygen and form marine food chains."},
+];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let state = {
+  mode: 'quick',
+  focusHabitat: 'all',
+  questions: [],
+  current: 0,
+  score: 0,
+  correct: 0,
+  wrong: 0,
+  lives: 3,
+  answered: false,
+  totalPoints: 0,
+  streak: 0,
+  highScore: 0,
+};
+
+const MODES = {
+  quick: { count: 10, lives: 3 },
+  standard: { count: 25, lives: 5 },
+  marathon: { count: 50, lives: 3 },
+  survival: { count: 20, lives: 1 },
+};
+
+const HABITAT_ICONS = {
+  Forest:'🌲', Grassland:'🌾', Ocean:'🌊', Water:'💧', Desert:'🌵', Polar:'❄️'
+};
+
+// ═══════════════════════════════════════════════
+//  LOCALSTORAGE
+// ═══════════════════════════════════════════════
+function saveData() {
+  localStorage.setItem('hh_points', state.totalPoints);
+  localStorage.setItem('hh_streak', state.streak);
+  localStorage.setItem('hh_high', state.highScore);
+}
+
+function loadData() {
+  state.totalPoints = parseInt(localStorage.getItem('hh_points') || '0');
+  state.streak      = parseInt(localStorage.getItem('hh_streak') || '0');
+  state.highScore   = parseInt(localStorage.getItem('hh_high') || '0');
+}
+
+function saveScore(score, total, mode) {
+  let scores = JSON.parse(localStorage.getItem('hh_scores') || '[]');
+  scores.push({ score, total, mode, pct: Math.round(score/total*100), date: new Date().toLocaleDateString() });
+  scores.sort((a,b)=>b.pct-a.pct);
+  scores = scores.slice(0, 20);
+  localStorage.setItem('hh_scores', JSON.stringify(scores));
+}
+
+// ═══════════════════════════════════════════════
+//  SCREENS
+// ═══════════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  const nb = document.getElementById('nav-'+name);
+  if (nb) nb.classList.add('active');
+
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'learn') renderLearn('all');
+  if (name === 'home') renderHome();
+}
+
+function renderHome() {
+  document.getElementById('header-points').textContent = state.totalPoints;
+  document.getElementById('header-streak').textContent = state.streak;
+  if (state.streak > 0) {
+    document.getElementById('streak-banner-home').style.display = 'flex';
+    document.getElementById('streak-num').textContent = state.streak;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  MODE / HABITAT SELECTION
+// ═══════════════════════════════════════════════
+function selectMode(el) {
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.mode = el.dataset.mode;
+}
+
+function selectHabitat(el) {
+  document.querySelectorAll('#home-filter .hab-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.focusHabitat = el.dataset.hab;
+}
+
+// ═══════════════════════════════════════════════
+//  GAME LOGIC
+// ═══════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  const cfg = MODES[state.mode];
+  let pool = state.focusHabitat === 'all' ? ALL_QUESTIONS :
+    ALL_QUESTIONS.filter(q => q.habitat === state.focusHabitat);
+  if (pool.length < 4) pool = ALL_QUESTIONS;
+  state.questions = shuffle(pool).slice(0, cfg.count);
+  state.current   = 0;
+  state.score     = 0;
+  state.correct   = 0;
+  state.wrong     = 0;
+  state.lives     = cfg.lives;
+  state.answered  = false;
+
+  document.getElementById('q-total').textContent = state.questions.length;
+  hideFeedback();
+  showScreen('game');
+  document.getElementById('nav-game').classList.add('active');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (state.current >= state.questions.length) { endGame(); return; }
+  const q = state.questions[state.current];
+  state.answered = false;
+
+  // progress
+  const pct = (state.current / state.questions.length) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('q-current').textContent = state.current + 1;
+  document.getElementById('g-score').textContent = state.score;
+  document.getElementById('g-lives').textContent = '❤️'.repeat(state.lives);
+
+  // animal card
+  document.getElementById('a-emoji').textContent = q.emoji;
+  document.getElementById('a-name').textContent = q.name;
+  document.getElementById('a-type').textContent = q.type;
+
+  // animate card
+  const card = document.getElementById('animal-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'cardIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275)';
+
+  // options
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const shuffled = shuffle(q.options);
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-icon">${HABITAT_ICONS[opt]||'🌍'}</span><span class="opt-name">${opt}</span>`;
+    btn.onclick = () => answerQuestion(opt, btn, q);
+    grid.appendChild(btn);
+  });
+}
+
+function answerQuestion(choice, btn, q) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  if (choice === q.habitat) {
+    btn.classList.add('correct');
+    state.score++;
+    state.correct++;
+    state.totalPoints += 10;
+    saveData();
+    showFeedback(true, q);
+  } else {
+    btn.classList.add('wrong');
+    state.wrong++;
+    state.lives--;
+    // show correct
+    allBtns.forEach(b => {
+      if (b.querySelector('.opt-name').textContent === q.habitat) b.classList.add('correct');
+    });
+    showFeedback(false, q);
+    if (state.mode === 'survival' && state.lives <= 0) {
+      setTimeout(() => endGame(), 1200);
+      return;
+    }
+  }
+
+  document.getElementById('g-score').textContent = state.score;
+  document.getElementById('g-lives').textContent = '❤️'.repeat(Math.max(0, state.lives));
+}
+
+function showFeedback(correct, q) {
+  const overlay = document.getElementById('feedback-overlay');
+  const toast = document.getElementById('feedback-toast');
+  document.getElementById('fb-emoji').textContent = correct ? '✅' : '❌';
+  document.getElementById('fb-msg').textContent = correct
+    ? ['Excellent! 🎉','Perfect! ⭐','Amazing! 🌟','Correct! ✨'][Math.floor(Math.random()*4)]
+    : `Oops! ${q.name} lives in the ${q.habitat} ${HABITAT_ICONS[q.habitat]||''}`;
+  document.getElementById('fb-fact').textContent = q.fact;
+  toast.className = 'feedback-toast ' + (correct ? 'correct-toast' : 'wrong-toast');
+  overlay.classList.remove('hidden');
+}
+
+function hideFeedback() {
+  document.getElementById('feedback-overlay').classList.add('hidden');
+}
+
+function nextQuestion() {
+  hideFeedback();
+  state.current++;
+  if (state.lives <= 0 && state.mode !== 'quick' && state.mode !== 'standard') {
+    endGame(); return;
+  }
+  if (state.current >= state.questions.length) { endGame(); return; }
+  renderQuestion();
+}
+
+function endGame() {
+  hideFeedback();
+  const total = state.questions.length;
+  const pct = Math.round((state.correct / total) * 100);
+  if (state.correct > state.highScore) {
+    state.highScore = state.correct;
+    state.streak++;
+  }
+  saveScore(state.correct, total, state.mode);
+  saveData();
+
+  const trophies  = ['😢','🌱','⭐','🥉','🥈','🥇','🏆'];
+  const messages  = [
+    'Keep practicing! You\'ll improve!',
+    'Good start! Review the Habitat Guide.',
+    'Nice effort! You\'re learning fast.',
+    'Great job! You know your habitats.',
+    'Excellent! You\'re a habitat expert!',
+    'Outstanding! Perfect score!',
+    '🎉 LEGENDARY! You\'re a Habitat Hero!'
+  ];
+  const stars     = Math.round(pct / 20);
+  const idx       = Math.min(Math.floor(pct / 17), 6);
+
+  document.getElementById('r-trophy').textContent = trophies[idx];
+  document.getElementById('r-title').textContent  = pct === 100 ? 'PERFECT! 🎊' : pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Well Done!' : 'Keep Going!';
+  document.getElementById('r-score').textContent  = state.correct;
+  document.getElementById('r-total').textContent  = `out of ${total} correct (${pct}%)`;
+  document.getElementById('r-stars').textContent  = '⭐'.repeat(Math.max(1, stars));
+  document.getElementById('r-msg').textContent    = messages[idx];
+  document.getElementById('rs-correct').textContent = state.correct;
+  document.getElementById('rs-wrong').textContent   = state.wrong;
+  document.getElementById('rs-acc').textContent     = pct + '%';
+
+  showScreen('result');
+  document.querySelector('.result-trophy').style.animation = 'none';
+  void document.querySelector('.result-trophy').offsetWidth;
+  document.querySelector('.result-trophy').style.animation = 'bounce 1s ease infinite alternate';
+}
+
+// ═══════════════════════════════════════════════
+//  LEADERBOARD
+// ═══════════════════════════════════════════════
+function renderLeaderboard() {
+  const scores = JSON.parse(localStorage.getItem('hh_scores') || '[]');
+  const list   = document.getElementById('lb-list');
+  if (scores.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px 0;">No scores yet.<br>Play a game to get started! 🎮</div>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  list.innerHTML = scores.slice(0, 10).map((s, i) => `
+    <div class="lb-row">
+      <div class="lb-rank">${medals[i] || (i+1)}</div>
+      <div class="lb-info">
+        <div class="lb-name">${s.mode.charAt(0).toUpperCase()+s.mode.slice(1)} Mode</div>
+        <div class="lb-detail">${s.date} • ${s.total} questions</div>
+      </div>
+      <div class="lb-score">${s.pct}%</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  LEARN GUIDE
+// ═══════════════════════════════════════════════
+function filterLearn(el) {
+  document.querySelectorAll('#learn-filter .hab-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderLearn(el.dataset.hab);
+}
+
+function renderLearn(hab) {
+  const pool = hab === 'all' ? ALL_QUESTIONS : ALL_QUESTIONS.filter(q => q.habitat === hab);
+  const grid = document.getElementById('learn-grid');
+  grid.innerHTML = pool.map(q => `
+    <div style="background:var(--card);border:1px solid #2a4a35;border-radius:14px;padding:14px;text-align:center;">
+      <div style="font-size:32px;">${q.emoji}</div>
+      <div style="font-weight:800;font-size:0.9rem;margin:4px 0;">${q.name}</div>
+      <div style="font-size:0.72rem;color:var(--muted);">${HABITAT_ICONS[q.habitat]||''} ${q.habitat}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  loadData();
+  renderHome();
+  // register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  }
+  // hide splash
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hidden');
+    setTimeout(() => document.getElementById('splash').remove(), 700);
+  }, 2200);
+});
+</script>
+</body>
+</html>
