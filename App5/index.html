@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#1a3d1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Green Sort"/>
+<title>Green Sort – Right Place Right Waste</title>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --wet: #4CAF50;
+  --wet-light: #c8e6c9;
+  --wet-dark: #1b5e20;
+  --dry: #2196F3;
+  --dry-light: #bbdefb;
+  --dry-dark: #0d47a1;
+  --recyclable: #FF9800;
+  --recyclable-light: #ffe0b2;
+  --recyclable-dark: #e65100;
+  --hazardous: #f44336;
+  --hazardous-light: #ffcdd2;
+  --hazardous-dark: #b71c1c;
+  --bg: #0d1f0d;
+  --bg2: #112211;
+  --card: #1a3320;
+  --card2: #1e3d24;
+  --text: #e8f5e9;
+  --text-muted: #81c784;
+  --gold: #ffd700;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ─── SCREENS ─── */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; overflow-y: auto; transition: opacity 0.4s, transform 0.4s; }
+.screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.97); }
+
+/* ─── PARTICLES BG ─── */
+#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.leaf { position: absolute; font-size: 20px; animation: falling linear infinite; opacity: 0.15; }
+@keyframes falling { from { transform: translateY(-40px) rotate(0deg); } to { transform: translateY(110vh) rotate(360deg); } }
+
+/* ─── HOME SCREEN ─── */
+#home { justify-content: flex-start; background: radial-gradient(ellipse at 50% 0%, #1f4d1f 0%, #0d1f0d 70%); }
+.home-inner { position: relative; z-index: 1; width: 100%; max-width: 480px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
+
+.logo-wrap { position: relative; margin-bottom: 8px; }
+.logo-emoji { font-size: 72px; display: block; animation: floatBob 3s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(76,175,80,0.6)); }
+@keyframes floatBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.app-title { font-family: 'Fredoka One', cursive; font-size: 2.4rem; color: #fff; text-align: center; line-height: 1.1; text-shadow: 0 2px 20px rgba(76,175,80,0.8); }
+.app-sub { font-size: 0.95rem; color: var(--text-muted); text-align: center; margin: 8px 0 24px; }
+
+.author-card { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid #2d5a2d; border-radius: var(--radius); padding: 14px 18px; width: 100%; margin-bottom: 28px; box-shadow: var(--shadow); }
+.author-img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--wet); }
+.author-info { flex: 1; }
+.author-name { font-weight: 800; font-size: 1rem; color: #fff; }
+.author-role { font-size: 0.8rem; color: var(--text-muted); }
+
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 28px; }
+.stat-box { background: var(--card); border: 1px solid #2d5a2d; border-radius: 14px; padding: 12px 8px; text-align: center; }
+.stat-num { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--gold); }
+.stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+
+.btn-play { width: 100%; padding: 18px; background: linear-gradient(135deg, #2e7d32, #43a047); border: none; border-radius: var(--radius); color: #fff; font-family: 'Fredoka One', cursive; font-size: 1.5rem; cursor: pointer; box-shadow: 0 6px 24px rgba(76,175,80,0.5); transition: transform 0.15s, box-shadow 0.15s; letter-spacing: 1px; margin-bottom: 12px; }
+.btn-play:active { transform: scale(0.97); box-shadow: 0 2px 12px rgba(76,175,80,0.3); }
+
+.btn-secondary { width: 100%; padding: 14px; background: var(--card); border: 1px solid #2d5a2d; border-radius: var(--radius); color: var(--text-muted); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
+.btn-secondary:active { background: var(--card2); }
+
+.category-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+.pill { padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 2px solid; }
+.pill.wet { color: var(--wet); border-color: var(--wet); background: rgba(76,175,80,0.1); }
+.pill.dry { color: var(--dry); border-color: var(--dry); background: rgba(33,150,243,0.1); }
+.pill.recyclable { color: var(--recyclable); border-color: var(--recyclable); background: rgba(255,152,0,0.1); }
+.pill.hazardous { color: var(--hazardous); border-color: var(--hazardous); background: rgba(244,67,54,0.1); }
+
+/* ─── MODE SELECT ─── */
+#modeSelect { background: var(--bg); justify-content: center; }
+.mode-inner { position: relative; z-index:1; width:100%; max-width:480px; padding:30px 20px; }
+.screen-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:#fff; margin-bottom:6px; }
+.screen-sub { color:var(--text-muted); font-size:0.9rem; margin-bottom:28px; }
+.mode-card { background:var(--card); border:2px solid #2d5a2d; border-radius:var(--radius); padding:20px; margin-bottom:14px; cursor:pointer; transition:border-color 0.2s, background 0.2s; display:flex; align-items:center; gap:16px; }
+.mode-card:active { background:var(--card2); }
+.mode-card.selected { border-color:var(--wet); background:rgba(76,175,80,0.1); }
+.mode-icon { font-size:2.2rem; min-width:48px; text-align:center; }
+.mode-info h3 { font-weight:800; color:#fff; font-size:1rem; }
+.mode-info p { color:var(--text-muted); font-size:0.82rem; margin-top:3px; }
+.cat-toggle-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+.cat-toggle { background:var(--card); border:2px solid #2d5a2d; border-radius:14px; padding:14px; cursor:pointer; display:flex; align-items:center; gap:10px; font-weight:700; font-size:0.9rem; transition:all 0.2s; }
+.cat-toggle.active-wet { border-color:var(--wet); background:rgba(76,175,80,0.15); color:var(--wet); }
+.cat-toggle.active-dry { border-color:var(--dry); background:rgba(33,150,243,0.15); color:var(--dry); }
+.cat-toggle.active-recyclable { border-color:var(--recyclable); background:rgba(255,152,0,0.15); color:var(--recyclable); }
+.cat-toggle.active-hazardous { border-color:var(--hazardous); background:rgba(244,67,54,0.15); color:var(--hazardous); }
+
+/* ─── GAME SCREEN ─── */
+#game { background: var(--bg); justify-content: flex-start; overflow: hidden; }
+.game-inner { position:relative; z-index:1; width:100%; max-width:480px; min-height:100%; padding:12px 16px 20px; display:flex; flex-direction:column; }
+
+.game-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.btn-icon { background:var(--card); border:none; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.2rem; color:var(--text); flex-shrink:0; }
+
+.progress-wrap { flex:1; height:10px; background:#1a3320; border-radius:6px; overflow:hidden; }
+.progress-bar { height:100%; border-radius:6px; background:linear-gradient(90deg,#43a047,#66bb6a); transition:width 0.4s; }
+
+.score-badge { background:var(--card); border:1px solid #2d5a2d; border-radius:10px; padding:4px 12px; font-family:'Fredoka One',cursive; font-size:1rem; color:var(--gold); white-space:nowrap; }
+.streak-badge { background:var(--card); border:1px solid #ff9800; border-radius:10px; padding:4px 10px; font-size:0.85rem; color:#ffb74d; white-space:nowrap; }
+
+.question-counter { text-align:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:10px; font-weight:700; }
+
+/* item card */
+.item-card { background:var(--card); border:2px solid #2d5a2d; border-radius:var(--radius); padding:24px 20px; text-align:center; margin-bottom:18px; box-shadow:var(--shadow); flex-shrink:0; }
+.item-emoji { font-size:64px; display:block; margin-bottom:10px; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popIn { from { transform:scale(0.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+.item-name { font-size:1.4rem; font-weight:900; color:#fff; margin-bottom:6px; }
+.item-hint { font-size:0.82rem; color:var(--text-muted); }
+
+/* bins */
+.bins-label { font-size:0.8rem; color:var(--text-muted); text-align:center; margin-bottom:8px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
+.bins-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.bin-btn { border:2px solid; border-radius:18px; padding:16px 10px; cursor:pointer; text-align:center; transition:transform 0.15s, box-shadow 0.15s; background:transparent; font-family:'Nunito',sans-serif; }
+.bin-btn:active { transform:scale(0.95); }
+.bin-btn .bin-icon { font-size:2rem; display:block; margin-bottom:6px; }
+.bin-btn .bin-label { font-weight:800; font-size:0.9rem; display:block; }
+.bin-btn .bin-sub { font-size:0.7rem; margin-top:2px; display:block; opacity:0.75; }
+
+.bin-wet { border-color:var(--wet); color:var(--wet); }
+.bin-wet:hover, .bin-wet:focus { background:rgba(76,175,80,0.15); box-shadow:0 0 20px rgba(76,175,80,0.3); }
+.bin-dry { border-color:var(--dry); color:var(--dry); }
+.bin-dry:hover, .bin-dry:focus { background:rgba(33,150,243,0.15); box-shadow:0 0 20px rgba(33,150,243,0.3); }
+.bin-recyclable { border-color:var(--recyclable); color:var(--recyclable); }
+.bin-recyclable:hover, .bin-recyclable:focus { background:rgba(255,152,0,0.15); box-shadow:0 0 20px rgba(255,152,0,0.3); }
+.bin-hazardous { border-color:var(--hazardous); color:var(--hazardous); }
+.bin-hazardous:hover, .bin-hazardous:focus { background:rgba(244,67,54,0.15); box-shadow:0 0 20px rgba(244,67,54,0.3); }
+
+.bin-btn.correct { animation: correctFlash 0.6s forwards; }
+.bin-btn.wrong { animation: wrongShake 0.5s forwards; }
+@keyframes correctFlash { 0%{transform:scale(1)} 30%{transform:scale(1.1)} 60%{background:rgba(76,175,80,0.4)} 100%{transform:scale(1)} }
+@keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+/* feedback */
+.feedback-overlay { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; pointer-events:none; }
+.feedback-bubble { padding:16px 30px; border-radius:var(--radius); font-family:'Fredoka One',cursive; font-size:1.6rem; text-align:center; transform:scale(0); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1); pointer-events:none; box-shadow:var(--shadow); }
+.feedback-bubble.show { transform:scale(1); }
+.feedback-bubble.correct-fb { background:#1b5e20; color:#a5d6a7; border:2px solid var(--wet); }
+.feedback-bubble.wrong-fb { background:#b71c1c; color:#ffcdd2; border:2px solid var(--hazardous); }
+.feedback-fact { font-family:'Nunito',sans-serif; font-size:0.85rem; margin-top:8px; opacity:0.9; }
+
+/* confetti */
+.confetti-piece { position:fixed; pointer-events:none; border-radius:3px; z-index:99; animation:confettiFall 1s ease-out forwards; }
+@keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100px) rotate(720deg);opacity:0} }
+
+/* ─── RESULTS SCREEN ─── */
+#results { background:radial-gradient(ellipse at 50% 0%,#1f4d1f 0%,#0d1f0d 70%); justify-content:flex-start; }
+.results-inner { position:relative; z-index:1; width:100%; max-width:480px; padding:30px 20px; display:flex; flex-direction:column; align-items:center; }
+.trophy { font-size:80px; margin:10px 0; animation: floatBob 2s ease-in-out infinite; }
+.result-title { font-family:'Fredoka One',cursive; font-size:2rem; color:#fff; text-align:center; margin-bottom:6px; }
+.result-score-big { font-family:'Fredoka One',cursive; font-size:4rem; color:var(--gold); text-shadow:0 0 20px rgba(255,215,0,0.5); }
+.result-sub { color:var(--text-muted); font-size:0.9rem; margin-bottom:24px; }
+.result-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; margin-bottom:24px; }
+.result-box { background:var(--card); border:1px solid #2d5a2d; border-radius:14px; padding:14px; text-align:center; }
+.result-box .rnum { font-family:'Fredoka One',cursive; font-size:1.8rem; }
+.result-box .rlabel { font-size:0.75rem; color:var(--text-muted); margin-top:4px; }
+.result-box.correct-box .rnum { color:var(--wet); }
+.result-box.wrong-box .rnum { color:var(--hazardous); }
+.result-box.streak-box .rnum { color:var(--gold); }
+.result-box.acc-box .rnum { color:var(--dry); }
+
+.review-section { width:100%; margin-bottom:20px; }
+.review-title { font-weight:800; color:#fff; margin-bottom:10px; font-size:1rem; }
+.review-item { background:var(--card); border-radius:12px; padding:10px 14px; margin-bottom:8px; display:flex; align-items:center; gap:10px; border-left:3px solid; }
+.review-item.r-correct { border-color:var(--wet); }
+.review-item.r-wrong { border-color:var(--hazardous); }
+.review-item-icon { font-size:1.3rem; }
+.review-item-text { flex:1; }
+.review-item-name { font-weight:700; font-size:0.9rem; color:#fff; }
+.review-item-answer { font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+.review-badge { font-size:0.7rem; padding:2px 8px; border-radius:8px; font-weight:700; }
+.review-badge.rb-correct { background:rgba(76,175,80,0.2); color:var(--wet); }
+.review-badge.rb-wrong { background:rgba(244,67,54,0.2); color:var(--hazardous); }
+
+/* ─── LEADERBOARD ─── */
+#leaderboard { background:var(--bg); }
+.lb-inner { position:relative; z-index:1; width:100%; max-width:480px; padding:24px 20px; }
+.lb-entry { background:var(--card); border:1px solid #2d5a2d; border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
+.lb-rank { font-family:'Fredoka One',cursive; font-size:1.5rem; min-width:36px; text-align:center; }
+.lb-rank.r1 { color:var(--gold); }
+.lb-rank.r2 { color:#c0c0c0; }
+.lb-rank.r3 { color:#cd7f32; }
+.lb-info { flex:1; }
+.lb-name { font-weight:800; color:#fff; font-size:0.95rem; }
+.lb-detail { color:var(--text-muted); font-size:0.78rem; margin-top:2px; }
+.lb-score { font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--gold); }
+
+/* ─── INSTALL BANNER ─── */
+#installBanner { position:fixed; bottom:0; left:0; right:0; background:linear-gradient(135deg,#1b5e20,#2e7d32); padding:14px 20px; display:flex; align-items:center; gap:12px; z-index:200; transform:translateY(100%); transition:transform 0.4s; box-shadow:0 -4px 20px rgba(0,0,0,0.5); }
+#installBanner.show { transform:translateY(0); }
+.install-text { flex:1; font-weight:700; font-size:0.9rem; color:#fff; }
+.install-text span { font-size:0.78rem; display:block; color:#a5d6a7; font-weight:400; }
+.btn-install { background:#fff; color:#1b5e20; border:none; border-radius:10px; padding:8px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; }
+.btn-dismiss { background:transparent; border:none; color:#a5d6a7; font-size:1.2rem; cursor:pointer; padding:4px; }
+
+/* ─── SPLASH ─── */
+#splash { background:var(--bg); justify-content:center; align-items:center; z-index:300; }
+.splash-logo { font-size:80px; animation: splashPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes splashPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.splash-title { font-family:'Fredoka One',cursive; font-size:2rem; color:#fff; margin-top:16px; opacity:0; animation: fadeUp 0.5s 0.6s forwards; }
+.splash-bar { width:200px; height:4px; background:#1a3320; border-radius:3px; margin-top:24px; overflow:hidden; opacity:0; animation:fadeUp 0.3s 0.9s forwards; }
+.splash-bar-fill { width:0%; height:100%; background:linear-gradient(90deg,#43a047,#66bb6a); border-radius:3px; animation:loadBar 1.2s 1s ease-out forwards; }
+@keyframes loadBar { to{width:100%} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.back-btn { display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-muted); font-family:'Nunito',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; padding:8px 0; margin-bottom:16px; }
+
+/* utility */
+.mt-auto { margin-top:auto; }
+.w100 { width:100%; }
+.divider { border:none; border-top:1px solid #2d5a2d; margin:16px 0; }
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<!-- SPLASH -->
+<div class="screen" id="splash">
+  <span class="splash-logo">🌿</span>
+  <div class="splash-title">Green Sort</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner">
+  <span style="font-size:1.6rem">📲</span>
+  <div class="install-text">Install Green Sort
+    <span>Works offline – like a real app!</span>
+  </div>
+  <button class="btn-install" id="btnInstall">Install</button>
+  <button class="btn-dismiss" id="btnDismiss">✕</button>
+</div>
+
+<!-- HOME -->
+<div class="screen hidden" id="home">
+  <div class="home-inner">
+    <div class="logo-wrap">
+      <span class="logo-emoji">♻️</span>
+    </div>
+    <div class="app-title">Green Sort</div>
+    <div class="app-sub">🌿 Right Place, Right Waste</div>
+
+    <div class="author-card">
+      <img class="author-img" src="author.jpg" alt="Mateen Yousuf" onerror="this.style.display='none'"/>
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Author & Educator • EVS Series</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">300+</div>
+        <div class="stat-label">Questions</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="homeHiScore">0</div>
+        <div class="stat-label">High Score</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="homeGamesPlayed">0</div>
+        <div class="stat-label">Games Played</div>
+      </div>
+    </div>
+
+    <div class="category-pills">
+      <span class="pill wet">🟢 Wet</span>
+      <span class="pill dry">🔵 Dry</span>
+      <span class="pill recyclable">🟡 Recyclable</span>
+      <span class="pill hazardous">🔴 Hazardous</span>
+    </div>
+
+    <button class="btn-play" onclick="showScreen('modeSelect')">🎮 Play Now</button>
+    <button class="btn-secondary" onclick="showScreen('leaderboard')">🏆 Leaderboard</button>
+    <button class="btn-secondary" onclick="showScreen('about')">ℹ️ About the App</button>
+  </div>
+</div>
+
+<!-- MODE SELECT -->
+<div class="screen hidden" id="modeSelect">
+  <div class="mode-inner">
+    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+    <div class="screen-title">Choose Mode</div>
+    <div class="screen-sub">Pick your challenge level</div>
+
+    <div class="mode-card selected" onclick="selectMode('quick')" id="mode-quick">
+      <div class="mode-icon">⚡</div>
+      <div class="mode-info">
+        <h3>Quick Play</h3>
+        <p>10 random questions – great for a fast round!</p>
+      </div>
+    </div>
+    <div class="mode-card" onclick="selectMode('medium')" id="mode-medium">
+      <div class="mode-icon">🎯</div>
+      <div class="mode-info">
+        <h3>Standard</h3>
+        <p>25 questions – balanced practice session</p>
+      </div>
+    </div>
+    <div class="mode-card" onclick="selectMode('long')" id="mode-long">
+      <div class="mode-icon">🔥</div>
+      <div class="mode-info">
+        <h3>Marathon</h3>
+        <p>50 questions – serious EVS champion mode</p>
+      </div>
+    </div>
+    <div class="mode-card" onclick="selectMode('endless')" id="mode-endless">
+      <div class="mode-icon">∞</div>
+      <div class="mode-info">
+        <h3>Endless</h3>
+        <p>Keep going until you get one wrong!</p>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+    <div style="font-weight:800;color:#fff;margin-bottom:10px;font-size:0.95rem;">📂 Categories to Include</div>
+    <div class="cat-toggle-row">
+      <div class="cat-toggle active-wet" onclick="toggleCat('wet')" id="cat-wet">🟢 Wet Waste</div>
+      <div class="cat-toggle active-dry" onclick="toggleCat('dry')" id="cat-dry">🔵 Dry Waste</div>
+      <div class="cat-toggle active-recyclable" onclick="toggleCat('recyclable')" id="cat-recyclable">🟡 Recyclable</div>
+      <div class="cat-toggle active-hazardous" onclick="toggleCat('hazardous')" id="cat-hazardous">🔴 Hazardous</div>
+    </div>
+
+    <button class="btn-play" onclick="startGame()">▶ Start Game</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen hidden" id="game">
+  <div class="game-inner">
+    <div class="game-header">
+      <button class="btn-icon" onclick="quitGame()">✕</button>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+      <div class="score-badge">⭐ <span id="scoreDisplay">0</span></div>
+      <div class="streak-badge" id="streakBadge">🔥0</div>
+    </div>
+    <div class="question-counter" id="questionCounter">Question 1 / 10</div>
+
+    <div class="item-card" id="itemCard">
+      <span class="item-emoji" id="itemEmoji">🍌</span>
+      <div class="item-name" id="itemName">Banana Peel</div>
+      <div class="item-hint" id="itemHint">Which bin does this belong to?</div>
+    </div>
+
+    <div class="bins-label">🗑️ Select the correct bin</div>
+    <div class="bins-grid" id="binsGrid">
+      <button class="bin-btn bin-wet" onclick="answer('Wet')">
+        <span class="bin-icon">🟢</span>
+        <span class="bin-label">Wet Waste</span>
+        <span class="bin-sub">Food & organic</span>
+      </button>
+      <button class="bin-btn bin-dry" onclick="answer('Dry')">
+        <span class="bin-icon">🔵</span>
+        <span class="bin-label">Dry Waste</span>
+        <span class="bin-sub">Paper, plastic</span>
+      </button>
+      <button class="bin-btn bin-recyclable" onclick="answer('Recyclable')">
+        <span class="bin-icon">🟡</span>
+        <span class="bin-label">Recyclable</span>
+        <span class="bin-sub">Can be reused</span>
+      </button>
+      <button class="bin-btn bin-hazardous" onclick="answer('Hazardous')">
+        <span class="bin-icon">🔴</span>
+        <span class="bin-label">Hazardous</span>
+        <span class="bin-sub">Dangerous waste</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen hidden" id="results">
+  <div class="results-inner">
+    <div class="trophy" id="trophyEmoji">🏆</div>
+    <div class="result-title" id="resultTitle">Excellent!</div>
+    <div class="result-score-big" id="resultScore">0</div>
+    <div class="result-sub" id="resultSub">Points earned</div>
+    <div class="result-grid">
+      <div class="result-box correct-box">
+        <div class="rnum" id="rCorrect">0</div>
+        <div class="rlabel">✅ Correct</div>
+      </div>
+      <div class="result-box wrong-box">
+        <div class="rnum" id="rWrong">0</div>
+        <div class="rlabel">❌ Wrong</div>
+      </div>
+      <div class="result-box streak-box">
+        <div class="rnum" id="rStreak">0</div>
+        <div class="rlabel">🔥 Best Streak</div>
+      </div>
+      <div class="result-box acc-box">
+        <div class="rnum" id="rAccuracy">0%</div>
+        <div class="rlabel">🎯 Accuracy</div>
+      </div>
+    </div>
+
+    <div class="review-section" id="reviewSection"></div>
+
+    <button class="btn-play w100" onclick="startGame()">🔄 Play Again</button>
+    <button class="btn-secondary w100" style="margin-top:10px" onclick="showScreen('home')">🏠 Home</button>
+    <button class="btn-secondary w100" style="margin-top:8px" onclick="showScreen('leaderboard')">🏆 Leaderboard</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="screen hidden" id="leaderboard">
+  <div class="lb-inner">
+    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+    <div class="screen-title">🏆 Leaderboard</div>
+    <div class="screen-sub" style="margin-bottom:20px">Your personal best scores</div>
+    <div id="lbList"></div>
+    <button class="btn-secondary w100" style="margin-top:16px" onclick="clearLeaderboard()">🗑️ Clear History</button>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="screen hidden" id="about">
+  <div class="mode-inner">
+    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+    <div class="screen-title">ℹ️ About</div>
+    <div style="text-align:center;margin-bottom:20px">
+      <img src="author.jpg" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--wet);margin-bottom:10px" onerror="this.style.display='none'"/>
+      <div style="font-weight:800;font-size:1.1rem;color:#fff">Mateen Yousuf</div>
+      <div style="color:var(--text-muted);font-size:0.85rem">Author & Educator</div>
+    </div>
+    <div style="background:var(--card);border:1px solid #2d5a2d;border-radius:var(--radius);padding:18px;margin-bottom:14px">
+      <div style="font-weight:800;color:#fff;margin-bottom:8px">🌿 Green Sort</div>
+      <div style="color:var(--text-muted);font-size:0.88rem;line-height:1.6">An EVS educational game designed to teach students how to correctly sort waste into the right categories. With 300+ questions covering Wet, Dry, Recyclable, and Hazardous waste — this app builds real-world environmental awareness.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid #2d5a2d;border-radius:var(--radius);padding:18px;margin-bottom:14px">
+      <div style="font-weight:800;color:#fff;margin-bottom:10px">📊 App Stats</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="stat-box"><div class="stat-num">300+</div><div class="stat-label">Questions</div></div>
+        <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Categories</div></div>
+        <div class="stat-box"><div class="stat-num">100%</div><div class="stat-label">Offline</div></div>
+        <div class="stat-box"><div class="stat-num">EVS</div><div class="stat-label">Subject</div></div>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid #2d5a2d;border-radius:var(--radius);padding:18px">
+      <div style="font-weight:800;color:#fff;margin-bottom:8px">♻️ Waste Categories</div>
+      <div style="color:var(--wet);font-weight:700;margin-bottom:4px">🟢 Wet Waste</div>
+      <div style="color:var(--text-muted);font-size:0.82rem;margin-bottom:10px">Food scraps, fruit peels, vegetable waste, organic matter</div>
+      <div style="color:var(--dry);font-weight:700;margin-bottom:4px">🔵 Dry Waste</div>
+      <div style="color:var(--text-muted);font-size:0.82rem;margin-bottom:10px">Plastic wrappers, paper, cardboard, non-recyclable items</div>
+      <div style="color:var(--recyclable);font-weight:700;margin-bottom:4px">🟡 Recyclable</div>
+      <div style="color:var(--text-muted);font-size:0.82rem;margin-bottom:10px">Bottles, cans, newspapers, materials that can be reprocessed</div>
+      <div style="color:var(--hazardous);font-weight:700;margin-bottom:4px">🔴 Hazardous</div>
+      <div style="color:var(--text-muted);font-size:0.82rem">Batteries, chemicals, medicines, e-waste – needs special disposal</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-bubble" id="feedbackBubble">
+    <div id="feedbackText"></div>
+    <div class="feedback-fact" id="feedbackFact"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATASET – 300+ items
+// ═══════════════════════════════════════════════════
+const ALL_ITEMS = [
+// ── WET WASTE ──
+{emoji:'🍌',name:'Banana peel',category:'Wet',fact:'Banana peels decompose and make great compost!'},
+{emoji:'🍎',name:'Apple core',category:'Wet',fact:'Apple cores break down in 2 months in compost.'},
+{emoji:'🍊',name:'Orange peel',category:'Wet',fact:'Orange peel takes longer to decompose but it\'s still organic!'},
+{emoji:'🥦',name:'Vegetable scraps',category:'Wet',fact:'Veggie scraps are gold for composting.'},
+{emoji:'🍚',name:'Leftover rice',category:'Wet',fact:'Cooked food goes in wet waste for composting.'},
+{emoji:'🍛',name:'Leftover curry',category:'Wet',fact:'Food leftovers are always wet waste.'},
+{emoji:'🍵',name:'Tea leaves',category:'Wet',fact:'Used tea leaves make excellent garden fertilizer.'},
+{emoji:'☕',name:'Coffee grounds',category:'Wet',fact:'Coffee grounds are great for composting and repelling pests.'},
+{emoji:'🥚',name:'Egg shells',category:'Wet',fact:'Egg shells add calcium to compost and soil.'},
+{emoji:'🍞',name:'Bread waste',category:'Wet',fact:'Stale bread goes to wet waste for composting.'},
+{emoji:'🍇',name:'Fruit waste',category:'Wet',fact:'All fruit waste is organic and compostable.'},
+{emoji:'🥕',name:'Rotten vegetables',category:'Wet',fact:'Rotten veggies still go in wet waste.'},
+{emoji:'🌸',name:'Flower petals',category:'Wet',fact:'Fallen flowers and petals are organic waste.'},
+{emoji:'🌿',name:'Grass clippings',category:'Wet',fact:'Grass clippings decompose quickly and enrich soil.'},
+{emoji:'🍖',name:'Meat waste',category:'Wet',fact:'Meat scraps are wet waste – keep covered to avoid pests.'},
+{emoji:'🐟',name:'Fish waste',category:'Wet',fact:'Fish waste is organic and goes in the wet bin.'},
+{emoji:'🥛',name:'Dairy waste',category:'Wet',fact:'Expired dairy is wet waste – handle carefully.'},
+{emoji:'🍋',name:'Lemon peel',category:'Wet',fact:'Citrus peels are organic and compostable.'},
+{emoji:'🥭',name:'Mango peel',category:'Wet',fact:'Mango peels and seeds go in wet waste.'},
+{emoji:'🍅',name:'Tomato scraps',category:'Wet',fact:'Tomato bits and seeds are excellent compost.'},
+{emoji:'🫛',name:'Pea pods',category:'Wet',fact:'Pod shells from peas and beans are wet waste.'},
+{emoji:'🧅',name:'Onion peels',category:'Wet',fact:'Onion skins decompose well in compost.'},
+{emoji:'🧄',name:'Garlic skins',category:'Wet',fact:'Garlic skins are organic and compostable.'},
+{emoji:'🌽',name:'Corn cobs',category:'Wet',fact:'Corn cobs take time but decompose as wet waste.'},
+{emoji:'🍄',name:'Mushroom stems',category:'Wet',fact:'Mushroom waste is organic and great compost.'},
+{emoji:'🌾',name:'Garden leaves',category:'Wet',fact:'Fallen leaves are organic garden waste.'},
+{emoji:'🌺',name:'Wilted flowers',category:'Wet',fact:'Dead flowers go in wet waste.'},
+{emoji:'🥜',name:'Nut shells',category:'Wet',fact:'Most nut shells are compostable organic waste.'},
+{emoji:'🍯',name:'Expired honey',category:'Wet',fact:'Expired food items go in wet waste.'},
+{emoji:'🍦',name:'Melted ice cream',category:'Wet',fact:'Dairy food waste belongs in wet waste.'},
+{emoji:'🥗',name:'Salad scraps',category:'Wet',fact:'Raw veggie salad scraps are perfect for composting.'},
+{emoji:'🫙',name:'Cooking residue',category:'Wet',fact:'Non-oily food residue goes in wet waste.'},
+{emoji:'🌵',name:'Plant cuttings',category:'Wet',fact:'Small plant cuttings are organic garden waste.'},
+{emoji:'🍒',name:'Cherry pits',category:'Wet',fact:'Fruit pits are organic waste.'},
+{emoji:'🍓',name:'Strawberry tops',category:'Wet',fact:'Green tops of strawberries are organic waste.'},
+{emoji:'🫐',name:'Blueberry stems',category:'Wet',fact:'Fruit stems and stalks are compostable.'},
+{emoji:'🥝',name:'Kiwi skin',category:'Wet',fact:'Kiwi skin is organic and goes in wet waste.'},
+{emoji:'🥑',name:'Avocado skin',category:'Wet',fact:'Avocado skins and pits go in wet waste.'},
+{emoji:'🌱',name:'Seedling waste',category:'Wet',fact:'Failed seedlings and plant debris are organic waste.'},
+{emoji:'🍃',name:'Dead leaves',category:'Wet',fact:'Dry or dead leaves from plants are organic waste.'},
+{emoji:'🥩',name:'Cooked meat scraps',category:'Wet',fact:'Cooked meat goes in wet waste.'},
+{emoji:'🐚',name:'Seafood shells',category:'Wet',fact:'Seafood shells are organic – wet waste.'},
+{emoji:'🧆',name:'Food leftovers',category:'Wet',fact:'All cooked food leftovers go in wet waste.'},
+{emoji:'🍿',name:'Popcorn residue',category:'Wet',fact:'Un-popped kernels and soggy popcorn are wet waste.'},
+{emoji:'🥞',name:'Old pancakes',category:'Wet',fact:'Stale cooked food goes in wet waste.'},
+{emoji:'🍰',name:'Cake crumbs',category:'Wet',fact:'Food crumbs are organic wet waste.'},
+{emoji:'🧃',name:'Juice pulp',category:'Wet',fact:'Fruit pulp from juicing is wet waste.'},
+{emoji:'🥤',name:'Milkshake residue',category:'Wet',fact:'Dairy residue goes in wet waste.'},
+{emoji:'🫚',name:'Cooking oil (small)',category:'Wet',fact:'Small amounts of used cooking oil are wet waste.'},
+{emoji:'🌿',name:'Herb stalks',category:'Wet',fact:'Herb stems and stalks are organic compost material.'},
+{emoji:'🎋',name:'Bamboo shoots',category:'Wet',fact:'Plant material and shoots are wet waste.'},
+
+// ── DRY WASTE ──
+{emoji:'🛍️',name:'Plastic wrapper',category:'Dry',fact:'Plastic wrappers go in dry waste for proper disposal.'},
+{emoji:'📄',name:'Paper',category:'Dry',fact:'Clean paper goes in dry waste or recycling.'},
+{emoji:'📦',name:'Cardboard',category:'Dry',fact:'Cardboard boxes should go in dry waste.'},
+{emoji:'🍶',name:'Glass bottle',category:'Dry',fact:'Glass bottles go in dry waste – handle carefully!'},
+{emoji:'🥫',name:'Metal can',category:'Dry',fact:'Empty metal cans go in dry waste.'},
+{emoji:'🛒',name:'Plastic bags',category:'Dry',fact:'Plastic bags go in dry waste.'},
+{emoji:'📰',name:'Soiled newspaper',category:'Dry',fact:'Soiled paper that can\'t be recycled goes in dry waste.'},
+{emoji:'📚',name:'Old books',category:'Dry',fact:'Old books go in dry waste or donate them!'},
+{emoji:'📦',name:'Packaging materials',category:'Dry',fact:'Foam and bubble wrap go in dry waste.'},
+{emoji:'🏗️',name:'Thermocol',category:'Dry',fact:'Styrofoam and thermocol go in dry waste.'},
+{emoji:'🧸',name:'Broken toys',category:'Dry',fact:'Non-repairable toys go in dry waste.'},
+{emoji:'👕',name:'Old torn clothes',category:'Dry',fact:'Unwearable clothes go in dry waste.'},
+{emoji:'👟',name:'Worn out shoes',category:'Dry',fact:'Old shoes that can\'t be donated go in dry waste.'},
+{emoji:'🖊️',name:'Broken pen',category:'Dry',fact:'Non-recyclable plastic pens go in dry waste.'},
+{emoji:'🪣',name:'Broken bucket',category:'Dry',fact:'Broken plastic items go in dry waste.'},
+{emoji:'🧹',name:'Old broom',category:'Dry',fact:'Worn out brooms go in dry waste.'},
+{emoji:'🪴',name:'Broken pot',category:'Dry',fact:'Cracked clay pots go in dry waste.'},
+{emoji:'🍽️',name:'Broken crockery',category:'Dry',fact:'Broken plates and cups go in dry waste.'},
+{emoji:'🪟',name:'Broken glass',category:'Dry',fact:'Broken glass goes in dry waste – wrap safely!'},
+{emoji:'🧲',name:'Old magnets',category:'Dry',fact:'Household items that aren\'t hazardous go in dry waste.'},
+{emoji:'🪆',name:'Broken decorations',category:'Dry',fact:'Non-electronic décor pieces go in dry waste.'},
+{emoji:'🎒',name:'Torn bag',category:'Dry',fact:'Unusable bags go in dry waste.'},
+{emoji:'🧤',name:'Old gloves',category:'Dry',fact:'Worn fabric gloves go in dry waste.'},
+{emoji:'🧣',name:'Torn cloth',category:'Dry',fact:'Non-reusable fabric goes in dry waste.'},
+{emoji:'🪑',name:'Broken furniture parts',category:'Dry',fact:'Small broken furniture pieces go in dry waste.'},
+{emoji:'🖼️',name:'Broken photo frame',category:'Dry',fact:'Non-electronic items go in dry waste.'},
+{emoji:'🪥',name:'Old toothbrush',category:'Dry',fact:'Plastic toothbrushes are dry waste.'},
+{emoji:'🧴',name:'Empty shampoo bottle',category:'Dry',fact:'Empty plastic bottles can go in dry waste.'},
+{emoji:'💊',name:'Empty medicine box',category:'Dry',fact:'The cardboard box goes in dry waste – medicines separately.'},
+{emoji:'🎁',name:'Gift wrapping paper',category:'Dry',fact:'Non-recyclable gift wrap goes in dry waste.'},
+{emoji:'🧻',name:'Used tissues',category:'Dry',fact:'Used tissues and paper towels go in dry waste.'},
+{emoji:'🗒️',name:'Used notebooks',category:'Dry',fact:'Old used notebooks go in dry waste.'},
+{emoji:'✉️',name:'Envelopes',category:'Dry',fact:'Old envelopes go in dry waste.'},
+{emoji:'🪄',name:'Broken pen caps',category:'Dry',fact:'Small plastic pieces go in dry waste.'},
+{emoji:'🎀',name:'Old ribbons',category:'Dry',fact:'Non-recyclable decorative items go in dry waste.'},
+{emoji:'🧶',name:'Tangled thread',category:'Dry',fact:'Unusable thread or yarn goes in dry waste.'},
+{emoji:'🪮',name:'Old combs',category:'Dry',fact:'Plastic combs and brushes go in dry waste.'},
+{emoji:'🧦',name:'Torn socks',category:'Dry',fact:'Unwearable socks go in dry waste.'},
+{emoji:'🩱',name:'Old underwear',category:'Dry',fact:'Worn out undergarments go in dry waste.'},
+{emoji:'🫙',name:'Empty jar',category:'Dry',fact:'Washed empty jars can go in dry waste.'},
+{emoji:'🪣',name:'Broken dustpan',category:'Dry',fact:'Broken cleaning tools go in dry waste.'},
+{emoji:'🎈',name:'Deflated balloon',category:'Dry',fact:'Used balloons go in dry waste.'},
+{emoji:'🖋️',name:'Old markers',category:'Dry',fact:'Dried-out markers go in dry waste.'},
+{emoji:'📌',name:'Old rubber bands',category:'Dry',fact:'Broken rubber bands go in dry waste.'},
+{emoji:'🧷',name:'Broken clips',category:'Dry',fact:'Small non-recyclable plastic items go in dry waste.'},
+{emoji:'🔩',name:'Old bolts/screws',category:'Dry',fact:'Metal hardware that can\'t be reused goes in dry waste.'},
+{emoji:'🪞',name:'Broken mirror',category:'Dry',fact:'Broken mirrors go in dry waste – wrap carefully!'},
+{emoji:'🛋️',name:'Foam padding',category:'Dry',fact:'Non-recyclable foam goes in dry waste.'},
+{emoji:'🧼',name:'Used soap wrapper',category:'Dry',fact:'Soap wrappers and empty containers are dry waste.'},
+{emoji:'🪒',name:'Disposable razor',category:'Dry',fact:'Disposable razors are dry waste.'},
+
+// ── RECYCLABLE ──
+{emoji:'📰',name:'Clean newspaper',category:'Recyclable',fact:'Newspapers are 100% recyclable – conserve paper!'},
+{emoji:'🍼',name:'Plastic bottle',category:'Recyclable',fact:'PET plastic bottles can be recycled into new products.'},
+{emoji:'🥤',name:'Aluminum can',category:'Recyclable',fact:'Aluminium recycling uses 95% less energy than new production!'},
+{emoji:'🫙',name:'Glass jar',category:'Recyclable',fact:'Glass can be recycled endlessly without losing quality.'},
+{emoji:'📦',name:'Cardboard box',category:'Recyclable',fact:'Cardboard boxes can be recycled and turned into new paper.'},
+{emoji:'📖',name:'Magazine',category:'Recyclable',fact:'Magazines can be recycled into new paper products.'},
+{emoji:'🛍️',name:'Paper bag',category:'Recyclable',fact:'Paper bags are recyclable and biodegradable.'},
+{emoji:'🥤',name:'Plastic container',category:'Recyclable',fact:'Clean plastic containers marked with recycling symbols can be recycled.'},
+{emoji:'⚙️',name:'Steel items',category:'Recyclable',fact:'Steel and iron can be melted and recycled multiple times.'},
+{emoji:'🥫',name:'Tin can',category:'Recyclable',fact:'Tin cans are highly recyclable metal waste.'},
+{emoji:'🗞️',name:'Old newspapers',category:'Recyclable',fact:'Newsprint is one of the most recycled materials on Earth.'},
+{emoji:'📋',name:'Office paper',category:'Recyclable',fact:'Clean white paper has very high recycling value.'},
+{emoji:'📗',name:'Old textbooks',category:'Recyclable',fact:'Books and textbooks can be recycled or donated.'},
+{emoji:'🧃',name:'Juice carton',category:'Recyclable',fact:'Tetra Pak cartons are recyclable in many programs.'},
+{emoji:'🥂',name:'Wine glass',category:'Recyclable',fact:'Clean glass items can be recycled.'},
+{emoji:'🫗',name:'Metal tray',category:'Recyclable',fact:'Metal trays and foil containers are recyclable.'},
+{emoji:'🖨️',name:'Printer cartridge',category:'Recyclable',fact:'Many stores accept empty cartridges for recycling.'},
+{emoji:'🔋',name:'Rechargeable battery',category:'Recyclable',fact:'Rechargeable batteries should be taken to special recycling points.'},
+{emoji:'🪟',name:'Window glass',category:'Recyclable',fact:'Flat glass from windows is recyclable.'},
+{emoji:'🍾',name:'Glass wine bottle',category:'Recyclable',fact:'Glass bottles are indefinitely recyclable.'},
+{emoji:'📫',name:'Cardboard mailer',category:'Recyclable',fact:'Cardboard mailers and packaging are recyclable.'},
+{emoji:'🧴',name:'Plastic shampoo bottle',category:'Recyclable',fact:'Rinsed plastic bottles with recycling symbols are recyclable.'},
+{emoji:'🪣',name:'Plastic bucket',category:'Recyclable',fact:'Hard plastic items are often recyclable.'},
+{emoji:'🛢️',name:'Empty paint tin',category:'Recyclable',fact:'Empty, dry paint tins are recyclable metal.'},
+{emoji:'🔩',name:'Scrap metal',category:'Recyclable',fact:'Scrap metal is one of the most valuable recyclables.'},
+{emoji:'🚗',name:'Car parts (metal)',category:'Recyclable',fact:'Metal car parts are highly recyclable at scrap yards.'},
+{emoji:'📱',name:'Old phone (metal parts)',category:'Recyclable',fact:'Precious metals in old phones are recyclable.'},
+{emoji:'🗂️',name:'Filing folders',category:'Recyclable',fact:'Paper folders and files are recyclable.'},
+{emoji:'🛍️',name:'Cloth bag',category:'Recyclable',fact:'Reusable cloth bags can be donated or recycled through textile programs.'},
+{emoji:'🪵',name:'Clean wood scraps',category:'Recyclable',fact:'Untreated wood can be recycled or composted.'},
+{emoji:'📎',name:'Paper clips (metal)',category:'Recyclable',fact:'Metal clips and staples are recyclable.'},
+{emoji:'🥡',name:'Takeaway container (clean)',category:'Recyclable',fact:'Clean takeaway containers with recycling symbols are recyclable.'},
+{emoji:'🎵',name:'Old CDs/DVDs',category:'Recyclable',fact:'CDs and DVDs can be recycled at specialized facilities.'},
+{emoji:'🖊️',name:'Metal pen body',category:'Recyclable',fact:'The metal parts of pens are recyclable.'},
+{emoji:'🧲',name:'Old iron parts',category:'Recyclable',fact:'Iron and steel scrap are valuable recyclable metals.'},
+{emoji:'🛺',name:'Bicycle parts (metal)',category:'Recyclable',fact:'Metal bicycle parts can be recycled as scrap metal.'},
+{emoji:'🍽️',name:'Metal cutlery',category:'Recyclable',fact:'Old metal spoons, forks, and knives are recyclable.'},
+{emoji:'🪑',name:'Metal chair parts',category:'Recyclable',fact:'Metal furniture components are recyclable.'},
+{emoji:'🔑',name:'Old keys',category:'Recyclable',fact:'Metal keys are recyclable scrap metal.'},
+{emoji:'⌚',name:'Watch parts',category:'Recyclable',fact:'Metal watch cases and bands are recyclable.'},
+{emoji:'🏺',name:'Ceramic (whole)',category:'Recyclable',fact:'Intact ceramics can sometimes be donated or recycled.'},
+{emoji:'📦',name:'Shoe box',category:'Recyclable',fact:'Cardboard shoe boxes are recyclable.'},
+{emoji:'🧻',name:'Cardboard tube',category:'Recyclable',fact:'Toilet paper rolls and cardboard tubes are recyclable.'},
+{emoji:'🫙',name:'Metal lid',category:'Recyclable',fact:'Metal jar lids can be separated and recycled.'},
+{emoji:'🎁',name:'Clean gift box',category:'Recyclable',fact:'Clean cardboard gift boxes are recyclable.'},
+{emoji:'📐',name:'Metal ruler',category:'Recyclable',fact:'Metal rulers and tools can be recycled as scrap.'},
+{emoji:'🪤',name:'Metal hardware',category:'Recyclable',fact:'Metal hinges, hooks, and brackets are recyclable.'},
+{emoji:'🔧',name:'Old metal tools',category:'Recyclable',fact:'Metal tools can be recycled at scrap facilities.'},
+{emoji:'🎏',name:'Tin foil',category:'Recyclable',fact:'Clean aluminum foil can be recycled.'},
+{emoji:'🧊',name:'Ice cube tray (metal)',category:'Recyclable',fact:'Metal trays are recyclable.'},
+
+// ── HAZARDOUS ──
+{emoji:'🔋',name:'Battery',category:'Hazardous',fact:'Batteries contain toxic metals – always dispose at special collection points.'},
+{emoji:'💡',name:'Broken tube light',category:'Hazardous',fact:'Tube lights contain mercury – highly hazardous!'},
+{emoji:'💊',name:'Expired medicine',category:'Hazardous',fact:'Never flush expired medicine! Return to pharmacy.'},
+{emoji:'🧪',name:'Chemical bottle',category:'Hazardous',fact:'Household chemicals are hazardous – never mix them.'},
+{emoji:'🖌️',name:'Paint waste',category:'Hazardous',fact:'Paint contains solvents that harm soil and water.'},
+{emoji:'🔌',name:'E-waste',category:'Hazardous',fact:'Electronic waste contains toxic materials – needs special recycling.'},
+{emoji:'📱',name:'Old mobile battery',category:'Hazardous',fact:'Lithium batteries can explode – never crush them!'},
+{emoji:'🧹',name:'Cleaning chemicals',category:'Hazardous',fact:'Bleach and cleaning agents are hazardous waste.'},
+{emoji:'🏥',name:'Medical waste',category:'Hazardous',fact:'Medical waste needs special bio-hazard disposal.'},
+{emoji:'🌾',name:'Pesticides',category:'Hazardous',fact:'Pesticides are toxic to soil, water, and all living beings.'},
+{emoji:'🖨️',name:'Used toner cartridge',category:'Hazardous',fact:'Toner contains fine particles harmful to lungs.'},
+{emoji:'🔆',name:'CFL bulb',category:'Hazardous',fact:'CFL bulbs contain mercury – never break them!'},
+{emoji:'🧯',name:'Empty aerosol can',category:'Hazardous',fact:'Pressurized aerosol cans are hazardous – don\'t crush.'},
+{emoji:'🏭',name:'Industrial chemicals',category:'Hazardous',fact:'Industrial chemicals need professional hazardous disposal.'},
+{emoji:'🪫',name:'Leaking battery',category:'Hazardous',fact:'Leaking batteries are extremely hazardous – handle with gloves.'},
+{emoji:'💻',name:'Old laptop',category:'Hazardous',fact:'Laptops contain toxic metals and chemicals – e-waste.'},
+{emoji:'🖥️',name:'Old monitor (CRT)',category:'Hazardous',fact:'Old CRT monitors contain lead – hazardous e-waste.'},
+{emoji:'🖨️',name:'Old printer',category:'Hazardous',fact:'Electronic waste should go to authorized e-waste centers.'},
+{emoji:'📺',name:'Old TV',category:'Hazardous',fact:'TVs contain hazardous materials – e-waste recycling needed.'},
+{emoji:'☢️',name:'Radioactive material',category:'Hazardous',fact:'Radioactive waste needs specialized government disposal.'},
+{emoji:'🧪',name:'Laboratory chemicals',category:'Hazardous',fact:'Lab chemicals are highly hazardous – professional disposal only.'},
+{emoji:'🐛',name:'Insecticide spray',category:'Hazardous',fact:'Insecticides are toxic to insects, animals, and humans.'},
+{emoji:'🌡️',name:'Mercury thermometer',category:'Hazardous',fact:'Mercury thermometers are hazardous – replace with digital.'},
+{emoji:'🔦',name:'Old dry cell',category:'Hazardous',fact:'Used dry cells contain zinc and manganese – hazardous.'},
+{emoji:'🪫',name:'Watch battery',category:'Hazardous',fact:'Small button batteries contain toxic metals.'},
+{emoji:'🧴',name:'Chemical drain cleaner',category:'Hazardous',fact:'Drain cleaners are highly caustic and hazardous.'},
+{emoji:'🧽',name:'Soaked chemical cloth',category:'Hazardous',fact:'Cloths soaked with chemicals are hazardous waste.'},
+{emoji:'🚗',name:'Used motor oil',category:'Hazardous',fact:'Used motor oil contaminates soil and groundwater.'},
+{emoji:'⛽',name:'Empty petrol container',category:'Hazardous',fact:'Fuel containers with residue are hazardous.'},
+{emoji:'🔧',name:'Old thermometer fluid',category:'Hazardous',fact:'Broken thermometers with fluid are hazardous.'},
+{emoji:'🏥',name:'Used syringes',category:'Hazardous',fact:'Medical sharps are bio-hazardous – special disposal required.'},
+{emoji:'🩺',name:'Medical tubing',category:'Hazardous',fact:'Used medical devices are bio-hazardous.'},
+{emoji:'💉',name:'Empty medicine vial',category:'Hazardous',fact:'Medicine vials may still contain residue – hazardous.'},
+{emoji:'🔋',name:'Car battery',category:'Hazardous',fact:'Car batteries contain sulphuric acid – extremely hazardous.'},
+{emoji:'🌡️',name:'Digital thermometer (broken)',category:'Hazardous',fact:'Broken electronics with internal chemicals are e-waste.'},
+{emoji:'📡',name:'Old electronic circuit',category:'Hazardous',fact:'Circuit boards contain toxic metals like lead and cadmium.'},
+{emoji:'🖱️',name:'Old computer mouse',category:'Hazardous',fact:'Electronic accessories are e-waste.'},
+{emoji:'⌨️',name:'Old keyboard',category:'Hazardous',fact:'Electronic keyboards are e-waste.'},
+{emoji:'🔌',name:'Frayed electrical cord',category:'Hazardous',fact:'Damaged electrical equipment is hazardous.'},
+{emoji:'💿',name:'Old hard drive',category:'Hazardous',fact:'Hard drives contain toxic materials – e-waste.'},
+{emoji:'🧪',name:'Solvent waste',category:'Hazardous',fact:'Chemical solvents are flammable and toxic.'},
+{emoji:'🏺',name:'Asbestos tile',category:'Hazardous',fact:'Asbestos is a serious health hazard – professional removal needed.'},
+{emoji:'🌿',name:'Herbicide container',category:'Hazardous',fact:'Herbicide residues are toxic to plants and soil.'},
+{emoji:'🔋',name:'Lithium battery pack',category:'Hazardous',fact:'Large lithium packs are fire hazards if damaged.'},
+{emoji:'📸',name:'Old camera battery',category:'Hazardous',fact:'Camera batteries contain toxic metals.'},
+{emoji:'🎮',name:'Game controller battery',category:'Hazardous',fact:'Electronic waste includes gaming accessories.'},
+{emoji:'🖊️',name:'Correction fluid (old)',category:'Hazardous',fact:'Old correction fluid contains toxic solvents.'},
+
+// ── BONUS MIX ──
+{emoji:'🧴',name:'Plastic bottle (clean)',category:'Recyclable',fact:'Rinsed plastic bottles are highly recyclable.'},
+{emoji:'📰',name:'Used newspaper',category:'Recyclable',fact:'Newspapers are excellent recycling material.'},
+{emoji:'🍌',name:'Banana peel (yellow)',category:'Wet',fact:'Banana peels make great compost in 3-4 weeks.'},
+{emoji:'🔋',name:'AA battery',category:'Hazardous',fact:'All batteries must go to hazardous waste – never trash!'},
+{emoji:'📄',name:'Waste paper',category:'Dry',fact:'Soiled or wet paper that can\'t be recycled goes in dry waste.'},
+{emoji:'🥦',name:'Broccoli stalks',category:'Wet',fact:'Vegetable stalks are excellent compost material.'},
+{emoji:'🫙',name:'Empty glass jam jar',category:'Recyclable',fact:'Cleaned glass jars are highly recyclable.'},
+{emoji:'🖥️',name:'Old keyboard',category:'Hazardous',fact:'Electronic items are e-waste – hazardous.'},
+{emoji:'🍊',name:'Mandarin peel',category:'Wet',fact:'Citrus waste takes 6 months to compost – still organic!'},
+{emoji:'🧃',name:'Tetra Pak (clean)',category:'Recyclable',fact:'Clean Tetra Pak cartons are recyclable.'},
+{emoji:'🪫',name:'Depleted battery',category:'Hazardous',fact:'Even dead batteries contain toxic chemicals.'},
+{emoji:'🌾',name:'Paddy husk',category:'Wet',fact:'Agricultural waste is organic wet waste.'},
+{emoji:'📦',name:'Clean pizza box',category:'Recyclable',fact:'Clean cardboard pizza boxes are recyclable.'},
+{emoji:'🍕',name:'Food-stained pizza box',category:'Wet',fact:'Greasy food-stained boxes go in wet waste.'},
+{emoji:'🥬',name:'Cabbage leaves',category:'Wet',fact:'Leafy vegetable scraps are perfect compost.'},
+{emoji:'🧊',name:'Plastic ice tray',category:'Dry',fact:'Old plastic ice trays go in dry waste.'},
+{emoji:'🔌',name:'Broken charger',category:'Hazardous',fact:'Damaged electronics are e-waste.'},
+{emoji:'📎',name:'Cardboard file',category:'Recyclable',fact:'Cardboard binders are recyclable.'},
+{emoji:'🌺',name:'Garden compost',category:'Wet',fact:'All garden organic matter is wet waste.'},
+{emoji:'💡',name:'LED bulb (broken)',category:'Hazardous',fact:'LED bulbs contain electronic components – e-waste.'},
+];
+
+// ═══════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════
+let currentScreen = 'splash';
+let gameMode = 'quick';
+let activeCats = {wet:true, dry:true, recyclable:true, hazardous:true};
+let gameItems = [];
+let gameIndex = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correct = 0;
+let wrong = 0;
+let answered = false;
+let reviewLog = [];
+let deferredPrompt = null;
+
+const MODE_COUNTS = {quick:10, medium:25, long:50, endless:999};
+
+// ═══════════════════════════════════════════════════
+//  SCREENS
+// ═══════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  currentScreen = id;
+  if (id === 'home') updateHomeStats();
+  if (id === 'leaderboard') renderLeaderboard();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════════
+//  MODE SELECT
+// ═══════════════════════════════════════════════════
+function selectMode(m) {
+  gameMode = m;
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mode-'+m).classList.add('selected');
+}
+
+function toggleCat(cat) {
+  const active = Object.values(activeCats).filter(Boolean).length;
+  if (activeCats[cat] && active <= 1) return; // keep at least one
+  activeCats[cat] = !activeCats[cat];
+  const el = document.getElementById('cat-'+cat);
+  if (activeCats[cat]) el.classList.add('active-'+cat);
+  else el.classList.remove('active-'+cat);
+}
+
+// ═══════════════════════════════════════════════════
+//  GAME
+// ═══════════════════════════════════════════════════
+function startGame() {
+  // filter by active categories
+  let pool = ALL_ITEMS.filter(i => activeCats[i.category.toLowerCase()]);
+  pool = shuffle(pool);
+  const count = Math.min(MODE_COUNTS[gameMode], pool.length);
+  gameItems = pool.slice(0, count);
+  gameIndex = 0; score = 0; streak = 0; bestStreak = 0;
+  correct = 0; wrong = 0; reviewLog = [];
+  answered = false;
+  showScreen('game');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion() {
+  answered = false;
+  const item = gameItems[gameIndex];
+  const total = gameItems.length;
+
+  document.getElementById('questionCounter').textContent = `Question ${gameIndex+1} / ${total}`;
+  document.getElementById('progressBar').style.width = `${(gameIndex/total)*100}%`;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakBadge').textContent = `🔥${streak}`;
+
+  // item
+  document.getElementById('itemEmoji').textContent = item.emoji;
+  document.getElementById('itemName').textContent = item.name;
+  document.getElementById('itemHint').textContent = 'Which bin does this belong to?';
+
+  // enable bins
+  document.querySelectorAll('.bin-btn').forEach(b => {
+    b.disabled = false;
+    b.classList.remove('correct','wrong');
+    b.style.opacity = '';
+  });
+
+  // force re-animation
+  const card = document.getElementById('itemCard');
+  card.style.animation = 'none';
+  setTimeout(() => { card.style.animation = ''; const emoji = document.getElementById('itemEmoji'); emoji.style.animation='none'; setTimeout(()=>{emoji.style.animation='';},10); },10);
+}
+
+function answer(chosen) {
+  if (answered) return;
+  answered = true;
+  const item = gameItems[gameIndex];
+  const isCorrect = chosen === item.category;
+
+  const bins = document.querySelectorAll('.bin-btn');
+  bins.forEach(b => { b.disabled = true; b.style.opacity='0.5'; });
+
+  // find clicked bin
+  const binMap = {Wet:0, Dry:1, Recyclable:2, Hazardous:3};
+  const clickedBin = bins[binMap[chosen]];
+  const correctBin = bins[binMap[item.category]];
+  correctBin.style.opacity='1';
+
+  if (isCorrect) {
+    correct++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    const pts = 10 + Math.min(streak-1,5)*2;
+    score += pts;
+    clickedBin.classList.add('correct');
+    showFeedback(true, item.fact, pts);
+    spawnConfetti();
+  } else {
+    wrong++;
+    streak = 0;
+    clickedBin.classList.add('wrong');
+    correctBin.style.opacity='1';
+    showFeedback(false, `Correct: ${item.category} waste. ${item.fact}`, 0);
+    if (gameMode === 'endless') {
+      setTimeout(endGame, 1800);
+      return;
+    }
+  }
+
+  reviewLog.push({ item, chosen, isCorrect });
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakBadge').textContent = `🔥${streak}`;
+
+  setTimeout(() => {
+    hideFeedback();
+    gameIndex++;
+    if (gameIndex >= gameItems.length) endGame();
+    else renderQuestion();
+  }, 1600);
+}
+
+function quitGame() {
+  hideFeedback();
+  showScreen('home');
+}
+
+// ═══════════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════════
+function showFeedback(ok, fact, pts) {
+  const bubble = document.getElementById('feedbackBubble');
+  document.getElementById('feedbackText').textContent = ok ? `✅ Correct! +${pts} pts` : '❌ Wrong!';
+  document.getElementById('feedbackFact').textContent = fact;
+  bubble.className = 'feedback-bubble show ' + (ok ? 'correct-fb' : 'wrong-fb');
+}
+function hideFeedback() {
+  document.getElementById('feedbackBubble').className = 'feedback-bubble';
+}
+
+// ═══════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════
+function spawnConfetti() {
+  const colors = ['#4CAF50','#FFC107','#2196F3','#FF5722','#9C27B0','#00BCD4'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${20+Math.random()*60}%;top:${30+Math.random()*20}%;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.3}s;animation-duration:${0.8+Math.random()*0.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1200);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════════════════
+function endGame() {
+  hideFeedback();
+  const total = gameItems.length;
+  const acc = total > 0 ? Math.round((correct/total)*100) : 0;
+
+  // trophy
+  let trophy='🏆', title='Champion!';
+  if (acc >= 90) { trophy='🥇'; title='Outstanding! 🌟'; }
+  else if (acc >= 75) { trophy='🏆'; title='Great Job!'; }
+  else if (acc >= 50) { trophy='🥈'; title='Good Effort!'; }
+  else { trophy='🌱'; title='Keep Practising!'; }
+
+  document.getElementById('trophyEmoji').textContent = trophy;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = score;
+  document.getElementById('resultSub').textContent = `out of ${total*10} possible points`;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rStreak').textContent = bestStreak;
+  document.getElementById('rAccuracy').textContent = acc+'%';
+
+  // review last 10 wrong
+  const wrongs = reviewLog.filter(r=>!r.isCorrect).slice(-8);
+  const reviewEl = document.getElementById('reviewSection');
+  if (wrongs.length > 0) {
+    reviewEl.innerHTML = '<div class="review-title">❌ Review Mistakes</div>' +
+      wrongs.map(r=>`
+        <div class="review-item r-wrong">
+          <span class="review-item-icon">${r.item.emoji}</span>
+          <div class="review-item-text">
+            <div class="review-item-name">${r.item.name}</div>
+            <div class="review-item-answer">You chose: <b>${r.chosen}</b> → Correct: <b>${r.item.category}</b></div>
+          </div>
+        </div>`).join('');
+  } else {
+    reviewEl.innerHTML = '<div style="text-align:center;color:var(--wet);font-weight:800;padding:12px">🎉 Perfect! No mistakes!</div>';
+  }
+
+  // save to leaderboard
+  saveScore(score, acc, correct, total);
+  showScreen('results');
+}
+
+// ═══════════════════════════════════════════════════
+//  LEADERBOARD / LOCALSTORAGE
+// ═══════════════════════════════════════════════════
+function saveScore(s, acc, c, total) {
+  const data = getScores();
+  data.push({ score:s, acc, correct:c, total, date:new Date().toLocaleDateString(), mode:gameMode, ts:Date.now() });
+  data.sort((a,b)=>b.score-a.score);
+  const keep = data.slice(0,20);
+  localStorage.setItem('gs_scores', JSON.stringify(keep));
+
+  const hi = localStorage.getItem('gs_hi') || 0;
+  if (s > hi) localStorage.setItem('gs_hi', s);
+  const gp = parseInt(localStorage.getItem('gs_gp')||'0')+1;
+  localStorage.setItem('gs_gp', gp);
+}
+function getScores() {
+  try { return JSON.parse(localStorage.getItem('gs_scores')||'[]'); } catch{ return []; }
+}
+function renderLeaderboard() {
+  const data = getScores();
+  const el = document.getElementById('lbList');
+  if (!data.length) { el.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:40px">No games played yet!<br/>🎮 Play a game first.</div>'; return; }
+  const rankIcons=['🥇','🥈','🥉'];
+  el.innerHTML = data.map((d,i)=>`
+    <div class="lb-entry">
+      <div class="lb-rank ${i<3?'r'+(i+1):''}">${i<3?rankIcons[i]:i+1}</div>
+      <div class="lb-info">
+        <div class="lb-name">${d.correct}/${d.total} correct · ${d.acc}% accuracy</div>
+        <div class="lb-detail">${d.mode} mode · ${d.date}</div>
+      </div>
+      <div class="lb-score">${d.score}</div>
+    </div>`).join('');
+}
+function clearLeaderboard() {
+  if (confirm('Clear all scores?')) {
+    localStorage.removeItem('gs_scores');
+    localStorage.removeItem('gs_hi');
+    localStorage.removeItem('gs_gp');
+    renderLeaderboard();
+  }
+}
+function updateHomeStats() {
+  document.getElementById('homeHiScore').textContent = localStorage.getItem('gs_hi')||'0';
+  document.getElementById('homeGamesPlayed').textContent = localStorage.getItem('gs_gp')||'0';
+}
+
+// ═══════════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════════
+function initParticles() {
+  const emojis = ['🌿','🍃','♻️','🌱','🍀','🌾'];
+  const wrap = document.getElementById('particles');
+  for (let i=0; i<12; i++) {
+    const el = document.createElement('div');
+    el.className = 'leaf';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.cssText = `left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${-Math.random()*15}s;font-size:${14+Math.random()*16}px;`;
+    wrap.appendChild(el);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  PWA
+// ═══════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(()=>{ document.getElementById('installBanner').classList.add('show'); }, 3000);
+});
+document.getElementById('btnInstall').addEventListener('click', () => {
+  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ document.getElementById('installBanner').classList.remove('show'); deferredPrompt=null; }); }
+});
+document.getElementById('btnDismiss').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  initParticles();
+  setTimeout(()=>{ showScreen('home'); }, 2200);
+});
+</script>
+</body>
+</html>
