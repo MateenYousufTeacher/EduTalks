@@ -1,0 +1,43 @@
+{
+  "name": "Synonym Snap – Same Meaning",
+  "short_name": "SynonymSnap",
+  "description": "Learn English synonyms with fun quizzes. 250+ words across 3 levels. Offline educational app by Mateen Yousuf.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0c29",
+  "theme_color": "#1a0533",
+  "scope": "./",
+  "lang": "en",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231e1a3a'/><rect x='20' y='20' width='152' height='152' rx='30' fill='url(%23g)'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23f7c948'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient></defs><text x='96' y='130' text-anchor='middle' font-size='90' font-family='serif'>🔤</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%231e1a3a'/><rect x='40' y='40' width='432' height='432' rx='60' fill='url(%23g)'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23f7c948'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient></defs><text x='256' y='340' text-anchor='middle' font-size='240' font-family='serif'>🔤</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Quick Quiz – Easy",
+      "short_name": "Easy Quiz",
+      "description": "Start a quick easy quiz",
+      "url": "./index.html#easy"
+    },
+    {
+      "name": "Quick Quiz – Hard",
+      "short_name": "Hard Quiz",
+      "description": "Start a hard level quiz",
+      "url": "./index.html#hard"
+    }
+  ]
+}
