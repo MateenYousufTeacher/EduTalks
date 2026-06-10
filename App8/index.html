@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0a0e1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="manifest" href="manifest.json"/>
+<title>Startup Sprint – Economics Game</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --bg:       #0a0e1a;
+    --bg2:      #0f1628;
+    --bg3:      #141d35;
+    --card:     #1a2540;
+    --border:   #2a3a5c;
+    --gold:     #f5a623;
+    --gold2:    #ffd166;
+    --cyan:     #00d4ff;
+    --green:    #06d6a0;
+    --red:      #ef233c;
+    --purple:   #7b2d8b;
+    --text:     #e8edf5;
+    --muted:    #8899bb;
+    --glow:     0 0 20px rgba(245,166,35,0.4);
+    --glow-c:   0 0 20px rgba(0,212,255,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+  }
+
+  /* ── ANIMATED BG ── */
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(123,45,139,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(245,166,35,0.08) 0%, transparent 40%);
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── SPLASH ── */
+  #splash {
+    align-items: center; justify-content: center; text-align: center; padding: 2rem;
+    background: radial-gradient(ellipse at center, #0f1e3a 0%, #0a0e1a 70%);
+  }
+  .splash-logo {
+    font-size: 5rem; animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  .splash-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 6vw, 2.8rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin: 1rem 0 0.3rem;
+    text-shadow: none;
+  }
+  .splash-sub {
+    font-size: 1rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+  }
+  .splash-by {
+    margin: 2rem 0;
+    display: flex; align-items: center; gap: 1rem; justify-content: center;
+  }
+  .author-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: var(--glow);
+    object-fit: cover;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    overflow: hidden;
+  }
+  .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .author-info { text-align: left; }
+  .author-name { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--gold); }
+  .author-role { font-size: 0.8rem; color: var(--muted); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700; font-size: 1rem; letter-spacing: 1px;
+    padding: 0.8rem 2rem; border: none; border-radius: 6px; cursor: pointer;
+    transition: all 0.2s; position: relative; overflow: hidden;
+    text-transform: uppercase;
+  }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(255,255,255,0.1); opacity: 0; transition: opacity 0.2s;
+  }
+  .btn:hover::after { opacity: 1; }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), #e07b00);
+    color: #0a0e1a; box-shadow: var(--glow);
+    font-size: 1.1rem; padding: 1rem 3rem; margin-top: 0.5rem;
+  }
+  .btn-secondary {
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-cyan {
+    background: linear-gradient(135deg, var(--cyan), #0066aa);
+    color: #0a0e1a; box-shadow: var(--glow-c);
+  }
+  .btn-green {
+    background: linear-gradient(135deg, var(--green), #028c6a);
+    color: #0a0e1a;
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, var(--red), #8a0020);
+    color: white;
+  }
+  .btn-sm { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
+  .btn-block { width: 100%; text-align: center; }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: rgba(10,14,26,0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.7rem 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-icon { font-size: 1.4rem; }
+  .header-title {
+    font-family: 'Orbitron', sans-serif; font-size: 0.85rem;
+    color: var(--gold); font-weight: 700; flex: 1;
+  }
+  .header-round {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem; color: var(--cyan);
+    background: rgba(0,212,255,0.1); padding: 0.2rem 0.6rem; border-radius: 4px;
+  }
+
+  /* ── NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,14,26,0.97); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    display: flex;
+  }
+  .nav-tab {
+    flex: 1; padding: 0.8rem 0.3rem; display: flex; flex-direction: column;
+    align-items: center; gap: 0.2rem; cursor: pointer; transition: all 0.2s;
+    border: none; background: none; color: var(--muted); font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.5px;
+  }
+  .nav-tab .nav-icon { font-size: 1.3rem; }
+  .nav-tab.active { color: var(--gold); }
+  .nav-tab.active .nav-icon { filter: drop-shadow(0 0 6px var(--gold)); }
+
+  /* ── MAIN CONTENT ── */
+  .page { display: none; padding: 1rem 1rem 6rem; flex-direction: column; gap: 1rem; }
+  .page.active { display: flex; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.6;
+  }
+  .card.cyan-top::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+  .card.green-top::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .card.red-top::before { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+
+  .card-title {
+    font-family: 'Orbitron', sans-serif; font-size: 0.75rem;
+    color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .stat-box {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.7rem; text-align: center;
+  }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-value {
+    font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; font-weight: bold;
+    margin-top: 0.2rem;
+  }
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.cyan { color: var(--cyan); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+
+  /* ── SLIDERS ── */
+  .input-group { margin-bottom: 1rem; }
+  .input-label {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  .input-name { font-weight: 600; font-size: 0.95rem; }
+  .input-val {
+    font-family: 'Share Tech Mono', monospace; font-size: 1rem;
+    color: var(--gold); font-weight: bold;
+  }
+  .slider-wrap { position: relative; }
+  input[type=range] {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 6px; border-radius: 3px; outline: none; cursor: pointer;
+    background: linear-gradient(90deg, var(--gold) var(--pct, 50%), var(--bg3) var(--pct, 50%));
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gold); cursor: pointer;
+    box-shadow: 0 0 8px rgba(245,166,35,0.6);
+    border: 2px solid white;
+  }
+  .slider-hints {
+    display: flex; justify-content: space-between;
+    font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem;
+  }
+
+  /* ── SCENARIO BADGE ── */
+  .scenario-badge {
+    border-radius: 10px; padding: 0.8rem 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    background: rgba(0,0,0,0.3); border: 1px solid;
+  }
+  .scenario-badge.positive { border-color: var(--green); }
+  .scenario-badge.negative { border-color: var(--red); }
+  .scenario-badge.neutral  { border-color: var(--border); }
+  .scenario-icon { font-size: 1.8rem; }
+  .scenario-text {}
+  .scenario-title { font-weight: 700; font-size: 0.95rem; }
+  .scenario-desc  { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
+
+  /* ── STARS ── */
+  .stars-row { display: flex; gap: 0.2rem; font-size: 1.2rem; }
+
+  /* ── ROUND HISTORY ── */
+  .history-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.5rem;
+  }
+  .history-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  .history-round {
+    font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--cyan);
+  }
+  .history-profit { font-family: 'Share Tech Mono', monospace; font-weight: bold; font-size: 1rem; }
+  .history-profit.pos { color: var(--green); }
+  .history-profit.neg { color: var(--red); }
+  .history-details {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.3rem; font-size: 0.75rem; color: var(--muted);
+  }
+
+  /* ── LEADERBOARD ── */
+  .lb-item {
+    display: flex; align-items: center; gap: 0.8rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem; margin-bottom: 0.5rem;
+  }
+  .lb-rank {
+    font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+    width: 28px; text-align: center; flex-shrink: 0;
+  }
+  .lb-rank.gold   { color: #ffd700; }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-name { flex: 1; font-weight: 600; }
+  .lb-score { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden;
+    margin-top: 0.3rem;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--cyan));
+    transition: width 0.6s ease;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--gold);
+    border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 400px;
+    box-shadow: var(--glow), 0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-title {
+    font-family: 'Orbitron', sans-serif; font-size: 1rem;
+    color: var(--gold); margin-bottom: 1rem; text-align: center;
+  }
+  .modal-emoji { font-size: 3rem; text-align: center; display: block; margin-bottom: 0.5rem; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--gold);
+    border-radius: 20px; padding: 0.6rem 1.4rem;
+    font-size: 0.85rem; font-weight: 600; z-index: 300;
+    opacity: 0; pointer-events: none; transition: all 0.3s;
+    white-space: nowrap; box-shadow: var(--glow);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── CHART CANVAS ── */
+  .mini-chart { height: 80px; display: flex; align-items: flex-end; gap: 4px; padding: 0; }
+  .chart-bar {
+    flex: 1; border-radius: 3px 3px 0 0; min-height: 4px;
+    transition: height 0.4s ease; position: relative; cursor: default;
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+    padding: 0.15rem 0.5rem; border-radius: 20px;
+  }
+  .badge-gold   { background: rgba(245,166,35,0.2); color: var(--gold); border: 1px solid rgba(245,166,35,0.4); }
+  .badge-cyan   { background: rgba(0,212,255,0.15); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+  .badge-green  { background: rgba(6,214,160,0.15); color: var(--green); border: 1px solid rgba(6,214,160,0.3); }
+  .badge-red    { background: rgba(239,35,60,0.15); color: var(--red); border: 1px solid rgba(239,35,60,0.3); }
+
+  /* ── SETUP / TEAM ── */
+  .team-input {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.7rem 1rem; width: 100%; color: var(--text);
+    font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .team-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,166,35,0.1); }
+  .team-input::placeholder { color: var(--muted); }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0.3rem 0; }
+
+  /* ── TOOLTIP / HINT ── */
+  .hint {
+    font-size: 0.75rem; color: var(--muted); display: flex; align-items: flex-start; gap: 0.4rem;
+    background: rgba(0,0,0,0.3); border-radius: 6px; padding: 0.5rem 0.7rem;
+  }
+
+  /* ── ABOUT PAGE ── */
+  .about-hero {
+    text-align: center; padding: 1.5rem 1rem;
+    background: linear-gradient(180deg, rgba(245,166,35,0.05), transparent);
+    border-radius: 12px; border: 1px solid var(--border);
+  }
+  .about-avatar {
+    width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 0.8rem;
+    border: 3px solid var(--gold); box-shadow: var(--glow);
+    overflow: hidden; background: var(--card);
+  }
+  .about-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .concept-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+  }
+  .concept-icon { font-size: 1.4rem; }
+  .concept-name { font-size: 0.75rem; color: var(--muted); }
+  .concept-val  { font-weight: 700; font-size: 0.9rem; }
+
+  /* LOADING / PROCESSING */
+  .processing {
+    text-align: center; padding: 2rem;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--cyan); font-size: 0.85rem;
+  }
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid var(--border);
+    border-top-color: var(--gold); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PULSE ANIMATION ── */
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+  }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+  
+  /* Responsive tweaks */
+  @media (max-width: 360px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .concept-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<!-- ═══════════════════════════════════
+     SPLASH SCREEN
+═══════════════════════════════════ -->
+<div id="splash" class="screen active">
+  <div class="splash-logo">🚀</div>
+  <div class="splash-title">Startup Sprint</div>
+  <div class="splash-sub">Economics Simulation Game</div>
+
+  <div class="splash-by">
+    <div class="author-avatar" id="splashAvatar">
+      <img src="author.jpg" alt="Mateen Yousuf" onerror="this.style.display='none';this.parentElement.innerHTML='👨‍🏫'"/>
+    </div>
+    <div class="author-info">
+      <div class="author-name">Mateen Yousuf</div>
+      <div class="author-role">Author &amp; Educator</div>
+    </div>
+  </div>
+
+  <div style="margin: 1rem 0 0.5rem; font-size: 0.85rem; color: var(--muted); max-width: 300px; text-align: center;">
+    A turn-based economics game where your decisions shape your startup's fate.
+  </div>
+
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin: 0.8rem 0;">
+    <span class="badge badge-gold">📘 Class 9 Economics</span>
+    <span class="badge badge-cyan">🎮 Strategy Game</span>
+    <span class="badge badge-green">✈️ Offline Ready</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 0.7rem; width: 100%; max-width: 280px;">
+    <button class="btn btn-primary btn-block" onclick="goToSetup()">▶ START GAME</button>
+    <button class="btn btn-secondary btn-block" onclick="goToLeaderboard()">🏆 Leaderboard</button>
+    <button class="btn btn-secondary btn-block" onclick="goToAbout()">📖 About &amp; Rules</button>
+  </div>
+
+  <div style="position: absolute; bottom: 1.5rem; font-size: 0.7rem; color: var(--muted); text-align: center;">
+    JKBOSE Class 9 • Offline PWA • v1.0
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     APP (after setup)
+═══════════════════════════════════ -->
+<div id="app" class="screen">
+
+  <div class="app-header">
+    <span class="header-icon">🚀</span>
+    <span class="header-title">Startup Sprint</span>
+    <span class="header-round" id="headerRound">Round 1 / 3</span>
+    <button class="btn btn-secondary btn-sm" onclick="showHome()" style="font-size:0.75rem; padding:0.3rem 0.7rem;">🏠</button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-tab active" onclick="switchPage('dashboard')" id="tab-dashboard">
+      <span class="nav-icon">📊</span>Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchPage('decide')" id="tab-decide">
+      <span class="nav-icon">🎯</span>Decide
+    </button>
+    <button class="nav-tab" onclick="switchPage('results')" id="tab-results">
+      <span class="nav-icon">📈</span>Results
+    </button>
+    <button class="nav-tab" onclick="switchPage('history')" id="tab-history">
+      <span class="nav-icon">📜</span>History
+    </button>
+  </div>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="card" style="background: linear-gradient(135deg, rgba(245,166,35,0.1), rgba(0,212,255,0.05)); border-color: var(--gold);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--muted); letter-spacing: 2px;">YOUR STARTUP</div>
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--gold); margin-top: 0.2rem;" id="teamNameDisplay">Team Alpha</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.7rem; color: var(--muted);">Round Progress</div>
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--cyan);" id="dashRound">1 / 3</div>
+        </div>
+      </div>
+      <div class="progress-bar" style="margin-top: 0.8rem;">
+        <div class="progress-fill" id="roundProgress" style="width: 33%"></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">💰 Capital</div>
+        <div class="stat-value gold" id="dashCapital">₹1000</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">📊 Total Profit</div>
+        <div class="stat-value cyan" id="dashProfit">₹0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">⭐ Satisfaction</div>
+        <div class="stat-value green" id="dashSat">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">🏆 Score</div>
+        <div class="stat-value gold" id="dashScore">0</div>
+      </div>
+    </div>
+
+    <div class="card cyan-top" id="scenarioCard">
+      <div class="card-title">🌍 Market Scenario</div>
+      <div id="currentScenarioDisplay">
+        <div class="scenario-badge neutral">
+          <div class="scenario-icon">🌐</div>
+          <div class="scenario-text">
+            <div class="scenario-title">Waiting for Round</div>
+            <div class="scenario-desc">Make your decisions and submit to reveal the market scenario.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profit chart -->
+    <div class="card">
+      <div class="card-title">📈 Profit Trend</div>
+      <div class="mini-chart" id="profitChart">
+        <div style="width:100%; text-align: center; font-size: 0.8rem; color: var(--muted); align-self: center;">
+          Play rounds to see profit trend
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="switchPage('decide')" id="dashDecideBtn">
+      🎯 Make Round Decisions →
+    </button>
+
+  </div>
+
+  <!-- ── DECIDE PAGE ── -->
+  <div class="page" id="page-decide">
+
+    <div class="card" style="background: rgba(245,166,35,0.05); border-color: var(--gold);">
+      <div class="card-title">🎯 Round <span id="decideRoundNum">1</span> Decisions</div>
+      <div class="hint">💡 Set your price, quantity &amp; marketing budget wisely. Your capital is limited!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💲 Pricing Strategy</div>
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-name">Price per Unit</span>
+          <span class="input-val">₹<span id="priceVal">50</span></span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="priceSlider" min="10" max="100" value="50" oninput="updateSlider('price')"/>
+        </div>
+        <div class="slider-hints"><span>₹10 (Low)</span><span>₹50 (Mid)</span><span>₹100 (High)</span></div>
+        <div id="priceHint" class="hint" style="margin-top:0.5rem;">
+          ⚖️ Mid-range pricing balances demand and revenue.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 Production</div>
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-name">Units to Produce</span>
+          <span class="input-val"><span id="qtyVal">30</span> units</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="qtySlider" min="0" max="100" value="30" oninput="updateSlider('qty')"/>
+        </div>
+        <div class="slider-hints"><span>0</span><span>50</span><span>100</span></div>
+      </div>
+      <div id="prodCostDisplay" class="hint">
+        📦 Production cost: <strong id="prodCost">₹150</strong> (₹5/unit)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📢 Marketing</div>
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-name">Marketing Budget</span>
+          <span class="input-val">₹<span id="mktVal">50</span></span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="mktSlider" min="0" max="200" value="50" oninput="updateSlider('mkt')"/>
+        </div>
+        <div class="slider-hints"><span>₹0</span><span>₹100</span><span>₹200</span></div>
+        <div id="mktHint" class="hint" style="margin-top:0.5rem;">
+          📣 ₹50–₹99 gives +10 demand boost.
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Summary -->
+    <div class="card red-top" id="costSummaryCard">
+      <div class="card-title">💸 Cost Summary</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Production</div>
+          <div class="stat-value" id="sumProd" style="font-size:1.1rem; color: var(--text);">₹150</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Marketing</div>
+          <div class="stat-value" id="sumMkt" style="font-size:1.1rem; color: var(--text);">₹50</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Cost</div>
+          <div class="stat-value" id="sumTotal" style="font-size:1.1rem;">₹200</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Capital Left</div>
+          <div class="stat-value" id="sumLeft" style="font-size:1.1rem;">₹800</div>
+        </div>
+      </div>
+      <div id="capitalWarning" style="display:none; color:var(--red); font-size:0.8rem; margin-top:0.5rem; font-weight:600;">
+        ⚠️ Total cost exceeds your capital!
+      </div>
+    </div>
+
+    <button class="btn btn-green btn-block" id="submitBtn" onclick="submitDecision()">
+      ✅ Submit Decision &amp; Run Round
+    </button>
+
+  </div>
+
+  <!-- ── RESULTS PAGE ── -->
+  <div class="page" id="page-results">
+
+    <div id="resultsEmpty" class="card" style="text-align:center; padding: 2rem;">
+      <div style="font-size:2.5rem; margin-bottom:0.8rem;">📊</div>
+      <div style="color:var(--muted); font-size:0.9rem;">No results yet. Submit your round decisions to see outcomes here.</div>
+    </div>
+
+    <div id="resultsContent" style="display:none; flex-direction:column; gap:1rem;">
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(6,214,160,0.08), rgba(0,0,0,0)); border-color: var(--green); text-align: center; padding: 1.5rem;">
+        <div style="font-size:2.5rem" id="resultEmoji">📊</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color:var(--muted); margin-top:0.8rem;">ROUND PROFIT</div>
+        <div style="font-family: 'Share Tech Mono', monospace; font-size: 2rem; font-weight:bold;" id="resultProfitBig">₹0</div>
+        <div id="resultStars" class="stars-row" style="justify-content:center; margin-top:0.5rem;"></div>
+      </div>
+
+      <div class="card cyan-top">
+        <div class="card-title">📋 Round Breakdown</div>
+        <table style="width:100%; font-size:0.85rem; border-collapse:collapse;">
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Price</td>
+            <td style="text-align:right; font-family:'Share Tech Mono',monospace;" id="resPrice">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Produced</td>
+            <td style="text-align:right; font-family:'Share Tech Mono',monospace;" id="resProduced">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Demand Generated</td>
+            <td style="text-align:right; font-family:'Share Tech Mono',monospace;" id="resDemand">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Units Sold</td>
+            <td style="text-align:right; font-family:'Share Tech Mono',monospace;" id="resSold">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Revenue</td>
+            <td style="text-align:right; color:var(--green); font-family:'Share Tech Mono',monospace;" id="resRevenue">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.4rem 0; color:var(--muted);">Total Cost</td>
+            <td style="text-align:right; color:var(--red); font-family:'Share Tech Mono',monospace;" id="resCost">—</td>
+          </tr>
+          <tr>
+            <td style="padding:0.4rem 0; font-weight:700;">Net Profit</td>
+            <td style="text-align:right; font-weight:700; font-size:1rem; font-family:'Share Tech Mono',monospace;" id="resProfit">—</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card" id="resScenarioCard">
+        <div class="card-title">🌍 Scenario That Hit</div>
+        <div id="resScenarioBadge"></div>
+        <div id="resLearning" class="hint" style="margin-top:0.7rem;"></div>
+      </div>
+
+      <div id="nextRoundBtn" class="btn btn-primary btn-block" onclick="nextRound()" style="cursor:pointer; text-align:center; display:block;">
+        ▶ Continue to Round <span id="nextRoundNum">2</span>
+      </div>
+
+      <div id="finalResultsBtn" class="btn btn-cyan btn-block" onclick="showFinalResults()" style="cursor:pointer; text-align:center; display:none;">
+        🏆 View Final Results
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── HISTORY PAGE ── -->
+  <div class="page" id="page-history">
+    <div class="card-title" style="padding: 0.5rem 0;">📜 Round History</div>
+    <div id="historyList">
+      <div class="hint">No rounds played yet. Submit decisions to build history.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Performance Summary</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Best Profit</div>
+          <div class="stat-value green" id="bestProfit">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Worst</div>
+          <div class="stat-value red" id="worstProfit">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Avg Satisfaction</div>
+          <div class="stat-value gold" id="avgSat">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Rounds Done</div>
+          <div class="stat-value cyan" id="roundsDone">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- ═══════════════════════════════════
+     SETUP SCREEN
+═══════════════════════════════════ -->
+<div id="setup" class="screen">
+  <div style="padding: 1.5rem 1rem 6rem; display: flex; flex-direction: column; gap: 1rem;">
+
+    <div style="text-align: center; padding: 1rem 0;">
+      <div style="font-size: 2.5rem;">🏢</div>
+      <div style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--gold); margin-top: 0.5rem;">Setup Your Startup</div>
+      <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem;">Configure teams and rounds before you begin</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👥 Team Name</div>
+      <input class="team-input" type="text" id="teamNameInput" placeholder="e.g. Market Wizards" maxlength="20"/>
+      <div style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Give your startup a memorable name!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎮 Rounds</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" id="r3btn" onclick="setRounds(3)" style="flex:1; border-color: var(--gold);">3 Rounds</button>
+        <button class="btn btn-secondary" id="r5btn" onclick="setRounds(5)" style="flex:1;">5 Rounds</button>
+        <button class="btn btn-secondary" id="r7btn" onclick="setRounds(7)" style="flex:1;">7 Rounds</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 Starting Capital</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" id="c500btn" onclick="setCapital(500)" style="flex:1;">₹500</button>
+        <button class="btn btn-secondary" id="c1000btn" onclick="setCapital(1000)" style="flex:1; border-color:var(--gold);">₹1000</button>
+        <button class="btn btn-secondary" id="c2000btn" onclick="setCapital(2000)" style="flex:1;">₹2000</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎲 Difficulty</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" id="deasy" onclick="setDiff('easy')" style="flex:1; border-color:var(--green);">Easy</button>
+        <button class="btn btn-secondary" id="dnorm" onclick="setDiff('normal')" style="flex:1;">Normal</button>
+        <button class="btn btn-secondary" id="dhard" onclick="setDiff('hard')" style="flex:1;">Hard</button>
+      </div>
+      <div id="diffHint" class="hint" style="margin-top:0.7rem;">
+        🌟 Easy: Favorable scenarios more likely
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="startGame()" style="margin-top:0.5rem;">
+      🚀 Launch Startup!
+    </button>
+    <button class="btn btn-secondary btn-block" onclick="showHome()">← Back</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     LEADERBOARD SCREEN
+═══════════════════════════════════ -->
+<div id="leaderboard" class="screen">
+  <div style="padding: 1rem 1rem 2rem;">
+    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+      <button class="btn btn-secondary btn-sm" onclick="showHome()">← Back</button>
+      <div style="font-family:'Orbitron',sans-serif; font-size:1rem; color:var(--gold);">🏆 Leaderboard</div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem; background: linear-gradient(135deg, rgba(245,166,35,0.08), transparent);">
+      <div style="text-align:center; font-size:2rem; margin-bottom:0.5rem;">🏆</div>
+      <div style="text-align:center; font-size:0.8rem; color:var(--muted);">Top startup scores saved on this device</div>
+    </div>
+
+    <div id="lbList">
+      <div class="hint">No scores recorded yet. Complete a game to appear here!</div>
+    </div>
+
+    <button class="btn btn-danger btn-sm btn-block" style="margin-top:1rem;" onclick="clearLeaderboard()">
+      🗑 Clear Leaderboard
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ABOUT SCREEN
+═══════════════════════════════════ -->
+<div id="about" class="screen">
+  <div style="padding: 1rem 1rem 2rem;">
+    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+      <button class="btn btn-secondary btn-sm" onclick="showHome()">← Back</button>
+      <div style="font-family:'Orbitron',sans-serif; font-size:1rem; color:var(--gold);">📖 About &amp; Rules</div>
+    </div>
+
+    <div class="about-hero">
+      <div class="about-avatar">
+        <img src="author.jpg" alt="Mateen Yousuf" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%\'>👨‍🏫</div>'"/>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif; font-size:1.1rem; color:var(--gold);">Mateen Yousuf</div>
+      <div style="font-size:0.85rem; color:var(--muted);">Author &amp; Economics Educator</div>
+      <div style="font-size:0.8rem; color:var(--muted); margin-top:0.5rem;">JKBOSE Class 9 Curriculum</div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-title">🎮 How to Play</div>
+      <div style="font-size:0.85rem; line-height:1.7; color:var(--text);">
+        <p style="margin-bottom:0.6rem;">Each round, you run your startup by making <strong>3 key decisions</strong>:</p>
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:0.4rem 0.7rem; font-size:0.83rem;">
+          <span style="color:var(--gold);">💲 Price</span><span>Set your selling price (₹10–₹100). Higher price = more revenue per unit but less demand.</span>
+          <span style="color:var(--cyan);">📦 Quantity</span><span>Decide how many units to produce (0–100). Each unit costs ₹5 to make.</span>
+          <span style="color:var(--green);">📢 Marketing</span><span>Spend on advertising (₹0–₹200) to boost customer demand.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0.8rem;">
+      <div class="card-title">📐 How Scoring Works</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div class="hint">🔢 Final Score = Total Profit + (Avg Satisfaction × 50)</div>
+        <div style="margin-top:0.7rem; display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+          <div class="concept-item"><span class="concept-icon">📊</span><span class="concept-name">Revenue</span><span class="concept-val">Price × Units Sold</span></div>
+          <div class="concept-item"><span class="concept-icon">💸</span><span class="concept-name">Cost</span><span class="concept-val">Production + Marketing</span></div>
+          <div class="concept-item"><span class="concept-icon">💰</span><span class="concept-name">Profit</span><span class="concept-val">Revenue − Cost</span></div>
+          <div class="concept-item"><span class="concept-icon">⭐</span><span class="concept-name">Satisfaction</span><span class="concept-val">1–5 stars</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0.8rem;">
+      <div class="card-title">🌍 Market Scenarios</div>
+      <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.83rem;">
+        <div class="scenario-badge positive"><span class="scenario-icon">🎉</span><div><div class="scenario-title">Festival Surge</div><div class="scenario-desc">Demand ×1.5 — great time to produce more!</div></div></div>
+        <div class="scenario-badge positive"><span class="scenario-icon">📱</span><div><div class="scenario-title">Viral Marketing</div><div class="scenario-desc">Marketing effect doubled — spend wisely!</div></div></div>
+        <div class="scenario-badge negative"><span class="scenario-icon">📉</span><div><div class="scenario-title">Market Saturation</div><div class="scenario-desc">Demand ×0.7 — don't overproduce!</div></div></div>
+        <div class="scenario-badge negative"><span class="scenario-icon">🚨</span><div><div class="scenario-title">Market Crisis</div><div class="scenario-desc">Demand −30 — cut costs to survive!</div></div></div>
+        <div class="scenario-badge neutral"><span class="scenario-icon">⚖️</span><div><div class="scenario-title">Stable Market</div><div class="scenario-desc">Normal conditions — strategy matters most.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0.8rem;">
+      <div class="card-title">💡 Key Concepts Learned</div>
+      <div class="concept-grid">
+        <div class="concept-item"><span class="concept-icon">📉</span><span class="concept-name">Economics</span><span class="concept-val">Supply &amp; Demand</span></div>
+        <div class="concept-item"><span class="concept-icon">⚖️</span><span class="concept-name">Business</span><span class="concept-val">Trade-offs</span></div>
+        <div class="concept-item"><span class="concept-icon">🎲</span><span class="concept-name">Risk</span><span class="concept-val">Uncertainty</span></div>
+        <div class="concept-item"><span class="concept-icon">🧠</span><span class="concept-name">Strategy</span><span class="concept-val">Adaptive Learning</span></div>
+        <div class="concept-item"><span class="concept-icon">💰</span><span class="concept-name">Finance</span><span class="concept-val">Profit &amp; Loss</span></div>
+        <div class="concept-item"><span class="concept-icon">👥</span><span class="concept-name">Marketing</span><span class="concept-val">Demand Creation</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     FINAL RESULTS MODAL
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="finalModal">
+  <div class="modal">
+    <span class="modal-emoji" id="finalEmoji">🏆</span>
+    <div class="modal-title">GAME COMPLETE!</div>
+    <div style="text-align:center;">
+      <div style="font-size:0.75rem; color:var(--muted); letter-spacing:2px;">FINAL SCORE</div>
+      <div style="font-family:'Orbitron',sans-serif; font-size:2.2rem; color:var(--gold); margin:0.3rem 0;" id="finalScore">0</div>
+      <div id="finalStars" class="stars-row" style="justify-content:center; font-size:1.5rem; margin-bottom:1rem;"></div>
+    </div>
+    <table style="width:100%; font-size:0.83rem; margin-bottom:1rem;">
+      <tr><td style="color:var(--muted); padding:0.3rem 0;">Team</td><td style="text-align:right; font-weight:700;" id="finalTeam">—</td></tr>
+      <tr><td style="color:var(--muted); padding:0.3rem 0;">Total Profit</td><td style="text-align:right; color:var(--green); font-family:'Share Tech Mono',monospace;" id="finalProfit">—</td></tr>
+      <tr><td style="color:var(--muted); padding:0.3rem 0;">Avg Satisfaction</td><td style="text-align:right; color:var(--gold);" id="finalSat">—</td></tr>
+      <tr><td style="color:var(--muted); padding:0.3rem 0;">Rounds Played</td><td style="text-align:right; color:var(--cyan);" id="finalRounds">—</td></tr>
+    </table>
+    <div id="finalFeedback" style="font-size:0.8rem; color:var(--muted); text-align:center; margin-bottom:1rem; line-height:1.5;"></div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeFinalModal()">📊 Review</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="playAgain()">🔄 Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STARTUP SPRINT – GAME ENGINE
+// ═══════════════════════════════════════════════════════
+
+const SCENARIOS = [
+  { id:'festival',    type:'positive', icon:'🎉', title:'Festival Demand Surge',   desc:'A local festival is boosting sales! Demand ×1.5', effect:'demand_x1.5', prob: [40,30,20] },
+  { id:'viral',       type:'positive', icon:'📱', title:'Viral Marketing Buzz',    desc:'Your campaign went viral! Marketing effect ×2', effect:'mkt_x2',      prob: [30,20,15] },
+  { id:'stable',      type:'neutral',  icon:'⚖️', title:'Stable Market',           desc:'No major disruptions. Normal demand applies.', effect:'none',        prob: [30,40,30] },
+  { id:'saturation',  type:'negative', icon:'📉', title:'Market Saturation',       desc:'Too many competitors. Demand ×0.7', effect:'demand_x0.7',             prob: [10,20,30] },
+  { id:'crisis',      type:'negative', icon:'🚨', title:'Market Crisis',           desc:'Economic downturn! Demand −30 units', effect:'demand-30',             prob: [10,15,20] },
+  { id:'inflation',   type:'negative', icon:'💸', title:'Cost Inflation',          desc:'Raw material costs up 30%! Production cost +30%', effect:'cost+30',  prob: [10,15,20] },
+  { id:'minor_boom',  type:'positive', icon:'📈', title:'Economic Boom',           desc:'Consumer spending is up. +10 demand boost', effect:'demand+10',      prob: [20,20,20] },
+];
+
+let gameState = {
+  teamName: 'Team Alpha',
+  totalRounds: 3,
+  currentRound: 1,
+  capital: 1000,
+  startCapital: 1000,
+  totalProfit: 0,
+  roundHistory: [],
+  lastRoundResult: null,
+  difficulty: 'easy',
+  gameOver: false,
+};
+
+let setupState = {
+  rounds: 3,
+  capital: 1000,
+  difficulty: 'easy',
+};
+
+// ── REGISTER SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+
+// ── SCREEN NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showHome()        { showScreen('splash'); }
+function goToSetup()       { showScreen('setup'); initSetupUI(); }
+function goToLeaderboard() { showScreen('leaderboard'); renderLeaderboard(); }
+function goToAbout()       { showScreen('about'); }
+
+function initSetupUI() {
+  highlightBtn('r3btn','r5btn','r7btn', 'r' + setupState.rounds + 'btn');
+  highlightBtn('c500btn','c1000btn','c2000btn', 'c' + setupState.capital + 'btn');
+  highlightBtn('deasy','dnorm','dhard', 
+    setupState.difficulty === 'easy' ? 'deasy' : setupState.difficulty === 'normal' ? 'dnorm' : 'dhard');
+}
+
+function highlightBtn(...ids) {
+  const active = ids[ids.length - 1];
+  ids.slice(0, -1).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.borderColor = id === active ? 'var(--gold)' : '';
+  });
+}
+
+function setRounds(n) {
+  setupState.rounds = n;
+  highlightBtn('r3btn','r5btn','r7btn', 'r' + n + 'btn');
+}
+
+function setCapital(n) {
+  setupState.capital = n;
+  highlightBtn('c500btn','c1000btn','c2000btn', 'c' + n + 'btn');
+}
+
+function setDiff(d) {
+  setupState.difficulty = d;
+  highlightBtn('deasy','dnorm','dhard',
+    d === 'easy' ? 'deasy' : d === 'normal' ? 'dnorm' : 'dhard');
+  const hints = {
+    easy:   '🌟 Easy: Favorable scenarios more likely',
+    normal: '⚖️ Normal: Balanced mix of scenarios',
+    hard:   '🔥 Hard: Negative events more frequent',
+  };
+  document.getElementById('diffHint').textContent = hints[d];
+}
+
+function startGame() {
+  const name = document.getElementById('teamNameInput').value.trim() || 'Team Alpha';
+  gameState = {
+    teamName: name,
+    totalRounds: setupState.rounds,
+    currentRound: 1,
+    capital: setupState.capital,
+    startCapital: setupState.capital,
+    totalProfit: 0,
+    roundHistory: [],
+    lastRoundResult: null,
+    difficulty: setupState.difficulty,
+    gameOver: false,
+  };
+  showScreen('app');
+  switchPage('dashboard');
+  resetSliders();
+  updateDashboard();
+  clearResults();
+  toast('🚀 Startup launched! Make your decisions!');
+}
+
+// ── SLIDER LOGIC ──
+function updateSlider(type) {
+  const price = parseInt(document.getElementById('priceSlider').value);
+  const qty   = parseInt(document.getElementById('qtySlider').value);
+  const mkt   = parseInt(document.getElementById('mktSlider').value);
+
+  if (type === 'price' || type === 'all') {
+    document.getElementById('priceVal').textContent = price;
+    setSliderGradient('priceSlider', 10, 100, price);
+    const hint = price < 30 ? '🟢 Low price = high demand, low margin per unit.'
+      : price > 50 ? '🔴 High price = low demand, high margin per unit.'
+      : '⚖️ Mid-range pricing balances demand and revenue.';
+    document.getElementById('priceHint').textContent = hint;
+  }
+  if (type === 'qty' || type === 'all') {
+    document.getElementById('qtyVal').textContent = qty;
+    setSliderGradient('qtySlider', 0, 100, qty);
+    const prodCost = qty * 5;
+    document.getElementById('prodCost').textContent = '₹' + prodCost;
+  }
+  if (type === 'mkt' || type === 'all') {
+    document.getElementById('mktVal').textContent = mkt;
+    setSliderGradient('mktSlider', 0, 200, mkt);
+    const h = mkt >= 100 ? '🚀 ₹100+ gives +25 demand boost!'
+      : mkt >= 50 ? '📣 ₹50–₹99 gives +10 demand boost.'
+      : '📢 No marketing = no demand boost.';
+    document.getElementById('mktHint').textContent = h;
+  }
+
+  // Cost summary
+  const prodCost = qty * 5;
+  const totalCost = prodCost + mkt;
+  const left = gameState.capital - totalCost;
+  document.getElementById('sumProd').textContent  = '₹' + prodCost;
+  document.getElementById('sumMkt').textContent   = '₹' + mkt;
+  document.getElementById('sumTotal').textContent = '₹' + totalCost;
+  document.getElementById('sumLeft').textContent  = '₹' + left;
+  document.getElementById('sumTotal').style.color = totalCost > gameState.capital ? 'var(--red)' : 'var(--text)';
+  document.getElementById('sumLeft').style.color  = left < 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('capitalWarning').style.display = totalCost > gameState.capital ? 'block' : 'none';
+}
+
+function setSliderGradient(id, min, max, val) {
+  const pct = ((val - min) / (max - min)) * 100;
+  document.getElementById(id).style.setProperty('--pct', pct + '%');
+}
+
+function resetSliders() {
+  document.getElementById('priceSlider').value = 50;
+  document.getElementById('qtySlider').value   = 30;
+  document.getElementById('mktSlider').value   = 50;
+  updateSlider('all');
+}
+
+// ── MARKET ENGINE ──
+function generateScenario(round, difficulty) {
+  const dIdx = difficulty === 'easy' ? 0 : difficulty === 'normal' ? 1 : 2;
+  const weighted = [];
+  SCENARIOS.forEach(s => {
+    for (let i = 0; i < s.prob[dIdx]; i++) weighted.push(s);
+  });
+  return weighted[Math.floor(Math.random() * weighted.length)];
+}
+
+function calcDemand(price, mkt, scenario) {
+  let demand = 50;
+  // Price elasticity
+  if (price < 30) demand += 20;
+  else if (price > 50) demand -= 20;
+  // Marketing
+  let mktBoost = mkt >= 100 ? 25 : mkt >= 50 ? 10 : 0;
+  // Scenario effect
+  let scenMktMult = 1;
+  if (scenario.effect === 'demand_x1.5') demand = Math.round(demand * 1.5);
+  if (scenario.effect === 'demand_x0.7') demand = Math.round(demand * 0.7);
+  if (scenario.effect === 'demand-30')   demand -= 30;
+  if (scenario.effect === 'demand+10')   demand += 10;
+  if (scenario.effect === 'mkt_x2')      scenMktMult = 2;
+  demand += mktBoost * scenMktMult;
+  return Math.max(0, demand);
+}
+
+function calcSatisfaction(price, sold, produced, mkt) {
+  let sat = 3;
+  if (price < 30) sat += 2;
+  else if (price <= 50) sat += 1;
+  else if (price > 70) sat -= 2;
+  if (mkt >= 100) sat += 1;
+  if (produced > 0 && sold / produced < 0.5) sat -= 1; // lots of unsold
+  return Math.min(5, Math.max(1, sat));
+}
+
+// ── SUBMIT DECISION ──
+function submitDecision() {
+  const price = parseInt(document.getElementById('priceSlider').value);
+  const qty   = parseInt(document.getElementById('qtySlider').value);
+  const mkt   = parseInt(document.getElementById('mktSlider').value);
+
+  let prodCost = qty * 5;
+  const scenario = generateScenario(gameState.currentRound, gameState.difficulty);
+
+  // Handle cost inflation
+  if (scenario.effect === 'cost+30') prodCost = Math.round(prodCost * 1.3);
+
+  const totalCost = prodCost + mkt;
+
+  if (totalCost > gameState.capital) {
+    toast('⚠️ Cost exceeds capital! Reduce quantity or marketing.', 'red');
+    return;
+  }
+
+  const demand = calcDemand(price, mkt, scenario);
+  const unitsSold = Math.min(demand, qty);
+  const revenue = price * unitsSold;
+  const profit = revenue - totalCost;
+  const sat = calcSatisfaction(price, unitsSold, qty, mkt);
+
+  gameState.capital += profit;
+  gameState.totalProfit += profit;
+
+  const result = {
+    round: gameState.currentRound,
+    price, qty, mkt,
+    scenario,
+    demand, unitsSold, revenue, totalCost: totalCost, profit,
+    sat,
+    capitalAfter: gameState.capital,
+  };
+
+  gameState.lastRoundResult = result;
+  gameState.roundHistory.push(result);
+
+  renderResults(result);
+  updateDashboard();
+  renderHistory();
+  saveToStorage();
+
+  switchPage('results');
+
+  if (gameState.currentRound >= gameState.totalRounds) {
+    document.getElementById('nextRoundBtn').style.display = 'none';
+    document.getElementById('finalResultsBtn').style.display = 'block';
+  } else {
+    document.getElementById('nextRoundBtn').style.display = 'block';
+    document.getElementById('finalResultsBtn').style.display = 'none';
+    document.getElementById('nextRoundNum').textContent = gameState.currentRound + 1;
+  }
+}
+
+// ── NEXT ROUND ──
+function nextRound() {
+  if (gameState.currentRound >= gameState.totalRounds) return;
+  gameState.currentRound++;
+  resetSliders();
+  updateDashboard();
+  switchPage('decide');
+  toast('Round ' + gameState.currentRound + ' begins! Adapt your strategy.');
+}
+
+// ── RENDER RESULTS ──
+function renderResults(r) {
+  document.getElementById('resultsEmpty').style.display   = 'none';
+  document.getElementById('resultsContent').style.display = 'flex';
+
+  const profitEl = document.getElementById('resultProfitBig');
+  profitEl.textContent = (r.profit >= 0 ? '+' : '') + '₹' + r.profit;
+  profitEl.style.color = r.profit >= 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('resultEmoji').textContent =
+    r.profit > 200 ? '🤑' : r.profit > 0 ? '😊' : r.profit === 0 ? '😐' : '😰';
+
+  // Stars
+  const starsEl = document.getElementById('resultStars');
+  starsEl.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement('span');
+    s.textContent = i <= r.sat ? '⭐' : '☆';
+    starsEl.appendChild(s);
+  }
+
+  document.getElementById('resPrice').textContent    = '₹' + r.price + '/unit';
+  document.getElementById('resProduced').textContent = r.qty + ' units';
+  document.getElementById('resDemand').textContent   = r.demand + ' units';
+  document.getElementById('resSold').textContent     = r.unitsSold + ' units';
+  document.getElementById('resRevenue').textContent  = '₹' + r.revenue;
+  document.getElementById('resCost').textContent     = '−₹' + r.totalCost;
+  const rp = document.getElementById('resProfit');
+  rp.textContent = (r.profit >= 0 ? '+' : '') + '₹' + r.profit;
+  rp.style.color = r.profit >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Scenario badge
+  const sb = document.getElementById('resScenarioBadge');
+  sb.innerHTML = `<div class="scenario-badge ${r.scenario.type}">
+    <div class="scenario-icon">${r.scenario.icon}</div>
+    <div class="scenario-text">
+      <div class="scenario-title">${r.scenario.title}</div>
+      <div class="scenario-desc">${r.scenario.desc}</div>
+    </div>
+  </div>`;
+
+  // Learning tip
+  let tip = '';
+  if (r.demand > r.qty) tip = '📦 You undersupplied! Consider producing more next round.';
+  else if (r.unitsSold < r.qty * 0.5) tip = '⚠️ Lots of unsold stock! Reduce quantity or lower price.';
+  else if (r.profit < 0) tip = '💡 Loss this round! Try cutting costs or raising price.';
+  else if (r.profit > 300) tip = '🌟 Excellent performance! Your strategy worked great!';
+  else tip = '✅ Solid round! Keep refining your strategy.';
+  document.getElementById('resLearning').textContent = tip;
+
+  // Update scenario on dashboard too
+  updateScenarioDisplay(r.scenario);
+}
+
+function clearResults() {
+  document.getElementById('resultsEmpty').style.display   = 'block';
+  document.getElementById('resultsContent').style.display = 'none';
+}
+
+// ── DASHBOARD ──
+function updateDashboard() {
+  const g = gameState;
+  document.getElementById('teamNameDisplay').textContent = g.teamName;
+  document.getElementById('dashRound').textContent = g.currentRound + ' / ' + g.totalRounds;
+  document.getElementById('headerRound').textContent = 'Round ' + g.currentRound + ' / ' + g.totalRounds;
+  document.getElementById('decideRoundNum').textContent = g.currentRound;
+  document.getElementById('dashCapital').textContent = '₹' + g.capital;
+  document.getElementById('dashCapital').style.color = g.capital < 200 ? 'var(--red)' : 'var(--gold)';
+  document.getElementById('dashProfit').textContent = (g.totalProfit >= 0 ? '+' : '') + '₹' + g.totalProfit;
+  document.getElementById('dashProfit').style.color = g.totalProfit >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const avgSat = g.roundHistory.length
+    ? (g.roundHistory.reduce((a, r) => a + r.sat, 0) / g.roundHistory.length).toFixed(1)
+    : '—';
+  document.getElementById('dashSat').textContent = avgSat === '—' ? '—' : avgSat + '★';
+
+  const score = Math.round(g.totalProfit + (avgSat === '—' ? 0 : parseFloat(avgSat) * 50));
+  document.getElementById('dashScore').textContent = score;
+
+  const pct = Math.min(100, Math.round((g.currentRound - 1) / g.totalRounds * 100));
+  document.getElementById('roundProgress').style.width = pct + '%';
+
+  updateProfitChart();
+}
+
+function updateScenarioDisplay(sc) {
+  const el = document.getElementById('currentScenarioDisplay');
+  el.innerHTML = `<div class="scenario-badge ${sc.type}">
+    <div class="scenario-icon">${sc.icon}</div>
+    <div class="scenario-text">
+      <div class="scenario-title">${sc.title}</div>
+      <div class="scenario-desc">${sc.desc}</div>
+    </div>
+  </div>`;
+}
+
+function updateProfitChart() {
+  const el = document.getElementById('profitChart');
+  if (!gameState.roundHistory.length) return;
+  const profits = gameState.roundHistory.map(r => r.profit);
+  const max = Math.max(...profits.map(Math.abs), 1);
+  el.innerHTML = profits.map((p, i) => {
+    const h = Math.round((Math.abs(p) / max) * 70);
+    const col = p >= 0 ? 'var(--green)' : 'var(--red)';
+    return `<div class="chart-bar" style="background:${col}; height:${Math.max(h,4)}px;" title="R${i+1}: ₹${p}"></div>`;
+  }).join('');
+}
+
+// ── HISTORY ──
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!gameState.roundHistory.length) {
+    el.innerHTML = '<div class="hint">No rounds played yet.</div>';
+    return;
+  }
+  el.innerHTML = gameState.roundHistory.map(r => `
+    <div class="history-item">
+      <div class="history-header">
+        <span class="history-round">ROUND ${r.round} • ${r.scenario.icon} ${r.scenario.title}</span>
+        <span class="history-profit ${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : ''}₹${r.profit}</span>
+      </div>
+      <div class="history-details">
+        <span>₹${r.price}/unit</span>
+        <span>${r.unitsSold}/${r.qty} sold</span>
+        <span>${'⭐'.repeat(r.sat)}${'☆'.repeat(5 - r.sat)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const profits = gameState.roundHistory.map(r => r.profit);
+  document.getElementById('bestProfit').textContent  = '₹' + Math.max(...profits);
+  document.getElementById('worstProfit').textContent = '₹' + Math.min(...profits);
+  const avgS = (gameState.roundHistory.reduce((a, r) => a + r.sat, 0) / gameState.roundHistory.length).toFixed(1);
+  document.getElementById('avgSat').textContent   = avgS + '★';
+  document.getElementById('roundsDone').textContent = gameState.roundHistory.length;
+}
+
+// ── FINAL RESULTS ──
+function showFinalResults() {
+  gameState.gameOver = true;
+  const g = gameState;
+  const avgSat = g.roundHistory.length
+    ? (g.roundHistory.reduce((a, r) => a + r.sat, 0) / g.roundHistory.length).toFixed(1)
+    : 0;
+  const score = Math.round(g.totalProfit + parseFloat(avgSat) * 50);
+
+  document.getElementById('finalScore').textContent  = score;
+  document.getElementById('finalTeam').textContent   = g.teamName;
+  document.getElementById('finalProfit').textContent = (g.totalProfit >= 0 ? '+' : '') + '₹' + g.totalProfit;
+  document.getElementById('finalSat').textContent    = avgSat + '★';
+  document.getElementById('finalRounds').textContent = g.roundHistory.length;
+
+  // Stars for final
+  const starsEl = document.getElementById('finalStars');
+  starsEl.innerHTML = '';
+  const starCount = score > 1000 ? 5 : score > 600 ? 4 : score > 200 ? 3 : score > 0 ? 2 : 1;
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('span');
+    s.textContent = i < starCount ? '⭐' : '☆';
+    starsEl.appendChild(s);
+  }
+
+  document.getElementById('finalEmoji').textContent =
+    score > 1000 ? '🏆' : score > 500 ? '🥇' : score > 200 ? '🥈' : '🎗️';
+
+  const feedback = score > 1000
+    ? 'Outstanding! You are a true market strategist. 🚀'
+    : score > 500
+    ? 'Great performance! You understand price-demand dynamics. 📈'
+    : score > 200
+    ? 'Good effort! Focus on balancing cost and demand next time. 💡'
+    : 'Keep practicing! Review the concepts in About section. 📖';
+  document.getElementById('finalFeedback').textContent = feedback;
+
+  // Save to leaderboard
+  saveScore(g.teamName, score, g.totalProfit, parseFloat(avgSat), g.roundHistory.length);
+
+  document.getElementById('finalModal').classList.add('active');
+}
+
+function closeFinalModal() {
+  document.getElementById('finalModal').classList.remove('active');
+}
+
+function playAgain() {
+  closeFinalModal();
+  showHome();
+}
+
+// ── PAGE SWITCHING ──
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('tab-' + page).classList.add('active');
+}
+
+// ── LEADERBOARD ──
+function saveScore(name, score, profit, sat, rounds) {
+  let lb = JSON.parse(localStorage.getItem('ss_leaderboard') || '[]');
+  lb.push({ name, score, profit, sat, rounds, date: new Date().toLocaleDateString() });
+  lb.sort((a, b) => b.score - a.score);
+  lb = lb.slice(0, 10);
+  localStorage.setItem('ss_leaderboard', JSON.stringify(lb));
+}
+
+function renderLeaderboard() {
+  const lb = JSON.parse(localStorage.getItem('ss_leaderboard') || '[]');
+  const el = document.getElementById('lbList');
+  if (!lb.length) {
+    el.innerHTML = '<div class="hint">No scores recorded yet. Complete a game to appear here!</div>';
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  el.innerHTML = lb.map((e, i) => `
+    <div class="lb-item">
+      <div class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || (i+1)}</div>
+      <div class="lb-name">
+        <div>${e.name}</div>
+        <div style="font-size:0.7rem; color:var(--muted);">${e.rounds} rounds • ${e.date}</div>
+      </div>
+      <div class="lb-score">${e.score}</div>
+    </div>
+  `).join('');
+}
+
+function clearLeaderboard() {
+  if (confirm('Clear all leaderboard scores?')) {
+    localStorage.removeItem('ss_leaderboard');
+    renderLeaderboard();
+    toast('Leaderboard cleared.');
+  }
+}
+
+// ── STORAGE ──
+function saveToStorage() {
+  localStorage.setItem('ss_game', JSON.stringify(gameState));
+}
+
+// ── TOAST ──
+function toast(msg, type = 'gold') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderColor = type === 'red' ? 'var(--red)' : 'var(--gold)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  updateSlider('all');
+  setRounds(3);
+  setCapital(1000);
+  setDiff('easy');
+});
+</script>
+</body>
+</html>
