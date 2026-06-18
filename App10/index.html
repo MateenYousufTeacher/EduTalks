@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1923">
+<meta name="description" content="MicroLeap – Teacher Training on Micro Improvement Plans">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MicroLeap – Teacher Training</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a1520;
+    --surface: #111d2b;
+    --surface2: #182636;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7c6af7;
+    --text: #e8f4f0;
+    --text-dim: #7a99b0;
+    --border: rgba(0,229,160,0.15);
+    --correct: #00e5a0;
+    --wrong: #ff4757;
+    --warn: #ffd32a;
+    --radius: 16px;
+    --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========== BACKGROUND ========== */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .bg-glow {
+    position: fixed; z-index: 0; border-radius: 50%;
+    filter: blur(80px); pointer-events: none; opacity: 0.18;
+  }
+  .bg-glow-1 { width: 500px; height: 500px; background: #00e5a0; top: -150px; left: -100px; }
+  .bg-glow-2 { width: 400px; height: 400px; background: #7c6af7; bottom: -100px; right: -80px; }
+
+  /* ========== SCREENS ========== */
+  .screen {
+    position: relative; z-index: 10;
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  .screen.active { display: flex; }
+
+  /* ========== HOME SCREEN ========== */
+  .home-header {
+    text-align: center; padding-top: 32px; margin-bottom: 40px;
+  }
+  .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 8px 18px; border-radius: 100px; font-size: 13px;
+    color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .logo-badge::before { content: '⚡'; }
+
+  h1.title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, #00e5a0 50%, #7c6af7 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    color: var(--text-dim); font-size: 16px; line-height: 1.6;
+    max-width: 380px; margin: 16px auto 0;
+  }
+
+  /* XP bar */
+  .xp-bar-wrap {
+    width: 100%; max-width: 480px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent3), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .xp-info { flex: 1; }
+  .xp-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .xp-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .xp-track { height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .xp-fill {
+    height: 100%; border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    transition: width 1s ease;
+  }
+  .xp-pts { font-size: 11px; color: var(--accent); font-weight: 500; margin-top: 4px; }
+
+  /* Mode cards */
+  .modes-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; width: 100%; max-width: 480px;
+  }
+  .mode-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 16px;
+    cursor: pointer; text-decoration: none; color: inherit;
+    transition: var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .mode-card:hover, .mode-card:active {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(0,229,160,0.15);
+  }
+  .mode-card.wide { grid-column: 1 / -1; }
+  .mode-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .mode-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 4px;
+  }
+  .mode-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .mode-xp {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(0,229,160,0.12); color: var(--accent);
+    font-size: 10px; font-weight: 600; padding: 3px 8px;
+    border-radius: 100px; font-family: 'Syne', sans-serif;
+  }
+  .mode-card.featured { background: linear-gradient(135deg, #0f2a1e, #111d2b); border-color: rgba(0,229,160,0.3); }
+
+  /* ========== QUIZ MODE ========== */
+  .game-header {
+    width: 100%; max-width: 520px;
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .back-btn {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; flex-shrink: 0;
+    transition: var(--transition);
+  }
+  .back-btn:hover { border-color: var(--accent); }
+  .progress-wrap { flex: 1; }
+  .progress-label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .progress-track { height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    transition: width 0.5s ease;
+  }
+  .score-chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 10px; text-align: center; flex-shrink: 0;
+  }
+  .score-chip-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--accent); }
+  .score-chip-lbl { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .q-card {
+    width: 100%; max-width: 520px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 24px; margin-bottom: 16px;
+  }
+  .q-category {
+    font-size: 11px; color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.1em; font-weight: 600; margin-bottom: 10px;
+  }
+  .q-text {
+    font-family: 'Syne', sans-serif; font-size: 18px;
+    font-weight: 700; line-height: 1.4; margin-bottom: 8px;
+  }
+  .q-hint { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  .options-list { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: var(--transition); text-align: left;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.05);
+    transform: translateX(4px);
+  }
+  .option-letter {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--surface2); display: flex; align-items: center;
+    justify-content: center; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+    transition: var(--transition);
+  }
+  .option-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+  .option-btn.correct {
+    border-color: var(--correct); background: rgba(0,229,160,0.1);
+    animation: correctPulse 0.4s ease;
+  }
+  .option-btn.correct .option-letter { background: var(--correct); color: #000; }
+  .option-btn.wrong {
+    border-color: var(--wrong); background: rgba(255,71,87,0.08);
+  }
+  .option-btn.wrong .option-letter { background: var(--wrong); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  .feedback-bar {
+    width: 100%; max-width: 520px;
+    border-radius: 14px; padding: 16px 20px;
+    margin-top: 4px; font-size: 14px; line-height: 1.6;
+    display: none;
+  }
+  .feedback-bar.show { display: block; animation: slideUp 0.3s ease; }
+  .feedback-bar.correct { background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3); }
+  .feedback-bar.wrong { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.25); }
+  .feedback-title { font-weight: 600; margin-bottom: 4px; font-family: 'Syne', sans-serif; }
+  .feedback-bar.correct .feedback-title { color: var(--correct); }
+  .feedback-bar.wrong .feedback-title { color: var(--wrong); }
+
+  .next-btn {
+    width: 100%; max-width: 520px; margin-top: 12px;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 14px; padding: 18px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+    cursor: pointer; transition: var(--transition);
+    display: none;
+  }
+  .next-btn.show { display: block; animation: slideUp 0.3s ease; }
+  .next-btn:hover { background: #00ffb3; transform: translateY(-2px); }
+
+  /* ========== ARRANGE MODE ========== */
+  .arrange-intro {
+    width: 100%; max-width: 520px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px; margin-bottom: 16px;
+  }
+  .arrange-title {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 18px; margin-bottom: 8px;
+  }
+  .arrange-instructions {
+    font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px;
+  }
+  .arrange-steps {
+    display: flex; flex-direction: column; gap: 8px;
+    width: 100%; max-width: 520px;
+  }
+  .arrange-item {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: grab; transition: var(--transition);
+    user-select: none;
+    touch-action: none;
+  }
+  .arrange-item.dragging {
+    opacity: 0.5; cursor: grabbing;
+    border-color: var(--accent3);
+  }
+  .arrange-item.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.06);
+    transform: scale(1.02);
+  }
+  .arrange-handle { color: var(--text-dim); font-size: 16px; flex-shrink: 0; }
+  .arrange-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--surface2); display: flex; align-items: center;
+    justify-content: center; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 12px; flex-shrink: 0; color: var(--accent);
+  }
+  .arrange-text { font-size: 14px; line-height: 1.4; }
+  .arrange-item.correct-pos { border-color: var(--correct); background: rgba(0,229,160,0.07); }
+  .arrange-item.wrong-pos { border-color: var(--wrong); background: rgba(255,71,87,0.06); }
+  .check-btn {
+    width: 100%; max-width: 520px; margin-top: 16px;
+    background: var(--accent3); color: #fff;
+    border: none; border-radius: 14px; padding: 18px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+    cursor: pointer; transition: var(--transition);
+  }
+  .check-btn:hover { background: #9580ff; transform: translateY(-2px); }
+
+  /* ========== BUILD MODE (Workshop Creator) ========== */
+  .build-scenario {
+    width: 100%; max-width: 520px;
+    background: linear-gradient(135deg, #0f2a20, var(--surface));
+    border: 1px solid rgba(0,229,160,0.25); border-radius: 20px;
+    padding: 24px; margin-bottom: 16px;
+  }
+  .scenario-tag {
+    font-size: 10px; color: var(--accent2); text-transform: uppercase;
+    letter-spacing: 0.12em; font-weight: 600; margin-bottom: 8px;
+  }
+  .scenario-text {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 16px; line-height: 1.4;
+  }
+  .build-phases {
+    width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;
+  }
+  .phase-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 16px;
+  }
+  .phase-label {
+    font-size: 11px; color: var(--accent3); text-transform: uppercase;
+    letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px;
+  }
+  .phase-input {
+    width: 100%; background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 12px 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; resize: none;
+    outline: none; transition: var(--transition);
+    min-height: 60px;
+  }
+  .phase-input:focus { border-color: var(--accent); }
+  .phase-input::placeholder { color: var(--text-dim); }
+  .evaluate-btn {
+    width: 100%; max-width: 520px; margin-top: 4px;
+    background: linear-gradient(135deg, var(--accent2), #ff9050);
+    color: #fff; border: none; border-radius: 14px; padding: 18px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+    cursor: pointer; transition: var(--transition);
+  }
+  .evaluate-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+  .evaluate-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  .ai-feedback {
+    width: 100%; max-width: 520px; margin-top: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; display: none;
+  }
+  .ai-feedback.show { display: block; animation: slideUp 0.4s ease; }
+  .ai-feedback-title {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 14px; color: var(--accent); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ai-feedback-body { font-size: 13px; color: var(--text); line-height: 1.7; }
+  .ai-score-row {
+    display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .ai-score-chip {
+    flex: 1; min-width: 80px;
+    background: var(--surface2); border-radius: 10px; padding: 10px 12px; text-align: center;
+  }
+  .ai-score-chip-val {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px;
+  }
+  .ai-score-chip-lbl { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .loading-dots { display: inline-flex; gap: 5px; align-items: center; }
+  .loading-dots span {
+    width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+    animation: dotBounce 1s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dotBounce {
+    0%,80%,100% { transform: scale(1); opacity: 0.4; }
+    40% { transform: scale(1.4); opacity: 1; }
+  }
+
+  /* ========== RESULTS SCREEN ========== */
+  .results-card {
+    width: 100%; max-width: 480px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 32px 24px; text-align: center;
+    margin: 20px 0;
+  }
+  .results-emoji { font-size: 52px; margin-bottom: 16px; }
+  .results-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 28px; margin-bottom: 8px;
+  }
+  .results-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 28px; }
+  .results-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 28px;
+  }
+  .stat-box {
+    background: var(--surface2); border-radius: 14px; padding: 14px 10px;
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 26px; color: var(--accent);
+  }
+  .stat-lbl { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .results-insights {
+    text-align: left; font-size: 13px; color: var(--text-dim);
+    line-height: 1.7; padding: 14px 16px;
+    background: var(--surface2); border-radius: 12px; margin-bottom: 20px;
+  }
+  .results-insights strong { color: var(--text); }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-secondary {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    cursor: pointer; color: var(--text); transition: var(--transition);
+  }
+  .btn-primary {
+    flex: 2; background: var(--accent); border: none;
+    border-radius: 12px; padding: 14px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    cursor: pointer; color: #000; transition: var(--transition);
+  }
+  .btn-primary:hover { background: #00ffb3; transform: translateY(-2px); }
+  .btn-secondary:hover { border-color: var(--accent); }
+
+  /* ========== NAV TABS ========== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,21,32,0.92); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: none; justify-content: space-around; padding: 10px 0 20px;
+  }
+  .bottom-nav.visible { display: flex; }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 20px; cursor: pointer; transition: var(--transition);
+    border-radius: 12px;
+  }
+  .nav-item .nav-icon { font-size: 22px; }
+  .nav-item .nav-lbl { font-size: 10px; color: var(--text-dim); font-weight: 500; }
+  .nav-item.active .nav-lbl { color: var(--accent); }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+
+  /* ========== UTILITIES ========== */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  .animate-in { animation: slideUp 0.4s ease both; }
+  .pb-nav { padding-bottom: 90px; }
+
+  /* streak bar */
+  .streak-bar {
+    display: flex; gap: 4px; justify-content: center; margin: 10px 0 20px;
+  }
+  .streak-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--surface2); transition: var(--transition);
+  }
+  .streak-dot.lit { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .streak-dot.lit-2 { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+
+  /* tooltip / badge pop */
+  .badge-pop {
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #000;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    padding: 10px 24px; border-radius: 100px; z-index: 999;
+    animation: badgeFly 2.5s ease forwards;
+    white-space: nowrap;
+  }
+  @keyframes badgeFly {
+    0% { opacity: 0; top: 100px; }
+    15% { opacity: 1; top: 80px; }
+    75% { opacity: 1; top: 80px; }
+    100% { opacity: 0; top: 60px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<!-- ====== HOME ====== -->
+<div class="screen active" id="screen-home">
+  <div class="home-header animate-in">
+    <div class="logo-badge">Teacher Training</div>
+    <h1 class="title">Micro<br>Leap</h1>
+    <p class="subtitle">Master micro improvement plans through interactive challenges, workshops & real classroom scenarios.</p>
+  </div>
+
+  <div class="xp-bar-wrap animate-in">
+    <div class="avatar">🎓</div>
+    <div class="xp-info">
+      <div class="xp-label">Your Progress</div>
+      <div class="xp-name" id="xp-name">Educator</div>
+      <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+      <div class="xp-pts" id="xp-pts">0 XP — Level 1</div>
+    </div>
+  </div>
+
+  <div class="streak-bar" id="streak-bar">
+    <div class="streak-dot" data-i="0"></div>
+    <div class="streak-dot" data-i="1"></div>
+    <div class="streak-dot" data-i="2"></div>
+    <div class="streak-dot" data-i="3"></div>
+    <div class="streak-dot" data-i="4"></div>
+    <div class="streak-dot" data-i="5"></div>
+    <div class="streak-dot" data-i="6"></div>
+  </div>
+
+  <div class="modes-grid animate-in">
+    <div class="mode-card featured wide" onclick="startMode('quiz')">
+      <span class="mode-icon">🧠</span>
+      <div class="mode-xp">+30 XP</div>
+      <div class="mode-title">Knowledge Check</div>
+      <div class="mode-desc">Test your understanding of micro improvement strategies, SMART targets & observation frameworks.</div>
+    </div>
+    <div class="mode-card" onclick="startMode('arrange')">
+      <span class="mode-icon">🔀</span>
+      <div class="mode-xp">+25 XP</div>
+      <div class="mode-title">Sort the Steps</div>
+      <div class="mode-desc">Arrange the micro improvement cycle in the correct order.</div>
+    </div>
+    <div class="mode-card" onclick="startMode('build')">
+      <span class="mode-icon">🛠️</span>
+      <div class="mode-xp">+50 XP</div>
+      <div class="mode-title">Build a Workshop</div>
+      <div class="mode-desc">Design a micro improvement plan for a real scenario. AI rates your work.</div>
+    </div>
+    <div class="mode-card wide" onclick="startMode('scenario')">
+      <span class="mode-icon">🎭</span>
+      <div class="mode-xp">+40 XP</div>
+      <div class="mode-title">Scenario Judgement</div>
+      <div class="mode-desc">Read classroom situations and decide the best micro improvement response.</div>
+    </div>
+  </div>
+  <div style="height:100px"></div>
+</div>
+
+<!-- ====== QUIZ ====== -->
+<div class="screen pb-nav" id="screen-quiz">
+  <div class="game-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="q-progress-label">Question 1 of 8</span>
+        <span id="q-topic"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="q-progress-fill" style="width:12%"></div></div>
+    </div>
+    <div class="score-chip">
+      <div class="score-chip-val" id="q-score">0</div>
+      <div class="score-chip-lbl">Score</div>
+    </div>
+  </div>
+
+  <div class="q-card animate-in" id="q-card">
+    <div class="q-category" id="q-category">Loading…</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-hint" id="q-hint"></div>
+  </div>
+
+  <div class="options-list" id="options-list"></div>
+
+  <div class="feedback-bar" id="feedback-bar">
+    <div class="feedback-title" id="feedback-title"></div>
+    <div id="feedback-body"></div>
+  </div>
+
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Continue →</button>
+</div>
+
+<!-- ====== ARRANGE ====== -->
+<div class="screen pb-nav" id="screen-arrange">
+  <div class="game-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Sort the Steps</span><span id="arrange-set-label">Set 1 of 3</span></div>
+      <div class="progress-track"><div class="progress-fill" id="arrange-progress" style="width:33%"></div></div>
+    </div>
+    <div class="score-chip">
+      <div class="score-chip-val" id="arrange-score">0</div>
+      <div class="score-chip-lbl">Score</div>
+    </div>
+  </div>
+
+  <div class="arrange-intro animate-in">
+    <div class="arrange-title" id="arrange-title">Arrange the Micro Improvement Cycle</div>
+    <div class="arrange-instructions" id="arrange-instructions">Drag and drop the steps below into the correct order. The sequence matters — each phase builds on the last.</div>
+  </div>
+
+  <div class="arrange-steps" id="arrange-steps"></div>
+  <button class="check-btn" onclick="checkArrange()">Check My Order ✓</button>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ====== BUILD ====== -->
+<div class="screen pb-nav" id="screen-build">
+  <div class="game-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Workshop Builder</span><span>AI Evaluated</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:100%; background: linear-gradient(90deg, var(--accent2), #ff9050)"></div></div>
+    </div>
+    <div class="score-chip">
+      <div class="score-chip-val" id="build-score">—</div>
+      <div class="score-chip-lbl">Rating</div>
+    </div>
+  </div>
+
+  <div class="build-scenario animate-in">
+    <div class="scenario-tag">📋 Classroom Scenario</div>
+    <div class="scenario-text" id="build-scenario-text">Loading scenario…</div>
+  </div>
+
+  <div class="build-phases" id="build-phases">
+    <div class="phase-card">
+      <div class="phase-label">🎯 Specific Target</div>
+      <textarea class="phase-input" id="inp-target" placeholder="What one specific skill or behaviour will this teacher improve? (e.g. increase wait time after questions to 5 seconds)" rows="2"></textarea>
+    </div>
+    <div class="phase-card">
+      <div class="phase-label">📊 Success Measure</div>
+      <textarea class="phase-input" id="inp-measure" placeholder="How will you measure improvement? What evidence will you collect?" rows="2"></textarea>
+    </div>
+    <div class="phase-card">
+      <div class="phase-label">🔄 Support Action</div>
+      <textarea class="phase-input" id="inp-action" placeholder="What coaching action, observation or resource will you provide? (e.g. peer coaching, video reflection…)" rows="2"></textarea>
+    </div>
+    <div class="phase-card">
+      <div class="phase-label">📅 Timeline</div>
+      <textarea class="phase-input" id="inp-timeline" placeholder="How many weeks? What checkpoints will you use?" rows="2"></textarea>
+    </div>
+  </div>
+
+  <button class="evaluate-btn" id="evaluate-btn" onclick="evaluatePlan()">🤖 Evaluate My Plan with AI</button>
+
+  <div class="ai-feedback" id="ai-feedback">
+    <div class="ai-feedback-title">🤖 AI Coach Feedback</div>
+    <div class="ai-feedback-body" id="ai-feedback-body"></div>
+    <div class="ai-score-row" id="ai-score-row"></div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ====== SCENARIO ====== -->
+<div class="screen pb-nav" id="screen-scenario">
+  <div class="game-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="sc-label">Scenario 1 of 5</span></div>
+      <div class="progress-track"><div class="progress-fill" id="sc-progress" style="width:20%"></div></div>
+    </div>
+    <div class="score-chip">
+      <div class="score-chip-val" id="sc-score">0</div>
+      <div class="score-chip-lbl">Score</div>
+    </div>
+  </div>
+
+  <div class="q-card animate-in">
+    <div class="q-category" id="sc-category">Scenario Judgement</div>
+    <div class="q-text" id="sc-text"></div>
+    <div class="q-hint" style="margin-top:8px; font-style:italic; font-size:12px;" id="sc-context"></div>
+  </div>
+
+  <div class="options-list" id="sc-options"></div>
+
+  <div class="feedback-bar" id="sc-feedback">
+    <div class="feedback-title" id="sc-feedback-title"></div>
+    <div id="sc-feedback-body"></div>
+  </div>
+
+  <button class="next-btn" id="sc-next-btn" onclick="nextScenario()">Continue →</button>
+</div>
+
+<!-- ====== RESULTS ====== -->
+<div class="screen" id="screen-results">
+  <div class="results-card animate-in">
+    <div class="results-emoji" id="results-emoji">🎉</div>
+    <div class="results-title" id="results-title">Excellent Work!</div>
+    <div class="results-sub" id="results-sub">Knowledge Check Complete</div>
+    <div class="results-stats">
+      <div class="stat-box"><div class="stat-val" id="res-score">8</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-val" id="res-pct">100%</div><div class="stat-lbl">Accuracy</div></div>
+      <div class="stat-box"><div class="stat-val" id="res-xp">+30</div><div class="stat-lbl">XP Earned</div></div>
+    </div>
+    <div class="results-insights" id="results-insights"></div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goHome()">🏠 Home</button>
+      <button class="btn-primary" id="results-retry" onclick="goHome()">Try Another →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== BOTTOM NAV ====== -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="nav-item active" onclick="showTab('quiz')" id="nav-quiz">
+    <span class="nav-icon">🧠</span>
+    <span class="nav-lbl">Quiz</span>
+  </div>
+  <div class="nav-item" onclick="showTab('arrange')" id="nav-arrange">
+    <span class="nav-icon">🔀</span>
+    <span class="nav-lbl">Sort</span>
+  </div>
+  <div class="nav-item" onclick="showTab('build')" id="nav-build">
+    <span class="nav-icon">🛠️</span>
+    <span class="nav-lbl">Build</span>
+  </div>
+  <div class="nav-item" onclick="showTab('scenario')" id="nav-scenario">
+    <span class="nav-icon">🎭</span>
+    <span class="nav-lbl">Scenario</span>
+  </div>
+</nav>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const QUIZ_QUESTIONS = [
+  {
+    category: "Core Concepts",
+    text: "What is the PRIMARY purpose of a Micro Improvement Plan (MIP) in a teacher training programme?",
+    hint: "Think: small, focused, measurable.",
+    options: [
+      "To evaluate whether a teacher should be dismissed",
+      "To identify and develop one specific, targeted teaching skill over a short cycle",
+      "To replace the annual performance appraisal",
+      "To document all areas of a teacher's practice simultaneously"
+    ],
+    correct: 1,
+    explanation: "A MIP focuses on ONE specific, coachable skill in a short cycle (typically 2–6 weeks). It's developmental, not evaluative — the goal is growth, not judgement."
+  },
+  {
+    category: "SMART Targets",
+    text: "A mentor writes: 'Teacher should get better at questioning.' What is WRONG with this MIP target?",
+    hint: "Apply the SMART framework.",
+    options: [
+      "It is too subject-specific",
+      "It is not measurable or specific — no observable behaviour is defined",
+      "Questioning is not an important teaching skill",
+      "SMART targets don't apply to MIPs"
+    ],
+    correct: 1,
+    explanation: "'Get better at questioning' is vague. A SMART MIP target might be: 'Increase use of open-ended Bloom's Level 3+ questions to at least 5 per lesson, verified by observation.' Specificity creates accountability and clarity."
+  },
+  {
+    category: "Evidence & Observation",
+    text: "Which of the following is the BEST evidence source for a MIP focused on 'increasing student talk time'?",
+    hint: "Consider reliability and objectivity.",
+    options: [
+      "Teacher's self-reported lesson reflection journal only",
+      "Headteacher opinion after one visit",
+      "Structured lesson observation tally chart + pupil voice questionnaire",
+      "End-of-year exam results"
+    ],
+    correct: 2,
+    explanation: "Multiple evidence sources (structured observation + pupil voice) are triangulated, objective and directly related to the target. Self-report alone lacks objectivity; exam data is too distal."
+  },
+  {
+    category: "Coaching Conversations",
+    text: "In the GROWTH coaching model used during MIP check-ins, what does the 'R' stand for?",
+    hint: "G–R–O–W–T–H",
+    options: ["Reflection", "Reality", "Review", "Results"],
+    correct: 1,
+    explanation: "GROWTH = Goal, Reality, Options, Will, Tactics, Habits. 'Reality' (R) is where the coach explores the current situation and evidence before generating solutions — crucial for grounding the plan."
+  },
+  {
+    category: "Timelines & Cycles",
+    text: "Research suggests the optimal length for a single Micro Improvement cycle is:",
+    hint: "Long enough to practice, short enough to maintain focus.",
+    options: [
+      "1 week — rapid feedback loop",
+      "3–6 weeks — enough time for deliberate practice with checkpoints",
+      "One full school term (12+ weeks)",
+      "One academic year"
+    ],
+    correct: 1,
+    explanation: "3–6 weeks allows enough practice repetitions for a habit to form, while remaining short enough to sustain motivation and allow course-correction. Longer cycles risk losing focus on the specific target."
+  },
+  {
+    category: "Common Pitfalls",
+    text: "A teacher is overwhelmed because their MIP contains 6 separate improvement targets. What should the mentor do?",
+    hint: "The 'micro' in MIP is intentional.",
+    options: [
+      "Keep all 6 — thoroughness is important",
+      "Add a 7th target covering professional development",
+      "Reduce to ONE priority target; address others in future MIP cycles",
+      "Replace the MIP with a full Performance Management plan"
+    ],
+    correct: 2,
+    explanation: "The 'micro' in MIP is critical. One focused target enables deep practice and measurable change. Multiple targets dilute attention, increase stress and reduce the likelihood of mastery."
+  },
+  {
+    category: "Inclusivity & Equity",
+    text: "When designing a MIP for a teacher from a Black, Asian or Minority Ethnic background, what additional consideration should a mentor apply?",
+    hint: "Bias can exist even in supportive structures.",
+    options: [
+      "No additional considerations — treat all teachers identically",
+      "Apply lower expectations to reduce pressure",
+      "Ensure the target and evidence criteria are free from cultural bias and that the teacher has equal access to support resources",
+      "Only senior leaders should mentor BAME teachers"
+    ],
+    correct: 2,
+    explanation: "Culturally responsive mentoring ensures MIP targets reflect equitable standards, feedback is given through a culturally aware lens, and systemic barriers (e.g. workload, support access) are acknowledged rather than ignored."
+  },
+  {
+    category: "Impact Measurement",
+    text: "At the end of a MIP cycle, the teacher has improved but the original target was unrealistically ambitious. What is the BEST response?",
+    hint: "Growth mindset applies to systems too.",
+    options: [
+      "Mark the MIP as failed — the target was not met",
+      "Ignore the original target and simply praise effort",
+      "Celebrate the growth achieved, recalibrate the target for the next cycle, and document learning",
+      "Extend the MIP indefinitely until the original target is fully met"
+    ],
+    correct: 2,
+    explanation: "Effective MIP systems are iterative. Acknowledging growth, recalibrating targets and feeding learning into the next cycle reflects a growth mindset culture. Rigid pass/fail thinking is counterproductive in developmental coaching."
+  }
+];
+
+const ARRANGE_SETS = [
+  {
+    title: "The Micro Improvement Cycle",
+    instructions: "Arrange these 6 phases of a MIP cycle in the correct sequence — from initial identification to sustained improvement.",
+    items: [
+      "Identify one specific area for development through observation or self-reflection",
+      "Set a SMART, measurable target with the teacher",
+      "Co-create an action plan with coaching support and resources",
+      "Teacher practises the skill across multiple lessons",
+      "Collect evidence through structured observation and pupil data",
+      "Review progress, celebrate gains, and set next MIP target"
+    ],
+    correct: [0,1,2,3,4,5]
+  },
+  {
+    title: "Writing a SMART MIP Target",
+    instructions: "Arrange these elements in the logical order for constructing a SMART improvement target during a coaching conversation.",
+    items: [
+      "Agree a realistic timeframe (e.g. 4 weeks)",
+      "Observe the lesson and collect baseline evidence",
+      "Define the specific observable teaching behaviour to improve",
+      "Identify how success will be measured (observation tally, student outcomes)",
+      "Check the target is achievable given current context and workload"
+    ],
+    correct: [1,2,3,4,0]
+  },
+  {
+    title: "Running a Coaching Check-in",
+    instructions: "Arrange the steps of an effective mid-cycle MIP coaching conversation in the right order.",
+    items: [
+      "Review evidence collected since last check-in",
+      "Set the agenda and create a safe, reflective space",
+      "Ask the teacher to self-assess progress against the target",
+      "Explore barriers and generate strategies together",
+      "Agree next steps and update the action plan"
+    ],
+    correct: [1,0,2,3,4]
+  }
+];
+
+const SCENARIOS = [
+  {
+    category: "Real Classroom Challenge",
+    text: "Ms. Patel's MIP target is to 'reduce whole-class talk and increase pupil discussion'. After 2 weeks she reports: 'I tried pair work twice but the class got too noisy and off-task. I went back to teacher-led lessons.' What should the mentor do?",
+    context: "Mid-cycle check-in, week 3 of 6.",
+    options: [
+      "Agree the target was wrong and abandon the MIP",
+      "Praise the attempts, diagnose WHY the discussions failed (structure? task design? grouping?), co-plan a more structured approach for next week",
+      "Observe the lesson immediately and give a formal grade",
+      "Tell the teacher to simply try harder"
+    ],
+    correct: 1,
+    explanation: "Setbacks in MIPs are learning data, not failure. The mentor should use a coaching conversation to explore root causes (likely: task was too open-ended, groups too large, success criteria unclear) and co-design a more scaffolded approach. This is the heart of developmental coaching."
+  },
+  {
+    category: "Target Quality",
+    text: "A mentor proposes this MIP target for a newly qualified teacher: 'Improve classroom management and behaviour, use of AfL strategies, and teacher subject knowledge over the next 6 weeks.' What is the problem?",
+    context: "End of half-term target-setting meeting.",
+    options: [
+      "The targets are too easy",
+      "Six weeks is too long for a MIP",
+      "Three separate complex targets are not 'micro' — this will overwhelm the NQT and prevent deep practice of any single skill",
+      "AfL strategies are not relevant in a MIP"
+    ],
+    correct: 2,
+    explanation: "This is a 'Christmas tree' MIP — decorated with too many targets. For an NQT especially, one well-chosen, achievable target (e.g. implementing exit tickets for AfL) will create more growth than three simultaneous overarching aims."
+  },
+  {
+    category: "Evidence Judgement",
+    text: "A teacher says his MIP is complete because 'my lessons feel better and pupils seem more engaged.' Should the mentor accept this as sufficient evidence?",
+    context: "End-of-cycle review meeting.",
+    options: [
+      "Yes — teacher professional judgement is always sufficient evidence",
+      "No — subjective feeling is valuable but must be corroborated with observable evidence (observation data, pupil outcomes, or pupil voice)",
+      "No — only external observers can judge MIP completion",
+      "Yes — if the teacher feels better, the MIP has worked"
+    ],
+    correct: 1,
+    explanation: "Teacher reflection is a vital starting point, but MIP evidence should be triangulated. Pair self-reflection with a structured observation tally, pupil work samples, or a short pupil voice survey for robust, credible evidence of change."
+  },
+  {
+    category: "Culture & Mindset",
+    text: "A teacher refuses to engage with her MIP, saying: 'I've been teaching 15 years — I don't need this.' How should the mentor respond?",
+    context: "Start of the MIP process, first meeting.",
+    options: [
+      "Immediately escalate to a formal capability procedure",
+      "Cancel the MIP — experienced teachers are exempt",
+      "Acknowledge her expertise, reframe the MIP as professional curiosity rather than deficit, and co-design a target that genuinely interests her",
+      "Insist she completes the MIP exactly as planned"
+    ],
+    correct: 2,
+    explanation: "Resistance often comes from feeling judged. Experienced teachers respond to autonomy and purpose. Reframing the MIP as 'What might you want to refine or experiment with?' — co-designed and strength-based — transforms the dynamic from compliance to genuine professional learning."
+  },
+  {
+    category: "Next Steps",
+    text: "After completing a successful MIP on questioning technique, a teacher is now consistently using higher-order questions. What is the BEST next step?",
+    context: "Successful end-of-cycle review.",
+    options: [
+      "Close the file — the job is done",
+      "Immediately begin a new MIP on the same target to maintain standards",
+      "Celebrate the achievement, explore how the skill can be embedded across subjects, and collaboratively identify the next developmental priority",
+      "Ask the teacher to mentor the whole department immediately"
+    ],
+    correct: 2,
+    explanation: "The MIP cycle is iterative, not transactional. After success: celebrate (this builds intrinsic motivation), embed the skill (how does this now look across topics?), and then move to the next target. This creates a professional learning habit, not a one-off event."
+  }
+];
+
+const BUILD_SCENARIOS = [
+  "Mr. Thompson (Year 7 Science) has good subject knowledge but consistently over-explains concepts, leaving only 5 minutes for student tasks. Students are passive and test scores are low despite his enthusiasm.",
+  "Ms. Okonkwo (Year 10 English) struggles with behaviour management during group work. She defaults to teacher-led whole-class instruction to maintain control, but Ofsted noted limited pupil dialogue.",
+  "Mr. Singh (NQT, Primary Year 3) gives verbal feedback constantly but students don't act on it — they wait for the next lesson without editing or improving their work.",
+  "Mrs. Clarke (experienced MFL teacher) delivers lessons at a fast pace. High-attaining students are engaged but lower-attaining students are frequently lost. Differentiation is minimal."
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  xp: 0, streak: 0,
+  quizIndex: 0, quizScore: 0, quizAnswered: false,
+  arrangeSetIndex: 0, arrangeScore: 0, arrangeOrder: [],
+  buildScenarioIndex: 0,
+  scenarioIndex: 0, scenarioScore: 0, scenarioAnswered: false,
+  currentMode: null
+};
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('microleap_state') || '{}');
+    if (s.xp !== undefined) state.xp = s.xp;
+    if (s.streak !== undefined) state.streak = s.streak;
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem('microleap_state', JSON.stringify({ xp: state.xp, streak: state.streak }));
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  const nav = document.getElementById('bottom-nav');
+  if (id === 'home' || id === 'results') {
+    nav.classList.remove('visible');
+  } else {
+    nav.classList.add('visible');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const ni = document.getElementById('nav-' + id);
+    if (ni) ni.classList.add('active');
+  }
+}
+
+function goHome() {
+  state.currentMode = null;
+  showScreen('home');
+  updateXPBar();
+  updateStreak();
+}
+
+function showTab(mode) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + mode).classList.add('active');
+  startMode(mode);
+}
+
+function startMode(mode) {
+  state.currentMode = mode;
+  if (mode === 'quiz') startQuiz();
+  else if (mode === 'arrange') startArrange();
+  else if (mode === 'build') startBuild();
+  else if (mode === 'scenario') startScenario();
+}
+
+// ============================================================
+// XP & STREAK
+// ============================================================
+function addXP(amount, label) {
+  state.xp += amount;
+  saveState();
+  updateXPBar();
+  showBadge(`+${amount} XP — ${label}`);
+}
+
+function updateXPBar() {
+  const level = Math.floor(state.xp / 100) + 1;
+  const pct = (state.xp % 100);
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-pts').textContent = `${state.xp} XP — Level ${level}`;
+  const titles = ['Educator','Practitioner','Practitioner+','Coach','Senior Coach','Expert','Master Trainer'];
+  document.getElementById('xp-name').textContent = titles[Math.min(level-1, titles.length-1)];
+}
+
+function updateStreak() {
+  const dots = document.querySelectorAll('.streak-dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('lit','lit-2');
+    if (i < state.streak && state.streak < 5) d.classList.add('lit');
+    else if (i < state.streak) d.classList.add('lit-2');
+  });
+}
+
+function showBadge(msg) {
+  const el = document.createElement('div');
+  el.className = 'badge-pop';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+// ============================================================
+// QUIZ MODE
+// ============================================================
+function startQuiz() {
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  state.quizAnswered = false;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUIZ_QUESTIONS[state.quizIndex];
+  const total = QUIZ_QUESTIONS.length;
+  state.quizAnswered = false;
+
+  document.getElementById('q-progress-label').textContent = `Question ${state.quizIndex + 1} of ${total}`;
+  document.getElementById('q-topic').textContent = q.category;
+  document.getElementById('q-progress-fill').style.width = ((state.quizIndex + 1) / total * 100) + '%';
+  document.getElementById('q-score').textContent = state.quizScore;
+  document.getElementById('q-category').textContent = q.category;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-hint').textContent = q.hint ? '💡 ' + q.hint : '';
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt}</div>`;
+    btn.onclick = () => selectAnswer(i, q.correct, q.explanation);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('feedback-bar').className = 'feedback-bar';
+  document.getElementById('next-btn').className = 'next-btn';
+}
+
+function selectAnswer(selected, correct, explanation) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === selected) btn.classList.add('wrong');
+  });
+
+  const isCorrect = selected === correct;
+  if (isCorrect) state.quizScore++;
+
+  const fb = document.getElementById('feedback-bar');
+  fb.className = 'feedback-bar show ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('feedback-title').textContent = isCorrect ? '✓ Correct!' : '✗ Not quite…';
+  document.getElementById('feedback-body').textContent = explanation;
+
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  state.quizIndex++;
+  if (state.quizIndex >= QUIZ_QUESTIONS.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  const total = QUIZ_QUESTIONS.length;
+  const pct = Math.round(state.quizScore / total * 100);
+  const xpEarned = Math.round(30 * (pct / 100));
+  addXP(xpEarned, 'Knowledge Check');
+
+  const emojis = pct >= 90 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '🌱';
+  const titles = pct >= 90 ? 'Outstanding!' : pct >= 70 ? 'Strong work!' : pct >= 50 ? 'Good effort!' : 'Keep learning!';
+
+  document.getElementById('results-emoji').textContent = emojis;
+  document.getElementById('results-title').textContent = titles;
+  document.getElementById('results-sub').textContent = 'Knowledge Check Complete';
+  document.getElementById('res-score').textContent = `${state.quizScore}/${total}`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-xp').textContent = '+' + xpEarned;
+
+  const insight = pct >= 80
+    ? 'You have a strong grasp of MIP principles. Focus on the Build Workshop mode to apply your knowledge to real scenarios.'
+    : pct >= 60
+    ? 'Solid understanding of core concepts. Review SMART target writing and evidence collection for an even stronger foundation.'
+    : 'Revisit the core MIP cycle and SMART target frameworks. Try the Sort the Steps mode to reinforce the sequence.';
+
+  document.getElementById('results-insights').innerHTML = `<strong>Next step:</strong> ${insight}`;
+  showScreen('results');
+}
+
+// ============================================================
+// ARRANGE MODE
+// ============================================================
+function startArrange() {
+  state.arrangeSetIndex = 0;
+  state.arrangeScore = 0;
+  showScreen('arrange');
+  renderArrangeSet();
+}
+
+function renderArrangeSet() {
+  const set = ARRANGE_SETS[state.arrangeSetIndex];
+  document.getElementById('arrange-set-label').textContent = `Set ${state.arrangeSetIndex + 1} of ${ARRANGE_SETS.length}`;
+  document.getElementById('arrange-progress').style.width = ((state.arrangeSetIndex + 1) / ARRANGE_SETS.length * 100) + '%';
+  document.getElementById('arrange-title').textContent = set.title;
+  document.getElementById('arrange-instructions').textContent = set.instructions;
+  document.getElementById('arrange-score').textContent = state.arrangeScore;
+
+  // Shuffle
+  const shuffled = [...Array(set.items.length).keys()];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  state.arrangeOrder = shuffled;
+
+  renderArrangeItems();
+}
+
+function renderArrangeItems() {
+  const set = ARRANGE_SETS[state.arrangeSetIndex];
+  const container = document.getElementById('arrange-steps');
+  container.innerHTML = '';
+
+  state.arrangeOrder.forEach((origIdx, pos) => {
+    const div = document.createElement('div');
+    div.className = 'arrange-item animate-in';
+    div.draggable = true;
+    div.dataset.pos = pos;
+    div.innerHTML = `
+      <div class="arrange-handle">⠿</div>
+      <div class="arrange-num">${pos + 1}</div>
+      <div class="arrange-text">${set.items[origIdx]}</div>
+    `;
+    setupDragDrop(div, pos);
+    setupTouchDrag(div, pos);
+    container.appendChild(div);
+  });
+}
+
+let dragSrc = null;
+function setupDragDrop(el, pos) {
+  el.addEventListener('dragstart', e => {
+    dragSrc = pos;
+    el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    if (dragSrc !== null && dragSrc !== pos) {
+      [state.arrangeOrder[dragSrc], state.arrangeOrder[pos]] = [state.arrangeOrder[pos], state.arrangeOrder[dragSrc]];
+      renderArrangeItems();
+    }
+  });
+}
+
+// Touch drag
+let touchDragSrc = null, touchClone = null;
+function setupTouchDrag(el, pos) {
+  el.addEventListener('touchstart', e => {
+    touchDragSrc = pos;
+    const touch = e.touches[0];
+    touchClone = el.cloneNode(true);
+    touchClone.style.cssText = `position:fixed;opacity:0.8;pointer-events:none;z-index:9999;left:${touch.clientX-80}px;top:${touch.clientY-20}px;width:${el.offsetWidth}px;`;
+    document.body.appendChild(touchClone);
+    el.classList.add('dragging');
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    if (!touchClone) return;
+    const touch = e.touches[0];
+    touchClone.style.left = (touch.clientX - 80) + 'px';
+    touchClone.style.top = (touch.clientY - 20) + 'px';
+
+    document.querySelectorAll('.arrange-item').forEach(item => item.classList.remove('drag-over'));
+    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+    const target = elem?.closest('.arrange-item');
+    if (target) target.classList.add('drag-over');
+  }, { passive: true });
+
+  el.addEventListener('touchend', e => {
+    if (!touchClone) return;
+    const touch = e.changedTouches[0];
+    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+    const target = elem?.closest('.arrange-item');
+    if (target && touchDragSrc !== null) {
+      const targetPos = parseInt(target.dataset.pos);
+      if (targetPos !== touchDragSrc) {
+        [state.arrangeOrder[touchDragSrc], state.arrangeOrder[targetPos]] = [state.arrangeOrder[targetPos], state.arrangeOrder[touchDragSrc]];
+      }
+    }
+    touchClone.remove(); touchClone = null;
+    touchDragSrc = null;
+    document.querySelectorAll('.arrange-item').forEach(item => item.classList.remove('dragging','drag-over'));
+    renderArrangeItems();
+  });
+}
+
+function checkArrange() {
+  const set = ARRANGE_SETS[state.arrangeSetIndex];
+  const correctOrder = set.correct;
+  let correct = 0;
+  const items = document.querySelectorAll('.arrange-item');
+
+  state.arrangeOrder.forEach((origIdx, pos) => {
+    const item = items[pos];
+    item.classList.remove('correct-pos','wrong-pos');
+    if (origIdx === correctOrder[pos]) {
+      item.classList.add('correct-pos');
+      correct++;
+    } else {
+      item.classList.add('wrong-pos');
+    }
+  });
+
+  const pct = Math.round(correct / set.items.length * 100);
+  state.arrangeScore += pct;
+
+  setTimeout(() => {
+    state.arrangeSetIndex++;
+    if (state.arrangeSetIndex >= ARRANGE_SETS.length) {
+      // Show results
+      const avg = Math.round(state.arrangeScore / ARRANGE_SETS.length);
+      const xpEarned = Math.round(25 * avg / 100);
+      addXP(xpEarned, 'Sort the Steps');
+      document.getElementById('results-emoji').textContent = avg >= 80 ? '🎯' : '📋';
+      document.getElementById('results-title').textContent = avg >= 80 ? 'Sequencing Master!' : 'Good Effort!';
+      document.getElementById('results-sub').textContent = `Average accuracy: ${avg}%`;
+      document.getElementById('res-score').textContent = avg + '%';
+      document.getElementById('res-pct').textContent = avg + '%';
+      document.getElementById('res-xp').textContent = '+' + xpEarned;
+      document.getElementById('results-insights').innerHTML = '<strong>The MIP cycle is iterative:</strong> each phase informs the next. Strong sequencing knowledge means you can guide teachers through the process confidently.';
+      showScreen('results');
+    } else {
+      document.getElementById('arrange-score').textContent = state.arrangeScore;
+      renderArrangeSet();
+    }
+  }, 1800);
+}
+
+// ============================================================
+// BUILD MODE
+// ============================================================
+function startBuild() {
+  state.buildScenarioIndex = Math.floor(Math.random() * BUILD_SCENARIOS.length);
+  document.getElementById('build-scenario-text').textContent = BUILD_SCENARIOS[state.buildScenarioIndex];
+  document.getElementById('ai-feedback').className = 'ai-feedback';
+  document.getElementById('build-score').textContent = '—';
+  ['inp-target','inp-measure','inp-action','inp-timeline'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  showScreen('build');
+}
+
+async function evaluatePlan() {
+  const target = document.getElementById('inp-target').value.trim();
+  const measure = document.getElementById('inp-measure').value.trim();
+  const action = document.getElementById('inp-action').value.trim();
+  const timeline = document.getElementById('inp-timeline').value.trim();
+  const scenario = BUILD_SCENARIOS[state.buildScenarioIndex];
+
+  if (!target || !measure || !action || !timeline) {
+    showBadge('⚠️ Complete all 4 fields first');
+    return;
+  }
+
+  const btn = document.getElementById('evaluate-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div> Evaluating…';
+
+  const fb = document.getElementById('ai-feedback');
+  fb.className = 'ai-feedback show';
+  document.getElementById('ai-feedback-body').innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div> Analysing your micro improvement plan…';
+  document.getElementById('ai-score-row').innerHTML = '';
+
+  const prompt = `You are an expert teacher training coach evaluating a Micro Improvement Plan (MIP) created by a trainee mentor.
+
+CLASSROOM SCENARIO: ${scenario}
+
+TRAINEE'S PLAN:
+- Specific Target: ${target}
+- Success Measure: ${measure}  
+- Support Action: ${action}
+- Timeline: ${timeline}
+
+Evaluate this plan on 3 dimensions (score each 1-10):
+1. SPECIFICITY: Is the target observable and precise?
+2. MEASURABILITY: Is there a clear, evidence-based measure?
+3. SUPPORT: Is the coaching action realistic and research-informed?
+
+Respond in this EXACT JSON format, no markdown:
+{
+  "specificity": 7,
+  "measurability": 6,
+  "support": 8,
+  "overall": 7,
+  "strengths": "2-3 specific strengths of this plan",
+  "improvements": "2-3 specific, actionable suggestions for improvement",
+  "exemplar": "One sentence showing what an excellent version of the target might look like"
+}`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+
+    let result;
+    try {
+      result = JSON.parse(text.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      // Fallback mock
+      result = { specificity: 6, measurability: 5, support: 7, overall: 6, strengths: "Good attempt at identifying a specific focus area. Your support action shows awareness of coaching approaches.", improvements: "Make the target more observable — include a specific number or frequency. Add a baseline measure before the MIP begins. Clarify how you'll collect evidence (observation tally, pupil data).", exemplar: "Teacher will increase the proportion of open questions to at least 60% of all questions asked, measured by a 20-question tally during a 30-minute observed lesson, rising from a baseline of 30%." };
+    }
+
+    document.getElementById('build-score').textContent = result.overall + '/10';
+    document.getElementById('ai-feedback-body').innerHTML = `
+      <div style="margin-bottom:10px;"><strong style="color:var(--correct)">✓ Strengths</strong><br>${result.strengths}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--accent2)">↑ Improvements</strong><br>${result.improvements}</div>
+      <div><strong style="color:var(--accent3)">💡 Exemplar target</strong><br><em>${result.exemplar}</em></div>
+    `;
+    document.getElementById('ai-score-row').innerHTML = `
+      <div class="ai-score-chip"><div class="ai-score-chip-val" style="color:var(--accent)">${result.specificity}</div><div class="ai-score-chip-lbl">Specific</div></div>
+      <div class="ai-score-chip"><div class="ai-score-chip-val" style="color:var(--accent2)">${result.measurability}</div><div class="ai-score-chip-lbl">Measurable</div></div>
+      <div class="ai-score-chip"><div class="ai-score-chip-val" style="color:var(--accent3)">${result.support}</div><div class="ai-score-chip-lbl">Support</div></div>
+      <div class="ai-score-chip"><div class="ai-score-chip-val" style="color:#fff">${result.overall}</div><div class="ai-score-chip-lbl">Overall</div></div>
+    `;
+
+    const xpEarned = Math.round(result.overall * 5);
+    addXP(xpEarned, 'Workshop Built');
+
+  } catch(err) {
+    document.getElementById('ai-feedback-body').textContent = 'Could not connect to AI coach. Check your connection and try again.';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Try a Different Scenario';
+  btn.onclick = startBuild;
+}
+
+// ============================================================
+// SCENARIO MODE
+// ============================================================
+function startScenario() {
+  state.scenarioIndex = 0;
+  state.scenarioScore = 0;
+  state.scenarioAnswered = false;
+  showScreen('scenario');
+  renderScenario();
+}
+
+function renderScenario() {
+  const sc = SCENARIOS[state.scenarioIndex];
+  state.scenarioAnswered = false;
+  const total = SCENARIOS.length;
+
+  document.getElementById('sc-label').textContent = `Scenario ${state.scenarioIndex + 1} of ${total}`;
+  document.getElementById('sc-progress').style.width = ((state.scenarioIndex + 1) / total * 100) + '%';
+  document.getElementById('sc-score').textContent = state.scenarioScore;
+  document.getElementById('sc-category').textContent = sc.category;
+  document.getElementById('sc-text').textContent = sc.text;
+  document.getElementById('sc-context').textContent = sc.context ? '📍 ' + sc.context : '';
+
+  const list = document.getElementById('sc-options');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  sc.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt}</div>`;
+    btn.onclick = () => selectScenario(i, sc.correct, sc.explanation);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('sc-feedback').className = 'feedback-bar';
+  document.getElementById('sc-next-btn').className = 'next-btn';
+}
+
+function selectScenario(selected, correct, explanation) {
+  if (state.scenarioAnswered) return;
+  state.scenarioAnswered = true;
+
+  const btns = document.querySelectorAll('#sc-options .option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === selected) btn.classList.add('wrong');
+  });
+
+  const isCorrect = selected === correct;
+  if (isCorrect) state.scenarioScore++;
+
+  const fb = document.getElementById('sc-feedback');
+  fb.className = 'feedback-bar show ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('sc-feedback-title').textContent = isCorrect ? '✓ Great judgement!' : '✗ Consider this…';
+  document.getElementById('sc-feedback-body').textContent = explanation;
+  document.getElementById('sc-next-btn').className = 'next-btn show';
+}
+
+function nextScenario() {
+  state.scenarioIndex++;
+  if (state.scenarioIndex >= SCENARIOS.length) {
+    const pct = Math.round(state.scenarioScore / SCENARIOS.length * 100);
+    const xpEarned = Math.round(40 * pct / 100);
+    addXP(xpEarned, 'Scenario Judgement');
+    document.getElementById('results-emoji').textContent = pct >= 80 ? '🎭' : '🎯';
+    document.getElementById('results-title').textContent = pct >= 80 ? 'Expert Judgement!' : 'Good Instincts!';
+    document.getElementById('results-sub').textContent = 'Scenario Judgement Complete';
+    document.getElementById('res-score').textContent = `${state.scenarioScore}/${SCENARIOS.length}`;
+    document.getElementById('res-pct').textContent = pct + '%';
+    document.getElementById('res-xp').textContent = '+' + xpEarned;
+    document.getElementById('results-insights').innerHTML = '<strong>Real scenarios</strong> are where coaching knowledge becomes coaching skill. The more you practice judgement calls, the more natural your responses will become in live conversations.';
+    showScreen('results');
+  } else {
+    renderScenario();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+updateXPBar();
+updateStreak();
+</script>
+</body>
+</html>

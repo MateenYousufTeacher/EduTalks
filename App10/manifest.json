@@ -1,0 +1,20 @@
+{
+  "name": "MicroLeap – Teacher Training",
+  "short_name": "MicroLeap",
+  "description": "Interactive micro improvement plan training for teachers",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a1520",
+  "theme_color": "#0f1923",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230a1520'/><text y='340' x='100' font-size='300'>🎓</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": []
+}
