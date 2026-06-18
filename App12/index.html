@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0d1a">
+<meta name="description" content="Word Detective - A gamified language learning PWA by Mateen Yousuf">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Word Detective">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Word Detective</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #080812;
+  --bg-dark: #0d0d1a;
+  --bg-card: #12121f;
+  --bg-surface: #1a1a2e;
+  --accent-gold: #f5c842;
+  --accent-amber: #e8a020;
+  --noun-blue: #4a9eff;
+  --noun-glow: rgba(74,158,255,0.3);
+  --verb-red: #ff4a6e;
+  --verb-glow: rgba(255,74,110,0.3);
+  --adj-green: #4aff9e;
+  --adj-glow: rgba(74,255,158,0.3);
+  --text-primary: #f0ead8;
+  --text-muted: #7a7a9a;
+  --border: rgba(245,200,66,0.15);
+  --shadow-gold: 0 0 30px rgba(245,200,66,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; min-height:100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(74,158,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%, rgba(245,200,66,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 70% 20%, rgba(255,74,110,0.04) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center;
+  overflow-y:auto;
+  z-index:1;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.4s ease;
+}
+.screen.active { opacity:1; pointer-events:all; }
+
+/* ══════════════════════════════
+   SPLASH SCREEN
+══════════════════════════════ */
+#splash {
+  background: var(--bg-deep);
+  justify-content:center;
+}
+
+.splash-inner {
+  display:flex; flex-direction:column; align-items:center;
+  gap:0; padding:20px; text-align:center;
+  animation: fadeUp 0.8s ease both;
+}
+
+.splash-magnify {
+  font-size: 5rem;
+  filter: drop-shadow(0 0 20px rgba(245,200,66,0.5));
+  animation: pulse 2s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes pulse {
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.08); }
+}
+
+.splash-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 8vw, 3.8rem);
+  font-weight:900;
+  line-height:1;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #f5c842 0%, #e8a020 40%, #f5c842 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  margin-bottom: 6px;
+}
+
+.splash-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 4px;
+  text-transform:uppercase;
+  color: var(--text-muted);
+  margin-bottom:28px;
+}
+
+/* Author Banner */
+.author-banner {
+  display:flex; align-items:center; gap:14px;
+  background: linear-gradient(135deg, rgba(245,200,66,0.08), rgba(245,200,66,0.03));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  width:100%; max-width:360px;
+}
+.author-photo {
+  width:56px; height:56px;
+  border-radius:50%;
+  object-fit:cover;
+  border: 2px solid var(--accent-gold);
+  flex-shrink:0;
+}
+.author-info { text-align:left; }
+.author-name {
+  font-family:'Playfair Display', serif;
+  font-size:1rem; font-weight:700;
+  color: var(--accent-gold);
+  line-height:1.2;
+}
+.author-role {
+  font-size:0.78rem; color:var(--text-muted);
+  letter-spacing:1px; text-transform:uppercase;
+}
+
+/* Tag Chips */
+.pos-chips {
+  display:flex; gap:8px; flex-wrap:wrap;
+  justify-content:center;
+  margin-bottom:28px;
+}
+.chip {
+  padding:6px 14px; border-radius:999px;
+  font-size:0.82rem; font-weight:600;
+  letter-spacing:1px; text-transform:uppercase;
+}
+.chip-noun { background:rgba(74,158,255,0.15); color:var(--noun-blue); border:1px solid rgba(74,158,255,0.3);}
+.chip-verb { background:rgba(255,74,110,0.15); color:var(--verb-red); border:1px solid rgba(255,74,110,0.3);}
+.chip-adj  { background:rgba(74,255,158,0.15); color:var(--adj-green); border:1px solid rgba(74,255,158,0.3);}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #f5c842, #e8a020);
+  color: #0d0d1a;
+  border:none; border-radius:12px;
+  padding:14px 36px;
+  font-family:'Rajdhani', sans-serif;
+  font-size:1.1rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer;
+  box-shadow: 0 4px 20px rgba(245,200,66,0.3);
+  transition: all 0.2s;
+  width:100%; max-width:280px;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(245,200,66,0.4);}
+.btn-primary:active { transform:translateY(0);}
+
+.btn-secondary {
+  background:transparent;
+  color:var(--text-muted);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:10px 24px;
+  font-family:'Rajdhani', sans-serif;
+  font-size:0.95rem; font-weight:600;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-top:8px;
+  width:100%; max-width:280px;
+}
+.btn-secondary:hover { border-color:rgba(245,200,66,0.3); color:var(--text-primary);}
+
+/* ══════════════════════════════
+   HOW TO PLAY SCREEN
+══════════════════════════════ */
+#howto {
+  padding: 24px 16px 40px;
+  max-width:480px; margin:0 auto;
+  justify-content:flex-start;
+}
+.howto-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem; font-weight:700;
+  color:var(--accent-gold);
+  margin:24px 0 20px;
+  text-align:center;
+}
+.rule-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.rule-card h3 { font-size:1rem; font-weight:700; letter-spacing:1px; margin-bottom:8px;}
+.rule-card p, .rule-card li { font-size:0.9rem; color:#b0b0c8; line-height:1.6;}
+.rule-card ul { list-style:none; }
+.rule-card li::before { content:"▸ "; color:var(--accent-gold);}
+
+.score-table { width:100%; border-collapse:collapse; font-size:0.9rem;}
+.score-table td { padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.05);}
+.score-table td:last-child { text-align:right; font-weight:700;}
+
+/* ══════════════════════════════
+   LEVEL SELECT
+══════════════════════════════ */
+#levels {
+  padding:24px 16px 40px;
+  max-width:480px; margin:0 auto;
+  justify-content:flex-start;
+}
+.levels-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem; font-weight:700;
+  color:var(--accent-gold);
+  margin:24px 0 20px;
+  text-align:center;
+}
+
+.level-card {
+  display:flex; align-items:center; gap:16px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px 20px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:all 0.2s;
+  width:100%;
+}
+.level-card:hover { border-color:rgba(245,200,66,0.4); transform:translateX(4px);}
+.level-icon { font-size:2rem; flex-shrink:0;}
+.level-info { flex:1; text-align:left;}
+.level-name { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; margin-bottom:3px;}
+.level-desc { font-size:0.82rem; color:var(--text-muted);}
+.level-badge { font-size:0.75rem; font-weight:700; letter-spacing:1px; padding:4px 10px; border-radius:999px;}
+.badge-easy   { background:rgba(74,255,158,0.15); color:var(--adj-green);}
+.badge-medium { background:rgba(245,200,66,0.15); color:var(--accent-gold);}
+.badge-hard   { background:rgba(255,74,110,0.15); color:var(--verb-red);}
+.badge-expert { background:rgba(160,80,255,0.2); color:#c080ff;}
+.badge-bonus  { background:rgba(255,140,0,0.2); color:#ff8c00;}
+
+.level-stars { font-size:1rem; margin-left:auto;}
+
+/* ══════════════════════════════
+   GAME SCREEN
+══════════════════════════════ */
+#game {
+  padding:0 0 80px;
+  max-width:520px; margin:0 auto;
+  justify-content:flex-start;
+  width:100%;
+}
+
+.game-header {
+  width:100%;
+  background: linear-gradient(180deg, var(--bg-dark) 0%, transparent 100%);
+  padding:14px 16px 10px;
+  position:sticky; top:0; z-index:10;
+  border-bottom:1px solid var(--border);
+}
+
+.game-meta {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.game-level-tag {
+  font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent-gold); opacity:0.8;
+}
+.game-score-display {
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem; font-weight:700;
+  color:var(--accent-gold);
+}
+.game-progress-bar {
+  width:100%; height:4px;
+  background:rgba(255,255,255,0.08);
+  border-radius:999px; overflow:hidden;
+}
+.game-progress-fill {
+  height:100%;
+  background: linear-gradient(90deg, #f5c842, #e8a020);
+  border-radius:999px;
+  transition: width 0.5s ease;
+}
+
+.timer-row {
+  display:flex; align-items:center; gap:8px; margin-top:8px;
+}
+.timer-icon { font-size:1rem;}
+.timer-bar {
+  flex:1; height:8px;
+  background:rgba(255,255,255,0.08);
+  border-radius:999px; overflow:hidden;
+}
+.timer-fill {
+  height:100%; width:100%;
+  background: linear-gradient(90deg, var(--adj-green), #f5c842);
+  border-radius:999px;
+  transition: width 0.1s linear, background 0.5s;
+}
+.timer-fill.urgent { background: linear-gradient(90deg, var(--verb-red), #ff8c00);}
+.timer-label { font-size:0.9rem; font-weight:700; min-width:28px; text-align:right;}
+
+.case-panel {
+  margin:16px; padding:18px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+.case-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:0.72rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent-gold); margin-bottom:12px;
+}
+.case-badge::before { content:'🔍';}
+
+.case-sentence {
+  font-family:'Crimson Pro', serif;
+  font-size:1.3rem; line-height:1.7;
+  color:var(--text-primary);
+  word-spacing:4px;
+}
+
+.word-token {
+  display:inline-block;
+  cursor:pointer;
+  border-radius:6px;
+  padding:2px 4px;
+  margin:2px 1px;
+  border:2px solid transparent;
+  transition:all 0.15s;
+  position:relative;
+  user-select:none;
+}
+.word-token:hover { border-color:rgba(245,200,66,0.5); background:rgba(245,200,66,0.05);}
+.word-token.selected-noun { background:rgba(74,158,255,0.2); border-color:var(--noun-blue); color:var(--noun-blue);}
+.word-token.selected-verb { background:rgba(255,74,110,0.2); border-color:var(--verb-red); color:var(--verb-red);}
+.word-token.selected-adj  { background:rgba(74,255,158,0.2); border-color:var(--adj-green); color:var(--adj-green);}
+.word-token.correct-noun  { background:rgba(74,158,255,0.3); border-color:var(--noun-blue); color:var(--noun-blue); animation:correctFlash 0.4s ease;}
+.word-token.correct-verb  { background:rgba(255,74,110,0.3); border-color:var(--verb-red); color:var(--verb-red); animation:correctFlash 0.4s ease;}
+.word-token.correct-adj   { background:rgba(74,255,158,0.3); border-color:var(--adj-green); color:var(--adj-green); animation:correctFlash 0.4s ease;}
+.word-token.wrong  { background:rgba(255,100,100,0.15); border-color:rgba(255,80,80,0.5); animation:wrongShake 0.3s ease;}
+.word-token.missed { border-style:dashed; opacity:0.7;}
+
+@keyframes correctFlash {
+  0%,100%{ transform:scale(1);}
+  50%{ transform:scale(1.12);}
+}
+@keyframes wrongShake {
+  0%,100%{ transform:translateX(0);}
+  25%{ transform:translateX(-4px);}
+  75%{ transform:translateX(4px);}
+}
+
+/* POS Selector */
+.pos-selector {
+  margin:0 16px 16px;
+  display:flex; gap:8px;
+}
+.pos-btn {
+  flex:1; padding:10px 8px;
+  border:2px solid transparent;
+  border-radius:12px;
+  background:var(--bg-card);
+  color:var(--text-muted);
+  font-family:'Rajdhani', sans-serif;
+  font-size:0.85rem; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.pos-btn span.emoji { font-size:1.3rem;}
+.pos-btn.active-noun { border-color:var(--noun-blue); background:rgba(74,158,255,0.15); color:var(--noun-blue);}
+.pos-btn.active-verb { border-color:var(--verb-red); background:rgba(255,74,110,0.15); color:var(--verb-red);}
+.pos-btn.active-adj  { border-color:var(--adj-green); background:rgba(74,255,158,0.15); color:var(--adj-green);}
+
+.action-row {
+  margin:0 16px;
+  display:flex; gap:8px;
+}
+.btn-check {
+  flex:2;
+  background: linear-gradient(135deg, #f5c842, #e8a020);
+  color:#0d0d1a; border:none; border-radius:12px;
+  padding:13px; font-family:'Rajdhani',sans-serif;
+  font-size:1rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-check:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(245,200,66,0.3);}
+.btn-clear {
+  flex:1;
+  background:transparent; border:1px solid rgba(255,255,255,0.1);
+  color:var(--text-muted); border-radius:12px;
+  padding:13px; font-family:'Rajdhani',sans-serif;
+  font-size:0.9rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-clear:hover { border-color:rgba(255,80,80,0.3); color:var(--verb-red);}
+
+/* Feedback Toast */
+.feedback-toast {
+  position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(60px);
+  background:var(--bg-surface); border:1px solid var(--border);
+  border-radius:12px; padding:12px 20px;
+  font-size:0.95rem; font-weight:600;
+  opacity:0; transition:all 0.3s;
+  pointer-events:none; z-index:100;
+  min-width:220px; text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+}
+.feedback-toast.show { opacity:1; transform:translateX(-50%) translateY(0);}
+.feedback-toast.good { border-color:rgba(74,255,158,0.4); color:var(--adj-green);}
+.feedback-toast.bad  { border-color:rgba(255,74,110,0.4); color:var(--verb-red);}
+.feedback-toast.info { border-color:rgba(245,200,66,0.4); color:var(--accent-gold);}
+
+/* Score Popup */
+.score-popup {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:var(--bg-surface);
+  border:2px solid var(--accent-gold);
+  border-radius:20px; padding:20px 30px;
+  text-align:center; z-index:200;
+  box-shadow:0 0 60px rgba(245,200,66,0.2);
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  min-width:240px;
+}
+.score-popup.show { transform:translate(-50%,-50%) scale(1);}
+.score-popup h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--accent-gold); margin-bottom:8px;}
+.score-popup .points { font-size:3rem; font-weight:900; font-family:'Playfair Display',serif;}
+.score-popup .points.pos { color:var(--adj-green);}
+.score-popup .points.neg { color:var(--verb-red);}
+
+/* ══════════════════════════════
+   RESULTS SCREEN
+══════════════════════════════ */
+#results {
+  padding:24px 16px 60px;
+  max-width:480px; margin:0 auto;
+  justify-content:flex-start;
+}
+.results-header {
+  text-align:center; padding:24px 0 16px;
+}
+.results-trophy { font-size:4rem; margin-bottom:8px; display:block;}
+.results-title {
+  font-family:'Playfair Display',serif;
+  font-size:2rem; font-weight:900;
+  color:var(--accent-gold); margin-bottom:4px;
+}
+.results-sub { font-size:0.9rem; color:var(--text-muted);}
+
+.big-score {
+  font-family:'Playfair Display',serif;
+  font-size:5rem; font-weight:900;
+  text-align:center;
+  background:linear-gradient(135deg,#f5c842,#e8a020);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin:12px 0;
+}
+
+.stats-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:10px; margin:16px 0;
+}
+.stat-box {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:12px; padding:14px 8px; text-align:center;
+}
+.stat-num { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; display:block;}
+.stat-label { font-size:0.72rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted);}
+.stat-noun .stat-num { color:var(--noun-blue);}
+.stat-verb .stat-num { color:var(--verb-red);}
+.stat-adj  .stat-num  { color:var(--adj-green);}
+
+.badge-earned {
+  background:var(--bg-card); border:1px solid rgba(245,200,66,0.3);
+  border-radius:14px; padding:16px; text-align:center; margin:12px 0;
+}
+.badge-earned .emoji { font-size:2.5rem; display:block; margin-bottom:6px;}
+.badge-earned .badge-title { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--accent-gold); font-weight:700;}
+.badge-earned .badge-desc { font-size:0.82rem; color:var(--text-muted); margin-top:4px;}
+
+.results-actions { display:flex; flex-direction:column; gap:10px; margin-top:20px;}
+
+/* ══════════════════════════════
+   LEADERBOARD SCREEN  
+══════════════════════════════ */
+#leaderboard {
+  padding:24px 16px 60px;
+  max-width:480px; margin:0 auto;
+  justify-content:flex-start;
+}
+.lb-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem; font-weight:700;
+  color:var(--accent-gold);
+  margin:16px 0 20px; text-align:center;
+}
+.lb-row {
+  display:flex; align-items:center; gap:14px;
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px; margin-bottom:8px;
+}
+.lb-rank { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; min-width:36px; color:var(--text-muted);}
+.lb-rank.gold   { color:var(--accent-gold);}
+.lb-rank.silver { color:#a0a0b8;}
+.lb-rank.bronze { color:#cd7f32;}
+.lb-name { flex:1; font-weight:600; font-size:1rem;}
+.lb-meta { font-size:0.8rem; color:var(--text-muted);}
+.lb-score { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--accent-gold);}
+.lb-empty { text-align:center; color:var(--text-muted); font-size:0.9rem; padding:40px 0; font-style:italic;}
+
+/* ══════════════════════════════
+   SHARED / NAV
+══════════════════════════════ */
+.back-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  color:var(--text-muted); font-size:0.9rem; font-weight:600;
+  cursor:pointer; padding:8px 0;
+  transition:color 0.2s;
+  background:none; border:none;
+}
+.back-btn:hover { color:var(--accent-gold);}
+
+.section-divider {
+  height:1px; background:var(--border);
+  margin:16px 0;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px);}
+  to   { opacity:1; transform:translateY(0);}
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(8,8,18,0.95);
+  border-top:1px solid var(--border);
+  display:flex; justify-content:space-around;
+  padding:8px 0 env(safe-area-inset-bottom, 8px);
+  z-index:50; backdrop-filter:blur(10px);
+}
+.nav-item {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  cursor:pointer; padding:6px 16px;
+  color:var(--text-muted); font-size:0.7rem; font-weight:600;
+  letter-spacing:1px; text-transform:uppercase;
+  transition:color 0.2s; border:none; background:none;
+}
+.nav-item span.nav-icon { font-size:1.4rem;}
+.nav-item.active { color:var(--accent-gold);}
+
+/* Overlay */
+.overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:150; backdrop-filter:blur(4px);
+  display:none;
+}
+.overlay.show { display:block;}
+
+/* ── Responsive ── */
+@media(min-width:480px){
+  .splash-inner, #howto, #levels, #game, #results, #leaderboard {
+    max-width:480px;
+  }
+}
+
+.highlight-anim {
+  animation: highlightPop 0.5s ease both;
+}
+@keyframes highlightPop {
+  0%   { transform:scale(1); }
+  40%  { transform:scale(1.15); }
+  100% { transform:scale(1); }
+}
+
+.word-token.word-answered { pointer-events: none; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash" class="screen active">
+  <div class="splash-inner">
+    <div class="splash-magnify">🔍</div>
+    <h1 class="splash-title">Word Detective</h1>
+    <p class="splash-subtitle">Grammar Intelligence Game</p>
+
+    <div class="author-banner">
+      <img src="author.jpg" alt="Mateen Yousuf" class="author-photo" id="authorPhoto">
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Author · Educator</div>
+      </div>
+    </div>
+
+    <div class="pos-chips">
+      <div class="chip chip-noun">🟦 Nouns</div>
+      <div class="chip chip-verb">🟥 Verbs</div>
+      <div class="chip chip-adj">🟩 Adjectives</div>
+    </div>
+
+    <button class="btn-primary" onclick="showScreen('levels')">START INVESTIGATION</button>
+    <button class="btn-secondary" onclick="showScreen('howto')">HOW TO PLAY</button>
+    <button class="btn-secondary" onclick="showScreen('leaderboard')">🏆 LEADERBOARD</button>
+  </div>
+</div>
+
+<!-- ══ HOW TO PLAY ══ -->
+<div id="howto" class="screen">
+  <div style="padding:0 16px; width:100%; max-width:480px;">
+    <button class="back-btn" onclick="showScreen('splash')">← Back</button>
+  </div>
+  <h2 class="howto-title">How to Play</h2>
+
+  <div style="width:100%; max-width:480px; padding:0 16px;">
+    <div class="rule-card">
+      <h3 style="color:var(--accent-gold)">🕵️ Your Mission</h3>
+      <p>You are a Word Detective! Analyze each sentence and identify all the nouns, verbs, and adjectives hidden inside. Tap a word category below, then tap the words in the sentence.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3>Color Code</h3>
+      <ul>
+        <li style="color:var(--noun-blue)">🟦 NOUN — Person, place, or thing</li>
+        <li style="color:var(--verb-red)">🟥 VERB — Action or state</li>
+        <li style="color:var(--adj-green)">🟩 ADJECTIVE — Describes a noun</li>
+      </ul>
+    </div>
+
+    <div class="rule-card">
+      <h3>🏆 Scoring</h3>
+      <table class="score-table">
+        <tr><td>✅ Correct Noun</td><td style="color:var(--noun-blue)">+1 pt</td></tr>
+        <tr><td>✅ Correct Verb</td><td style="color:var(--verb-red)">+2 pts</td></tr>
+        <tr><td>✅ Correct Adjective</td><td style="color:var(--adj-green)">+2 pts</td></tr>
+        <tr><td>🎯 Full Sentence Correct</td><td style="color:var(--accent-gold)">+5 bonus!</td></tr>
+        <tr><td>❌ Wrong Answer</td><td style="color:var(--verb-red)">-1 pt</td></tr>
+      </table>
+    </div>
+
+    <div class="rule-card">
+      <h3>⏱️ Levels</h3>
+      <ul>
+        <li>Level 1 Easy — Simple sentences, 60s timer</li>
+        <li>Level 2 Medium — Mixed vocabulary, 50s timer</li>
+        <li>Level 3 Hard — Complex sentences, 40s timer</li>
+        <li>Level 4 Expert — Tricky words, 30s timer</li>
+        <li>🔥 Bonus — Ultimate challenge!</li>
+      </ul>
+    </div>
+
+    <button class="btn-primary" onclick="showScreen('levels')" style="display:block; margin:20px auto 0;">
+      BEGIN CASE
+    </button>
+  </div>
+</div>
+
+<!-- ══ LEVEL SELECT ══ -->
+<div id="levels" class="screen">
+  <div style="padding:0 16px; width:100%; max-width:480px;">
+    <button class="back-btn" onclick="showScreen('splash')">← Back</button>
+  </div>
+  <h2 class="levels-title">Choose Your Level</h2>
+
+  <div style="width:100%; max-width:480px; padding:0 16px;">
+    <div class="level-card" onclick="startGame(0)">
+      <div class="level-icon">🟢</div>
+      <div class="level-info">
+        <div class="level-name" style="color:var(--adj-green)">Level 1 — Easy</div>
+        <div class="level-desc">Simple sentences · 10 cases · 60s each</div>
+      </div>
+      <div>
+        <div class="level-badge badge-easy">Easy</div>
+        <div class="level-stars" id="stars-0"></div>
+      </div>
+    </div>
+
+    <div class="level-card" onclick="startGame(1)">
+      <div class="level-icon">🟡</div>
+      <div class="level-info">
+        <div class="level-name" style="color:var(--accent-gold)">Level 2 — Medium</div>
+        <div class="level-desc">Mixed structures · 10 cases · 50s each</div>
+      </div>
+      <div>
+        <div class="level-badge badge-medium">Medium</div>
+        <div class="level-stars" id="stars-1"></div>
+      </div>
+    </div>
+
+    <div class="level-card" onclick="startGame(2)">
+      <div class="level-icon">🔴</div>
+      <div class="level-info">
+        <div class="level-name" style="color:var(--verb-red)">Level 3 — Hard</div>
+        <div class="level-desc">Complex text · 10 cases · 40s each</div>
+      </div>
+      <div>
+        <div class="level-badge badge-hard">Hard</div>
+        <div class="level-stars" id="stars-2"></div>
+      </div>
+    </div>
+
+    <div class="level-card" onclick="startGame(3)">
+      <div class="level-icon">🟣</div>
+      <div class="level-info">
+        <div class="level-name" style="color:#c080ff">Level 4 — Expert</div>
+        <div class="level-desc">Tricky words · 10 cases · 30s each</div>
+      </div>
+      <div>
+        <div class="level-badge badge-expert">Expert</div>
+        <div class="level-stars" id="stars-3"></div>
+      </div>
+    </div>
+
+    <div class="level-card" onclick="startGame(4)">
+      <div class="level-icon">🔥</div>
+      <div class="level-info">
+        <div class="level-name" style="color:#ff8c00">Bonus Challenge</div>
+        <div class="level-desc">Ultimate mix · 5 cases · 25s each</div>
+      </div>
+      <div>
+        <div class="level-badge badge-bonus">Bonus</div>
+        <div class="level-stars" id="stars-4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game" class="screen">
+  <div class="game-header">
+    <div class="game-meta">
+      <div>
+        <button class="back-btn" onclick="quitGame()" style="padding:0;">← Quit</button>
+        <div class="game-level-tag" id="gameLevelTag">Level 1 — Easy</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.72rem; color:var(--text-muted); letter-spacing:1px;">SCORE</div>
+        <div class="game-score-display" id="scoreDisplay">0</div>
+      </div>
+    </div>
+    <div class="game-progress-bar">
+      <div class="game-progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="timer-row">
+      <span class="timer-icon">⏱️</span>
+      <div class="timer-bar">
+        <div class="timer-fill" id="timerFill"></div>
+      </div>
+      <span class="timer-label" id="timerLabel">60</span>
+    </div>
+  </div>
+
+  <div class="case-panel" id="casePanel">
+    <div class="case-badge">Case <span id="caseNum">1</span> of <span id="caseTotal">10</span></div>
+    <div class="case-sentence" id="caseSentence">Loading case...</div>
+  </div>
+
+  <div class="pos-selector">
+    <button class="pos-btn" id="btnNoun" onclick="selectPOS('noun')">
+      <span class="emoji">🟦</span>NOUN
+    </button>
+    <button class="pos-btn" id="btnVerb" onclick="selectPOS('verb')">
+      <span class="emoji">🟥</span>VERB
+    </button>
+    <button class="pos-btn" id="btnAdj" onclick="selectPOS('adj')">
+      <span class="emoji">🟩</span>ADJ
+    </button>
+  </div>
+
+  <div class="action-row">
+    <button class="btn-check" onclick="checkAnswers()">🔍 CHECK ANSWERS</button>
+    <button class="btn-clear" onclick="clearSelections()">CLEAR</button>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div id="results" class="screen">
+  <div style="padding:0 16px; width:100%; max-width:480px;">
+    <button class="back-btn" onclick="showScreen('levels')">← Levels</button>
+  </div>
+  <div style="width:100%; max-width:480px; padding:0 16px;">
+    <div class="results-header">
+      <span class="results-trophy" id="resultTrophy">🏆</span>
+      <div class="results-title" id="resultTitle">Case Solved!</div>
+      <div class="results-sub" id="resultSub">Investigation complete</div>
+    </div>
+
+    <div class="big-score" id="bigScore">0</div>
+
+    <div class="stats-grid">
+      <div class="stat-box stat-noun">
+        <span class="stat-num" id="statNoun">0/0</span>
+        <span class="stat-label">Nouns</span>
+      </div>
+      <div class="stat-box stat-verb">
+        <span class="stat-num" id="statVerb">0/0</span>
+        <span class="stat-label">Verbs</span>
+      </div>
+      <div class="stat-box stat-adj">
+        <span class="stat-num" id="statAdj">0/0</span>
+        <span class="stat-label">Adjectives</span>
+      </div>
+    </div>
+
+    <div class="badge-earned" id="badgeEarned">
+      <span class="emoji" id="badgeEmoji">🕵️</span>
+      <div class="badge-title" id="badgeTitle">Junior Detective</div>
+      <div class="badge-desc" id="badgeDesc">Keep investigating!</div>
+    </div>
+
+    <div class="results-actions">
+      <button class="btn-primary" onclick="playAgainSameLevel()">PLAY AGAIN</button>
+      <button class="btn-secondary" onclick="showScreen('levels')">CHOOSE LEVEL</button>
+      <button class="btn-secondary" onclick="showScreen('leaderboard')">🏆 LEADERBOARD</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LEADERBOARD ══ -->
+<div id="leaderboard" class="screen">
+  <div style="padding:0 16px; width:100%; max-width:480px;">
+    <button class="back-btn" onclick="showScreen('splash')">← Back</button>
+  </div>
+  <h2 class="lb-title">🏆 Hall of Fame</h2>
+  <div id="lbContent" style="width:100%; max-width:480px; padding:0 16px;">
+    <div class="lb-empty">No records yet. Start detecting!</div>
+  </div>
+</div>
+
+<!-- Feedback Toast -->
+<div class="feedback-toast" id="feedbackToast"></div>
+
+<!-- Score Popup -->
+<div class="overlay" id="overlay"></div>
+<div class="score-popup" id="scorePopup">
+  <h2 id="popupTitle">Correct!</h2>
+  <div class="points" id="popupPoints">+2</div>
+  <p id="popupSub" style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;"></p>
+  <button onclick="hidePopup()" style="margin-top:16px;" class="btn-primary">CONTINUE</button>
+</div>
+
+<!-- Bottom Nav (visible during levels/howto/leaderboard/results) -->
+<nav class="bottom-nav" id="bottomNav" style="display:none;">
+  <button class="nav-item" onclick="showScreen('splash')">
+    <span class="nav-icon">🏠</span>Home
+  </button>
+  <button class="nav-item" onclick="showScreen('levels')">
+    <span class="nav-icon">🎮</span>Play
+  </button>
+  <button class="nav-item" onclick="showScreen('leaderboard')">
+    <span class="nav-icon">🏆</span>Scores
+  </button>
+  <button class="nav-item" onclick="showScreen('howto')">
+    <span class="nav-icon">📖</span>Rules
+  </button>
+</nav>
+
+<script>
+// ══════════════════════════════════════
+//  DATA — 45 Paragraphs across 5 levels
+// ══════════════════════════════════════
+const LEVELS = [
+  { name:"Level 1 — Easy", tag:"Level 1 · Easy", timer:60, color:"#4aff9e" },
+  { name:"Level 2 — Medium", tag:"Level 2 · Medium", timer:50, color:"#f5c842" },
+  { name:"Level 3 — Hard", tag:"Level 3 · Hard", timer:40, color:"#ff4a6e" },
+  { name:"Level 4 — Expert", tag:"Level 4 · Expert", timer:30, color:"#c080ff" },
+  { name:"Bonus Challenge", tag:"🔥 Bonus · Ultimate", timer:25, color:"#ff8c00" }
+];
+
+const PARAGRAPHS = [
+  // LEVEL 1 (indices 0-9)
+  { s:"The boy eats a sweet mango.", nouns:["boy","mango"], verbs:["eats"], adjs:["sweet"] },
+  { s:"A small cat drinks warm milk.", nouns:["cat","milk"], verbs:["drinks"], adjs:["small","warm"] },
+  { s:"The girl reads a short book.", nouns:["girl","book"], verbs:["reads"], adjs:["short"] },
+  { s:"A big dog chases a fast rabbit.", nouns:["dog","rabbit"], verbs:["chases"], adjs:["big","fast"] },
+  { s:"The red ball rolls on the floor.", nouns:["ball","floor"], verbs:["rolls"], adjs:["red"] },
+  { s:"A happy child plays in the park.", nouns:["child","park"], verbs:["plays"], adjs:["happy"] },
+  { s:"The tall tree gives cool shade.", nouns:["tree","shade"], verbs:["gives"], adjs:["tall","cool"] },
+  { s:"A young boy writes a neat letter.", nouns:["boy","letter"], verbs:["writes"], adjs:["young","neat"] },
+  { s:"The bright sun shines in the sky.", nouns:["sun","sky"], verbs:["shines"], adjs:["bright"] },
+  { s:"A little bird sings a sweet song.", nouns:["bird","song"], verbs:["sings"], adjs:["little","sweet"] },
+  // LEVEL 2 (indices 10-19)
+  { s:"The brave soldier fought a fierce battle.", nouns:["soldier","battle"], verbs:["fought"], adjs:["brave","fierce"] },
+  { s:"A clever fox tricked the hungry crow.", nouns:["fox","crow"], verbs:["tricked"], adjs:["clever","hungry"] },
+  { s:"The old man carried a heavy bag.", nouns:["man","bag"], verbs:["carried"], adjs:["old","heavy"] },
+  { s:"The beautiful garden has colorful flowers.", nouns:["garden","flowers"], verbs:["has"], adjs:["beautiful","colorful"] },
+  { s:"A fast train crossed the long bridge.", nouns:["train","bridge"], verbs:["crossed"], adjs:["fast","long"] },
+  { s:"The strong wind broke the weak branch.", nouns:["wind","branch"], verbs:["broke"], adjs:["strong","weak"] },
+  { s:"The smart student answered difficult questions.", nouns:["student","questions"], verbs:["answered"], adjs:["smart","difficult"] },
+  { s:"A rich farmer owns a large field.", nouns:["farmer","field"], verbs:["owns"], adjs:["rich","large"] },
+  { s:"The happy family enjoyed a delicious meal.", nouns:["family","meal"], verbs:["enjoyed"], adjs:["happy","delicious"] },
+  { s:"A young artist painted a beautiful picture.", nouns:["artist","picture"], verbs:["painted"], adjs:["young","beautiful"] },
+  // LEVEL 3 (indices 20-29)
+  { s:"The intelligent scientist discovered a new chemical element.", nouns:["scientist","element"], verbs:["discovered"], adjs:["intelligent","new","chemical"] },
+  { s:"The experienced teacher explained a complex concept.", nouns:["teacher","concept"], verbs:["explained"], adjs:["experienced","complex"] },
+  { s:"The tired worker completed a challenging task.", nouns:["worker","task"], verbs:["completed"], adjs:["tired","challenging"] },
+  { s:"The creative designer built an innovative product.", nouns:["designer","product"], verbs:["built"], adjs:["creative","innovative"] },
+  { s:"The famous author wrote an inspiring story.", nouns:["author","story"], verbs:["wrote"], adjs:["famous","inspiring"] },
+  { s:"The skilled engineer fixed a broken machine.", nouns:["engineer","machine"], verbs:["fixed"], adjs:["skilled","broken"] },
+  { s:"The ambitious player achieved a remarkable victory.", nouns:["player","victory"], verbs:["achieved"], adjs:["ambitious","remarkable"] },
+  { s:"The curious child asked an interesting question.", nouns:["child","question"], verbs:["asked"], adjs:["curious","interesting"] },
+  { s:"The brave firefighter saved a trapped family.", nouns:["firefighter","family"], verbs:["saved"], adjs:["brave","trapped"] },
+  { s:"The wise leader made a fair decision.", nouns:["leader","decision"], verbs:["made"], adjs:["wise","fair"] },
+  // LEVEL 4 (indices 30-39)
+  { s:"The exhausted traveler reached the ancient village after a long journey.", nouns:["traveler","village","journey"], verbs:["reached"], adjs:["exhausted","ancient","long"] },
+  { s:"The determined athlete completed a difficult race with strong effort.", nouns:["athlete","race","effort"], verbs:["completed"], adjs:["determined","difficult","strong"] },
+  { s:"The brilliant student developed an advanced solution for the complex problem.", nouns:["student","solution","problem"], verbs:["developed"], adjs:["brilliant","advanced","complex"] },
+  { s:"The honest officer handled a sensitive case with careful attention.", nouns:["officer","case","attention"], verbs:["handled"], adjs:["honest","sensitive","careful"] },
+  { s:"The energetic team created a successful project with innovative ideas.", nouns:["team","project","ideas"], verbs:["created"], adjs:["energetic","successful","innovative"] },
+  { s:"The skilled doctor treated a serious patient with proper care.", nouns:["doctor","patient","care"], verbs:["treated"], adjs:["skilled","serious","proper"] },
+  { s:"The talented musician performed a beautiful composition with great passion.", nouns:["musician","composition","passion"], verbs:["performed"], adjs:["talented","beautiful","great"] },
+  { s:"The responsible manager organized a large event with perfect planning.", nouns:["manager","event","planning"], verbs:["organized"], adjs:["responsible","large","perfect"] },
+  { s:"The adventurous explorer discovered a hidden treasure in a distant land.", nouns:["explorer","treasure","land"], verbs:["discovered"], adjs:["adventurous","hidden","distant"] },
+  { s:"The dedicated teacher inspired young minds with meaningful lessons.", nouns:["teacher","minds","lessons"], verbs:["inspired"], adjs:["dedicated","young","meaningful"] },
+  // BONUS (indices 40-44)
+  { s:"The quick brown fox jumps over the lazy dog.", nouns:["fox","dog"], verbs:["jumps"], adjs:["quick","brown","lazy"] },
+  { s:"The silent night brought a calm feeling to the sleepy village.", nouns:["night","feeling","village"], verbs:["brought"], adjs:["silent","calm","sleepy"] },
+  { s:"The powerful king ruled a vast kingdom with strong authority.", nouns:["king","kingdom","authority"], verbs:["ruled"], adjs:["powerful","vast","strong"] },
+  { s:"The bright student solved a tricky puzzle with great skill.", nouns:["student","puzzle","skill"], verbs:["solved"], adjs:["bright","tricky","great"] },
+  { s:"The gentle breeze carried a pleasant smell across the green fields.", nouns:["breeze","smell","fields"], verbs:["carried"], adjs:["gentle","pleasant","green"] }
+];
+
+const LEVEL_RANGES = [[0,9],[10,19],[20,29],[30,39],[40,44]];
+const LEVEL_COUNTS = [10,10,10,10,5];
+
+// ═══════════════════════════
+//  STATE
+// ═══════════════════════════
+let currentLevel = 0;
+let currentCaseIndex = 0;
+let caseQueue = [];
+let currentCase = null;
+let selectedPOS = 'noun';
+let wordSelections = {}; // word -> POS
+let score = 0;
+let stats = { noun:0, nounTotal:0, verb:0, verbTotal:0, adj:0, adjTotal:0 };
+let timerInterval = null;
+let timeLeft = 60;
+let timerMax = 60;
+let gameActive = false;
+let playerName = localStorage.getItem('wd_name') || 'Detective';
+
+// ═══════════════════════════
+//  SCREEN MANAGEMENT
+// ═══════════════════════════
+const GAME_SCREENS = ['levels','howto','leaderboard','results'];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const nav = document.getElementById('bottomNav');
+  if (id === 'game') {
+    nav.style.display = 'none';
+  } else if (id === 'splash') {
+    nav.style.display = 'none';
+    updateLevelStars();
+  } else {
+    nav.style.display = 'flex';
+  }
+  if (id === 'leaderboard') renderLeaderboard();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════
+//  GAME INIT
+// ═══════════════════════════
+function startGame(levelIndex) {
+  currentLevel = levelIndex;
+  const [start, end] = LEVEL_RANGES[levelIndex];
+  const range = [];
+  for(let i = start; i <= end; i++) range.push(i);
+  // Shuffle
+  for(let i = range.length-1; i > 0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [range[i],range[j]] = [range[j],range[i]];
+  }
+  caseQueue = range;
+  currentCaseIndex = 0;
+  score = 0;
+  stats = { noun:0, nounTotal:0, verb:0, verbTotal:0, adj:0, adjTotal:0 };
+  
+  document.getElementById('gameLevelTag').textContent = LEVELS[levelIndex].tag;
+  document.getElementById('scoreDisplay').textContent = '0';
+  showScreen('game');
+  loadCase();
+}
+
+function loadCase() {
+  if(currentCaseIndex >= caseQueue.length) {
+    endGame(); return;
+  }
+  const pIdx = caseQueue[currentCaseIndex];
+  currentCase = PARAGRAPHS[pIdx];
+  wordSelections = {};
+  selectedPOS = 'noun';
+
+  // Update progress
+  const total = caseQueue.length;
+  document.getElementById('caseNum').textContent = currentCaseIndex+1;
+  document.getElementById('caseTotal').textContent = total;
+  document.getElementById('progressFill').style.width = ((currentCaseIndex/total)*100)+'%';
+
+  // Render sentence
+  renderSentence(currentCase.s);
+
+  // POS buttons
+  selectPOS('noun');
+
+  // Timer
+  timerMax = LEVELS[currentLevel].timer;
+  startTimer();
+
+  gameActive = true;
+}
+
+function renderSentence(sentence) {
+  const container = document.getElementById('caseSentence');
+  container.innerHTML = '';
+  // Tokenize — keep punctuation attached but strip for matching
+  const parts = sentence.split(/(\s+)/);
+  parts.forEach(part => {
+    if(/^\s+$/.test(part)) {
+      container.appendChild(document.createTextNode(' '));
+      return;
+    }
+    if(!part) return;
+    const clean = part.replace(/[^a-zA-Z]/g,'').toLowerCase();
+    if(!clean) {
+      container.appendChild(document.createTextNode(part));
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = 'word-token';
+    span.textContent = part;
+    span.dataset.word = clean;
+    span.onclick = () => tagWord(span, clean);
+    container.appendChild(span);
+  });
+}
+
+// ═══════════════════════════
+//  POS SELECTION
+// ═══════════════════════════
+function selectPOS(pos) {
+  selectedPOS = pos;
+  ['noun','verb','adj'].forEach(p => {
+    const btn = document.getElementById('btn'+p.charAt(0).toUpperCase()+p.slice(1));
+    btn.className = 'pos-btn';
+    if(p === pos) btn.classList.add('active-'+pos);
+  });
+}
+
+function tagWord(span, word) {
+  if(!gameActive) return;
+  const cur = wordSelections[word];
+  if(cur === selectedPOS) {
+    // Deselect
+    delete wordSelections[word];
+    span.className = 'word-token';
+  } else {
+    wordSelections[word] = selectedPOS;
+    span.className = 'word-token selected-'+selectedPOS;
+    span.classList.add('highlight-anim');
+    setTimeout(()=>span.classList.remove('highlight-anim'), 500);
+  }
+}
+
+function clearSelections() {
+  wordSelections = {};
+  document.querySelectorAll('.word-token').forEach(t => {
+    t.className = 'word-token';
+  });
+}
+
+// ═══════════════════════════
+//  CHECKING
+// ═══════════════════════════
+function checkAnswers() {
+  if(!gameActive) return;
+  gameActive = false;
+  clearInterval(timerInterval);
+
+  const c = currentCase;
+  let roundScore = 0;
+  let correctNoun=0, correctVerb=0, correctAdj=0;
+  let wrongCount = 0;
+
+  // Check each tagged word
+  for(const [word, pos] of Object.entries(wordSelections)){
+    const isNoun = c.nouns.includes(word);
+    const isVerb = c.verbs.includes(word);
+    const isAdj  = c.adjs.includes(word);
+    let correct = false;
+    if(pos==='noun' && isNoun){ roundScore+=1; correctNoun++; correct=true; }
+    else if(pos==='verb' && isVerb){ roundScore+=2; correctVerb++; correct=true; }
+    else if(pos==='adj'  && isAdj){ roundScore+=2; correctAdj++; correct=true; }
+    if(!correct){ roundScore-=1; wrongCount++; }
+
+    // Highlight tokens
+    document.querySelectorAll('.word-token').forEach(t => {
+      if(t.dataset.word === word) {
+        t.className = correct ? `word-token correct-${pos} word-answered` : 'word-token wrong word-answered';
+      }
+    });
+  }
+
+  // Mark missed words
+  const allCorrect = [...c.nouns,...c.verbs,...c.adjs];
+  allCorrect.forEach(w => {
+    if(!wordSelections[w]) {
+      document.querySelectorAll('.word-token').forEach(t => {
+        if(t.dataset.word === w) {
+          const correctPOS = c.nouns.includes(w)?'noun':c.verbs.includes(w)?'verb':'adj';
+          t.className = `word-token correct-${correctPOS} missed`;
+        }
+      });
+    }
+  });
+
+  // Bonus: full sentence correct
+  const totalCorrect = correctNoun + correctVerb + correctAdj;
+  const totalPossible = c.nouns.length + c.verbs.length + c.adjs.length;
+  let bonusApplied = false;
+  if(totalCorrect === totalPossible && wrongCount === 0){
+    roundScore += 5; bonusApplied = true;
+  }
+
+  roundScore = Math.max(0, roundScore);
+  score += roundScore;
+  document.getElementById('scoreDisplay').textContent = score;
+
+  // Update cumulative stats
+  stats.noun += correctNoun; stats.nounTotal += c.nouns.length;
+  stats.verb += correctVerb; stats.verbTotal += c.verbs.length;
+  stats.adj  += correctAdj;  stats.adjTotal  += c.adjs.length;
+
+  // Show popup
+  showScorePopup(roundScore, bonusApplied, totalCorrect, totalPossible, wrongCount);
+}
+
+function showScorePopup(pts, bonus, correct, total, wrong) {
+  const popup = document.getElementById('scorePopup');
+  const overlay = document.getElementById('overlay');
+
+  document.getElementById('popupTitle').textContent = pts > 0 ? (bonus ? '🎯 Perfect Case!' : '✅ Case Checked!') : '❌ Keep Going!';
+  const ptEl = document.getElementById('popupPoints');
+  ptEl.textContent = (pts>=0?'+':'')+pts+' pts';
+  ptEl.className = 'points '+(pts>=0?'pos':'neg');
+
+  let sub = `${correct}/${total} words found`;
+  if(bonus) sub += ' · BONUS +5 🎉';
+  if(wrong) sub += ` · ${wrong} wrong`;
+  document.getElementById('popupSub').textContent = sub;
+
+  overlay.classList.add('show');
+  popup.classList.add('show');
+}
+
+function hidePopup() {
+  document.getElementById('scorePopup').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+  currentCaseIndex++;
+  if(currentCaseIndex < caseQueue.length) {
+    loadCase();
+  } else {
+    endGame();
+  }
+}
+
+// ═══════════════════════════
+//  TIMER
+// ═══════════════════════════
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = timerMax;
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    if(!gameActive) return;
+    timeLeft--;
+    updateTimerUI();
+    if(timeLeft <= 0) {
+      showToast("⏱️ Time's up! Auto-checking...", 'info');
+      setTimeout(checkAnswers, 600);
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const pct = (timeLeft/timerMax)*100;
+  const fill = document.getElementById('timerFill');
+  fill.style.width = pct+'%';
+  fill.className = 'timer-fill'+(timeLeft<=10?' urgent':'');
+  document.getElementById('timerLabel').textContent = timeLeft;
+}
+
+// ═══════════════════════════
+//  END GAME
+// ═══════════════════════════
+function endGame() {
+  clearInterval(timerInterval);
+
+  // Save to leaderboard
+  const entry = {
+    name: playerName,
+    score: score,
+    level: LEVELS[currentLevel].name,
+    levelIdx: currentLevel,
+    date: new Date().toLocaleDateString(),
+    noun: stats.noun+'/'+stats.nounTotal,
+    verb: stats.verb+'/'+stats.verbTotal,
+    adj: stats.adj+'/'+stats.adjTotal
+  };
+  saveScore(entry);
+
+  // Save best score per level
+  const bestKey = `wd_best_${currentLevel}`;
+  const prev = parseInt(localStorage.getItem(bestKey)||'0');
+  if(score > prev) localStorage.setItem(bestKey, score);
+
+  // Show results screen
+  const maxPossible = LEVEL_COUNTS[currentLevel] * 15;
+  const pct = score/Math.max(1,maxPossible);
+
+  let trophy='🏆', title='Case Closed!', sub='Investigation complete.';
+  let badgeEmoji='🕵️', badgeTitle='Junior Detective', badgeDesc='Keep investigating!';
+
+  if(pct >= 0.9){ trophy='🥇'; title='Legendary Detective!'; sub='Outstanding performance!'; badgeEmoji='👑'; badgeTitle='Word Champion'; badgeDesc='You are the ultimate detective!'; }
+  else if(pct >= 0.75){ trophy='🥈'; title='Expert Detective!'; sub='Excellent work!'; badgeEmoji='🧠'; badgeTitle='Grammar Genius'; badgeDesc='Your grammar skills are superb!'; }
+  else if(pct >= 0.5){ trophy='🥉'; title='Good Detective!'; sub='Nice case work!'; badgeEmoji='🔥'; badgeTitle='Speed Master'; badgeDesc='Fast and accurate!'; }
+
+  document.getElementById('resultTrophy').textContent = trophy;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+  document.getElementById('bigScore').textContent = score;
+  document.getElementById('statNoun').textContent = stats.noun+'/'+stats.nounTotal;
+  document.getElementById('statVerb').textContent = stats.verb+'/'+stats.verbTotal;
+  document.getElementById('statAdj').textContent = stats.adj+'/'+stats.adjTotal;
+  document.getElementById('badgeEmoji').textContent = badgeEmoji;
+  document.getElementById('badgeTitle').textContent = badgeTitle;
+  document.getElementById('badgeDesc').textContent = badgeDesc;
+
+  showScreen('results');
+}
+
+function quitGame() {
+  clearInterval(timerInterval);
+  gameActive = false;
+  if(confirm('Quit current game?')) showScreen('levels');
+  else { gameActive = true; startTimer(); }
+}
+
+function playAgainSameLevel() { startGame(currentLevel); }
+
+// ═══════════════════════════
+//  FEEDBACK TOAST
+// ═══════════════════════════
+let toastTimeout;
+function showToast(msg, type='info') {
+  const t = document.getElementById('feedbackToast');
+  t.textContent = msg;
+  t.className = `feedback-toast show ${type}`;
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>{ t.className='feedback-toast'; }, 2500);
+}
+
+// ═══════════════════════════
+//  LEADERBOARD
+// ═══════════════════════════
+function saveScore(entry) {
+  let board = JSON.parse(localStorage.getItem('wd_leaderboard')||'[]');
+  board.push(entry);
+  board.sort((a,b)=>b.score-a.score);
+  board = board.slice(0,20);
+  localStorage.setItem('wd_leaderboard', JSON.stringify(board));
+}
+
+function renderLeaderboard() {
+  const board = JSON.parse(localStorage.getItem('wd_leaderboard')||'[]');
+  const cont = document.getElementById('lbContent');
+  if(!board.length){
+    cont.innerHTML = '<div class="lb-empty">No records yet.<br>Complete a level to appear here!</div>';
+    return;
+  }
+  cont.innerHTML = board.map((e,i)=>{
+    const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    return `<div class="lb-row">
+      <div class="lb-rank ${rankClass}">${medal}</div>
+      <div>
+        <div class="lb-name">${e.name}</div>
+        <div class="lb-meta">${e.level} · ${e.date}</div>
+      </div>
+      <div class="lb-score">${e.score}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════
+//  LEVEL STARS
+// ═══════════════════════════
+function updateLevelStars() {
+  for(let i=0;i<5;i++){
+    const best = parseInt(localStorage.getItem(`wd_best_${i}`)||'0');
+    const el = document.getElementById(`stars-${i}`);
+    if(!el) continue;
+    let stars = '';
+    if(best > 0) stars = best > 50 ? '⭐⭐⭐' : best > 20 ? '⭐⭐' : '⭐';
+    el.textContent = stars;
+  }
+}
+
+// ═══════════════════════════
+//  NAME PROMPT
+// ═══════════════════════════
+function promptName() {
+  const n = prompt('Enter your detective name:', playerName||'Detective');
+  if(n && n.trim()) {
+    playerName = n.trim().substring(0,20);
+    localStorage.setItem('wd_name', playerName);
+  }
+}
+
+// ═══════════════════════════
+//  SERVICE WORKER
+// ═══════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js')
+      .then(()=>console.log('SW registered'))
+      .catch(e=>console.log('SW error',e));
+  });
+}
+
+// ═══════════════════════════
+//  INIT
+// ═══════════════════════════
+updateLevelStars();
+showScreen('splash');
+</script>
+</body>
+</html>
