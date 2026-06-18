@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="description" content="Time Traveler – Fix the Timeline! An offline educational history game for Class 9 students.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Time Traveler">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='32' fill='%230a0a1e'/><circle cx='90' cy='90' r='68' fill='none' stroke='%23d4a843' stroke-width='6'/><text x='90' y='110' text-anchor='middle' font-size='60'>⏳</text></svg>">
+<title>Time Traveler – Fix the Timeline</title>
+<style>
+/* ═══════════════════════════════════════════════
+   FONTS & ROOT VARIABLES
+═══════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+:root {
+  --bg-deep:    #050510;
+  --bg-dark:    #0a0a1e;
+  --bg-card:    #10102a;
+  --bg-card2:   #161630;
+  --gold:       #d4a843;
+  --gold-light: #f0c84a;
+  --gold-dim:   #7a5e1e;
+  --amber:      #e8832a;
+  --teal:       #1db8b8;
+  --teal-dim:   #0d6060;
+  --crimson:    #c0392b;
+  --green:      #27ae60;
+  --purple:     #8e44ad;
+  --text:       #e8e0cc;
+  --text-dim:   #9a8f7a;
+  --border:     rgba(212,168,67,0.25);
+  --border2:    rgba(212,168,67,0.08);
+  --shadow:     0 8px 40px rgba(0,0,0,0.7);
+  --glow-gold:  0 0 20px rgba(212,168,67,0.4);
+  --glow-teal:  0 0 20px rgba(29,184,184,0.4);
+  --radius:     12px;
+  --trans:      all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; scroll-behavior: smooth; }
+body {
+  min-height: 100%;
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Star field background */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 15%, rgba(212,168,67,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 70% 85%, rgba(29,184,184,0.4) 0%, transparent 100%);
+  opacity: 0.8;
+}
+/* Nebula gradient */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(29,184,184,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 30%, rgba(142,68,173,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 30% at 50% 90%, rgba(212,168,67,0.04) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════════ */
+.screen { position: relative; z-index: 1; display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+#screen-splash { align-items: center; justify-content: center; }
+#screen-home { align-items: center; }
+#screen-game { align-items: stretch; }
+#screen-result { align-items: center; justify-content: center; }
+
+/* ═══════════════════════════════════════════════
+   SPLASH SCREEN
+═══════════════════════════════════════════════ */
+.splash-content {
+  text-align: center;
+  animation: splashIn 1.2s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes splashIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.splash-portal {
+  width: 160px; height: 160px; margin: 0 auto 24px;
+  position: relative;
+}
+.portal-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid transparent;
+  animation: portalSpin 3s linear infinite;
+}
+.portal-ring:nth-child(1) {
+  border-top-color: var(--gold);
+  border-right-color: var(--gold-dim);
+}
+.portal-ring:nth-child(2) {
+  inset: 12px;
+  border-bottom-color: var(--teal);
+  border-left-color: var(--teal-dim);
+  animation-direction: reverse;
+  animation-duration: 2s;
+}
+.portal-ring:nth-child(3) {
+  inset: 24px;
+  border-top-color: var(--purple);
+  border-right-color: transparent;
+  animation-duration: 4s;
+}
+.portal-core {
+  position: absolute; inset: 36px;
+  background: radial-gradient(circle, var(--teal) 0%, var(--purple) 50%, var(--bg-deep) 100%);
+  border-radius: 50%;
+  animation: portalPulse 2s ease-in-out infinite;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+}
+@keyframes portalSpin { to { transform: rotate(360deg); } }
+@keyframes portalPulse {
+  0%,100% { transform: scale(1); box-shadow: 0 0 20px rgba(29,184,184,0.6); }
+  50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(29,184,184,0.9); }
+}
+.splash-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--amber), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.splash-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--teal);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+.splash-author {
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(212,168,67,0.07);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 36px;
+  backdrop-filter: blur(8px);
+}
+.author-photo {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 2px solid var(--gold-dim);
+  object-fit: cover; flex-shrink: 0;
+  background: var(--bg-card);
+}
+.author-info { text-align: left; }
+.author-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem; color: var(--gold); font-weight: 700;
+}
+.author-role { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 32px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  transition: var(--trans); position: relative; overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0; transition: opacity 0.2s;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--amber));
+  color: #0a0a1e; box-shadow: var(--glow-gold);
+}
+.btn-primary:hover { box-shadow: 0 0 35px rgba(212,168,67,0.7); transform: translateY(-2px); }
+.btn-secondary {
+  background: transparent; color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+.btn-secondary:hover { background: rgba(212,168,67,0.1); border-color: var(--gold); }
+.btn-teal {
+  background: linear-gradient(135deg, var(--teal), #16a0a0);
+  color: var(--bg-deep); box-shadow: var(--glow-teal);
+}
+.btn-teal:hover { box-shadow: 0 0 35px rgba(29,184,184,0.7); transform: translateY(-2px); }
+.btn-sm { padding: 8px 20px; font-size: 0.8rem; }
+.btn-full { width: 100%; }
+
+/* ═══════════════════════════════════════════════
+   HOME SCREEN
+═══════════════════════════════════════════════ */
+.home-header {
+  width: 100%; padding: 20px 24px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.home-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--gold-light), var(--amber));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stats-bar {
+  display: flex; gap: 12px;
+}
+.stat-pill {
+  background: rgba(212,168,67,0.1); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.78rem; color: var(--gold);
+  font-family: 'Cinzel', serif;
+  display: flex; align-items: center; gap: 4px;
+}
+.home-body {
+  flex: 1; padding: 20px 20px 30px; width: 100%; max-width: 600px; margin: 0 auto;
+}
+.section-title {
+  font-family: 'Cinzel', serif; font-size: 0.7rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before, .section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border2);
+}
+
+/* Score hero */
+.score-hero {
+  background: linear-gradient(135deg, rgba(212,168,67,0.12), rgba(29,184,184,0.08));
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 20px;
+  backdrop-filter: blur(8px);
+}
+.score-circle {
+  width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(var(--gold) var(--pct, 0%), rgba(212,168,67,0.1) 0%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.score-circle::before {
+  content: ''; position: absolute; inset: 8px;
+  border-radius: 50%; background: var(--bg-dark);
+}
+.score-num {
+  position: relative; z-index: 1;
+  font-family: 'Cinzel', serif; font-size: 1.4rem;
+  font-weight: 700; color: var(--gold);
+}
+.score-details { flex: 1; }
+.score-label {
+  font-family: 'Cinzel', serif; font-size: 0.75rem;
+  letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 4px;
+}
+.score-big {
+  font-family: 'Cinzel', serif; font-size: 1.6rem;
+  color: var(--gold-light); font-weight: 700; margin-bottom: 2px;
+}
+.score-sub { font-size: 0.85rem; color: var(--text-dim); }
+
+/* Level cards */
+.levels-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.level-card {
+  background: var(--bg-card); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer; transition: var(--trans);
+  position: relative; overflow: hidden;
+}
+.level-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--level-color, var(--gold));
+}
+.level-card:hover { transform: translateX(4px); border-color: var(--border); }
+.level-card:hover .level-arrow { transform: translateX(4px); }
+.level-card.locked { opacity: 0.5; cursor: not-allowed; }
+.level-badge {
+  width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(var(--level-rgb, 212,168,67), 0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; border: 1px solid rgba(var(--level-rgb, 212,168,67), 0.3);
+}
+.level-info { flex: 1; min-width: 0; }
+.level-name {
+  font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700;
+  color: var(--text); margin-bottom: 2px;
+}
+.level-desc { font-size: 0.8rem; color: var(--text-dim); }
+.level-meta {
+  text-align: right; flex-shrink: 0;
+}
+.level-sets {
+  font-family: 'Cinzel', serif; font-size: 0.75rem;
+  color: var(--level-color, var(--gold)); margin-bottom: 2px;
+}
+.level-progress {
+  width: 60px; height: 4px; background: var(--border2);
+  border-radius: 2px; overflow: hidden;
+}
+.level-progress-fill {
+  height: 100%; background: var(--level-color, var(--gold));
+  transition: width 0.5s ease; border-radius: 2px;
+}
+.level-arrow { font-size: 0.9rem; color: var(--text-dim); transition: var(--trans); }
+
+/* Recent badge */
+.badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.badge {
+  background: rgba(212,168,67,0.1); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 0.75rem; color: var(--gold);
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* ═══════════════════════════════════════════════
+   GAME SCREEN
+═══════════════════════════════════════════════ */
+.game-topbar {
+  background: rgba(10,10,30,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 10; flex-shrink: 0;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(212,168,67,0.1); border: 1px solid var(--border);
+  color: var(--gold); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: var(--trans); flex-shrink: 0;
+}
+.back-btn:hover { background: rgba(212,168,67,0.2); }
+.game-info { flex: 1; }
+.game-level-label {
+  font-family: 'Cinzel', serif; font-size: 0.7rem;
+  color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.game-set-label {
+  font-family: 'Cinzel', serif; font-size: 0.9rem;
+  color: var(--gold); font-weight: 700;
+}
+.game-hud { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.hud-item {
+  background: rgba(212,168,67,0.08); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 4px 10px; text-align: center;
+}
+.hud-val { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); font-weight: 700; }
+.hud-lbl { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.08em; }
+.timer-hud .hud-val { color: var(--teal); }
+.timer-hud.urgent .hud-val { color: var(--crimson); animation: blinkRed 0.5s infinite; }
+@keyframes blinkRed { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Progress bar */
+.game-progress-bar {
+  height: 3px; background: var(--border2);
+  flex-shrink: 0; position: relative;
+}
+.game-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold));
+  transition: width 0.5s ease;
+}
+
+/* Game body */
+.game-body {
+  flex: 1; padding: 20px; overflow-y: auto;
+  max-width: 600px; width: 100%; margin: 0 auto;
+}
+
+/* Question card */
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+  animation: fadeSlideIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.q-instruction {
+  font-family: 'Cinzel', serif; font-size: 0.7rem;
+  letter-spacing: 0.15em; color: var(--teal); margin-bottom: 10px;
+}
+.q-title {
+  font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 700;
+  color: var(--text); line-height: 1.4;
+}
+
+/* Timeline area */
+.timeline-section { margin-bottom: 20px; }
+.timeline-label {
+  font-family: 'Cinzel', serif; font-size: 0.7rem;
+  letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.timeline-slots {
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 40px;
+}
+.timeline-slot {
+  background: rgba(212,168,67,0.04); border: 1px dashed rgba(212,168,67,0.2);
+  border-radius: 8px; padding: 10px 14px; min-height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--trans); position: relative;
+  cursor: default;
+}
+.timeline-slot.has-card { border-style: solid; border-color: var(--border); background: var(--bg-card2); justify-content: flex-start; }
+.timeline-slot.drag-over { border-color: var(--teal); background: rgba(29,184,184,0.08); box-shadow: var(--glow-teal); }
+.slot-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(212,168,67,0.1); border: 1px solid var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 0.7rem; color: var(--gold);
+  flex-shrink: 0; margin-right: 10px;
+}
+.slot-empty-text { color: var(--text-dim); font-size: 0.8rem; font-style: italic; }
+
+/* Event cards (draggable) */
+.events-section { margin-bottom: 24px; }
+.events-label {
+  font-family: 'Cinzel', serif; font-size: 0.7rem;
+  letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.events-pool {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.event-card {
+  background: var(--bg-card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: grab; transition: var(--trans);
+  touch-action: none;
+  animation: cardAppear 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.event-card:nth-child(1) { animation-delay: 0.05s; }
+.event-card:nth-child(2) { animation-delay: 0.10s; }
+.event-card:nth-child(3) { animation-delay: 0.15s; }
+.event-card:nth-child(4) { animation-delay: 0.20s; }
+.event-card:nth-child(5) { animation-delay: 0.25s; }
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.event-card:active { cursor: grabbing; }
+.event-card:hover { border-color: var(--gold-dim); transform: translateX(3px); }
+.event-card.dragging { opacity: 0.4; transform: scale(0.97); }
+.event-card.placed { display: none; }
+.card-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(212,168,67,0.1); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.card-text { flex: 1; }
+.card-title { font-family: 'Crimson Pro', serif; font-size: 1rem; font-weight: 600; color: var(--text); }
+.card-year { font-size: 0.78rem; color: var(--text-dim); font-style: italic; margin-top: 1px; }
+.drag-handle {
+  color: var(--text-dim); font-size: 1rem; opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Placed card in slot */
+.placed-card-in-slot {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  cursor: pointer;
+}
+.placed-card-in-slot .card-icon { width: 28px; height: 28px; font-size: 0.9rem; }
+.placed-card-in-slot .card-title { font-size: 0.9rem; color: var(--text); }
+.remove-btn { margin-left: auto; color: var(--text-dim); font-size: 0.9rem; opacity: 0.6; }
+.remove-btn:hover { color: var(--crimson); opacity: 1; }
+
+/* Action row */
+.action-row {
+  display: flex; gap: 10px; margin-bottom: 20px;
+}
+.action-row .btn { flex: 1; }
+
+/* Feedback overlay */
+.feedback-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(5,5,16,0.85); backdrop-filter: blur(8px);
+}
+.feedback-overlay.show { display: flex; }
+.feedback-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 28px; max-width: 340px; width: 90%;
+  text-align: center;
+  animation: popIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.feedback-icon { font-size: 3.5rem; margin-bottom: 12px; display: block; }
+.feedback-title {
+  font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700;
+  margin-bottom: 8px;
+}
+.feedback-title.correct { color: var(--green); }
+.feedback-title.wrong { color: var(--crimson); }
+.feedback-msg { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 16px; }
+.correct-order {
+  background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.2);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; text-align: left;
+}
+.correct-order-title { font-size: 0.7rem; color: var(--green); letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Cinzel', serif; }
+.correct-order-list { font-size: 0.85rem; color: var(--text); line-height: 1.8; }
+.points-gained {
+  font-family: 'Cinzel', serif; font-size: 1rem;
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px;
+  border-radius: 20px; margin-bottom: 16px;
+}
+.points-gained.pos { background: rgba(39,174,96,0.15); color: var(--green); }
+.points-gained.neg { background: rgba(192,57,43,0.15); color: var(--crimson); }
+
+/* ═══════════════════════════════════════════════
+   RESULT SCREEN
+═══════════════════════════════════════════════ */
+.result-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px 28px; max-width: 380px; width: 90%;
+  text-align: center;
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.result-portal {
+  width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px;
+  background: radial-gradient(circle, var(--gold-light), var(--amber), var(--bg-deep));
+  display: flex; align-items: center; justify-content: center; font-size: 3rem;
+  box-shadow: var(--glow-gold);
+  animation: portalPulse 2s ease-in-out infinite;
+}
+.result-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--gold-light), var(--amber));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 6px;
+}
+.result-subtitle { color: var(--text-dim); margin-bottom: 24px; }
+.result-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;
+}
+.result-stat {
+  background: var(--bg-card2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px;
+}
+.result-stat-val {
+  font-family: 'Cinzel', serif; font-size: 1.5rem;
+  font-weight: 700; color: var(--gold);
+}
+.result-stat-lbl { font-size: 0.75rem; color: var(--text-dim); }
+.result-btns { display: flex; gap: 10px; }
+.result-btns .btn { flex: 1; }
+
+/* ═══════════════════════════════════════════════
+   DIVIDER & MISC
+═══════════════════════════════════════════════ */
+.divider {
+  height: 1px; background: var(--border2); margin: 20px 0;
+}
+.ornament {
+  text-align: center; color: var(--gold-dim); font-size: 0.9rem;
+  letter-spacing: 0.3em; margin: 8px 0;
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════
+   INSTALL BANNER
+═══════════════════════════════════════════════ */
+.install-banner {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-card2));
+  border-top: 1px solid var(--border);
+  padding: 14px 20px; display: none;
+  align-items: center; gap: 12px;
+  backdrop-filter: blur(12px);
+}
+.install-banner.show { display: flex; }
+.install-text { flex: 1; font-size: 0.85rem; }
+.install-text strong { color: var(--gold); font-family: 'Cinzel', serif; }
+.install-close {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  font-size: 1.2rem; padding: 4px; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 8px 20px;
+  font-size: 0.85rem; color: var(--text); z-index: 200;
+  opacity: 0; transition: all 0.3s; white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Mobile tweaks */
+@media (max-width: 400px) {
+  .home-header { padding: 14px 16px 0; }
+  .home-body { padding: 14px 14px 24px; }
+  .game-body { padding: 14px; }
+  .result-card { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-splash" class="screen active">
+  <div class="splash-content">
+    <div class="splash-portal">
+      <div class="portal-ring"></div>
+      <div class="portal-ring"></div>
+      <div class="portal-ring"></div>
+      <div class="portal-core">⏳</div>
+    </div>
+    <div class="splash-title">Time Traveler</div>
+    <div class="splash-sub">Fix the Timeline</div>
+    <div class="splash-author">
+      <img src="author.jpg" alt="Mateen Yousuf" class="author-photo" id="author-img" onerror="this.style.display='none'">
+      <div id="author-avatar" style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#d4a843,#1db8b8);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:2px solid var(--gold-dim)">👨‍🏫</div>
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Author &amp; Educator · JKBOSE Class 9</div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="goHome()" style="max-width:280px">
+      ⚡ Begin Journey
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HOME SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div class="home-logo">⏳ Time Traveler</div>
+    <div class="stats-bar">
+      <div class="stat-pill">⭐ <span id="total-score">0</span></div>
+      <div class="stat-pill">🏆 <span id="total-correct">0</span></div>
+    </div>
+  </div>
+
+  <div class="home-body">
+    <div class="score-hero">
+      <div class="score-circle" id="score-circle" style="--pct:0%">
+        <div class="score-num" id="hero-score">0</div>
+      </div>
+      <div class="score-details">
+        <div class="score-label">TOTAL POINTS</div>
+        <div class="score-big" id="hero-points">0 pts</div>
+        <div class="score-sub" id="hero-sub">Start your first timeline!</div>
+      </div>
+    </div>
+
+    <div class="section-title">Choose Level</div>
+
+    <div class="levels-grid">
+      <div class="level-card" style="--level-color:#27ae60;--level-rgb:39,174,96" onclick="startLevel(1)">
+        <div class="level-badge" style="--level-rgb:39,174,96">🟢</div>
+        <div class="level-info">
+          <div class="level-name">Level 1 · Novice</div>
+          <div class="level-desc">3-event timelines · Indian History</div>
+        </div>
+        <div class="level-meta">
+          <div class="level-sets" id="l1-progress">0/30</div>
+          <div class="level-progress"><div class="level-progress-fill" id="l1-bar" style="width:0%;background:#27ae60"></div></div>
+        </div>
+        <div class="level-arrow">›</div>
+      </div>
+
+      <div class="level-card" id="l2-card" style="--level-color:#d4a843;--level-rgb:212,168,67" onclick="startLevel(2)">
+        <div class="level-badge" style="--level-rgb:212,168,67">🟡</div>
+        <div class="level-info">
+          <div class="level-name">Level 2 · Scholar</div>
+          <div class="level-desc">5-event timelines · Mixed History</div>
+        </div>
+        <div class="level-meta">
+          <div class="level-sets" id="l2-progress">0/30</div>
+          <div class="level-progress"><div class="level-progress-fill" id="l2-bar" style="width:0%;background:#d4a843"></div></div>
+        </div>
+        <div class="level-arrow">›</div>
+      </div>
+
+      <div class="level-card" id="l3-card" style="--level-color:#e8832a;--level-rgb:232,131,42" onclick="startLevel(3)">
+        <div class="level-badge" style="--level-rgb:232,131,42">🔴</div>
+        <div class="level-info">
+          <div class="level-name">Level 3 · Historian</div>
+          <div class="level-desc">People + Events + Places</div>
+        </div>
+        <div class="level-meta">
+          <div class="level-sets" id="l3-progress">0/30</div>
+          <div class="level-progress"><div class="level-progress-fill" id="l3-bar" style="width:0%;background:#e8832a"></div></div>
+        </div>
+        <div class="level-arrow">›</div>
+      </div>
+
+      <div class="level-card" id="l4-card" style="--level-color:#8e44ad;--level-rgb:142,68,173" onclick="startLevel(4)">
+        <div class="level-badge" style="--level-rgb:142,68,173">🟣</div>
+        <div class="level-info">
+          <div class="level-name">Level 4 · Time Lord</div>
+          <div class="level-desc">Chaotic advanced sequences</div>
+        </div>
+        <div class="level-meta">
+          <div class="level-sets" id="l4-progress">0/30</div>
+          <div class="level-progress"><div class="level-progress-fill" id="l4-bar" style="width:0%;background:#8e44ad"></div></div>
+        </div>
+        <div class="level-arrow">›</div>
+      </div>
+    </div>
+
+    <div class="section-title">Your Badges</div>
+    <div class="badges-row" id="badges-row">
+      <div class="badge">🔰 Time Traveler</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="ornament">✦ &nbsp; JKBOSE Class 9 Science App &nbsp; ✦</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     GAME SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-game" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHome()">‹</button>
+    <div class="game-info">
+      <div class="game-level-label" id="game-level-label">Level 1 · Novice</div>
+      <div class="game-set-label" id="game-set-label">Set 1 of 30</div>
+    </div>
+    <div class="game-hud">
+      <div class="hud-item timer-hud" id="timer-hud">
+        <div class="hud-val" id="timer-val">60</div>
+        <div class="hud-lbl">SECS</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-val" id="game-score">0</div>
+        <div class="hud-lbl">PTS</div>
+      </div>
+    </div>
+  </div>
+  <div class="game-progress-bar">
+    <div class="game-progress-fill" id="game-progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="game-body" id="game-body">
+    <!-- Dynamic content injected here -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     RESULT SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="result-card">
+    <div class="result-portal" id="result-icon">🏆</div>
+    <div class="result-title" id="result-title">Level Complete!</div>
+    <div class="result-subtitle" id="result-subtitle">Excellent work, Time Traveler!</div>
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="result-stat-val" id="res-score">0</div>
+        <div class="result-stat-lbl">Points Earned</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-val" id="res-correct">0</div>
+        <div class="result-stat-lbl">Correct</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-val" id="res-accuracy">0%</div>
+        <div class="result-stat-lbl">Accuracy</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-val" id="res-time">0s</div>
+        <div class="result-stat-lbl">Avg Time</div>
+      </div>
+    </div>
+    <div class="result-btns">
+      <button class="btn btn-secondary" onclick="retryLevel()">↺ Retry</button>
+      <button class="btn btn-primary" onclick="goHome()">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FEEDBACK OVERLAY
+══════════════════════════════════════════════ -->
+<div class="feedback-overlay" id="feedback-overlay">
+  <div class="feedback-box">
+    <span class="feedback-icon" id="fb-icon">✅</span>
+    <div class="feedback-title" id="fb-title">Correct!</div>
+    <div class="feedback-msg" id="fb-msg">Great historical thinking!</div>
+    <div class="correct-order" id="fb-order">
+      <div class="correct-order-title">✦ CORRECT ORDER</div>
+      <div class="correct-order-list" id="fb-order-list"></div>
+    </div>
+    <div class="points-gained" id="fb-points">+7 pts</div>
+    <button class="btn btn-primary btn-full" onclick="nextQuestion()">Next →</button>
+  </div>
+</div>
+
+<!-- Install Banner -->
+<div class="install-banner" id="install-banner">
+  <div style="font-size:1.4rem">📲</div>
+  <div class="install-text"><strong>Install App</strong> – Play offline anytime!</div>
+  <button class="btn btn-sm btn-teal" id="install-btn">Install</button>
+  <button class="install-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA – 120 TIMELINE SETS
+═══════════════════════════════════════════════ */
+const TIMELINE_DATA = {
+  1: [ // Level 1 – 3-event, 30 sets
+    {
+      id: 1, title: "Indian Independence Movement",
+      events: [
+        { id:'e1', text:"Indian Rebellion", year:"1857", icon:"⚔️" },
+        { id:'e2', text:"Jallianwala Bagh Massacre", year:"1919", icon:"🩸" },
+        { id:'e3', text:"Indian Independence", year:"1947", icon:"🇮🇳" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 2, title: "Gandhi's Freedom Movements",
+      events: [
+        { id:'e1', text:"Non-Cooperation Movement", year:"1920", icon:"✊" },
+        { id:'e2', text:"Salt March", year:"1930", icon:"🧂" },
+        { id:'e3', text:"Quit India Movement", year:"1942", icon:"🚪" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 3, title: "Post-Independence India",
+      events: [
+        { id:'e1', text:"Indian Independence", year:"1947", icon:"🎉" },
+        { id:'e2', text:"Partition of India", year:"1947", icon:"📍" },
+        { id:'e3', text:"Republic Day India", year:"1950", icon:"🏛️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 4, title: "Early 20th Century India",
+      events: [
+        { id:'e1', text:"Swadeshi Movement", year:"1905", icon:"🏭" },
+        { id:'e2', text:"Champaran Satyagraha", year:"1917", icon:"🌾" },
+        { id:'e3', text:"Jallianwala Bagh", year:"1919", icon:"🩸" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 5, title: "Great Indian Leaders",
+      events: [
+        { id:'e1', text:"Ashoka the Great", year:"~268 BC", icon:"👑" },
+        { id:'e2', text:"Emperor Akbar", year:"1556 AD", icon:"🏰" },
+        { id:'e3', text:"Mahatma Gandhi", year:"1869 AD", icon:"🧲" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 6, title: "World Wars & Cold War",
+      events: [
+        { id:'e1', text:"World War I", year:"1914", icon:"⚔️" },
+        { id:'e2', text:"World War II", year:"1939", icon:"💣" },
+        { id:'e3', text:"Cold War Begins", year:"1947", icon:"❄️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 7, title: "Mughal Emperors",
+      events: [
+        { id:'e1', text:"Babur founds Mughal Empire", year:"1526", icon:"🏹" },
+        { id:'e2', text:"Akbar's Reign", year:"1556", icon:"👑" },
+        { id:'e3', text:"Aurangzeb's Rule", year:"1658", icon:"🗡️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 8, title: "Global Revolutions",
+      events: [
+        { id:'e1', text:"Industrial Revolution", year:"1760s", icon:"⚙️" },
+        { id:'e2', text:"American Revolution", year:"1776", icon:"🦅" },
+        { id:'e3', text:"French Revolution", year:"1789", icon:"⚜️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 9, title: "Indian Monuments",
+      events: [
+        { id:'e1', text:"Nalanda University", year:"~5th century", icon:"📚" },
+        { id:'e2', text:"Taj Mahal built", year:"1632", icon:"🕌" },
+        { id:'e3', text:"Red Fort built", year:"1639", icon:"🏯" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 10, title: "Maurya Dynasty",
+      events: [
+        { id:'e1', text:"Chandragupta Maurya", year:"321 BC", icon:"👑" },
+        { id:'e2', text:"Ashoka the Great", year:"268 BC", icon:"☸️" },
+        { id:'e3', text:"Samudragupta", year:"335 AD", icon:"⚔️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 11, title: "Modern India",
+      events: [
+        { id:'e1', text:"Green Revolution India", year:"1960s", icon:"🌾" },
+        { id:'e2', text:"Indian Emergency", year:"1975", icon:"⚠️" },
+        { id:'e3', text:"Kargil War", year:"1999", icon:"🪖" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 12, title: "Russian & European History",
+      events: [
+        { id:'e1', text:"Russian Revolution", year:"1917", icon:"🔴" },
+        { id:'e2', text:"World War II", year:"1939", icon:"💣" },
+        { id:'e3', text:"Fall of Berlin Wall", year:"1989", icon:"🧱" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 13, title: "Ancient Empires",
+      events: [
+        { id:'e1', text:"Maurya Empire", year:"321 BC", icon:"🦁" },
+        { id:'e2', text:"Gupta Empire", year:"320 AD", icon:"🌟" },
+        { id:'e3', text:"Delhi Sultanate", year:"1206 AD", icon:"🕌" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 14, title: "Ages of Human History",
+      events: [
+        { id:'e1', text:"Stone Age", year:"Prehistoric", icon:"🪨" },
+        { id:'e2', text:"Bronze Age", year:"~3300 BC", icon:"🥉" },
+        { id:'e3', text:"Iron Age", year:"~1200 BC", icon:"⚙️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 15, title: "Modern Indian Milestones",
+      events: [
+        { id:'e1', text:"Indian Independence", year:"1947", icon:"🇮🇳" },
+        { id:'e2', text:"Economic Liberalisation", year:"1991", icon:"📈" },
+        { id:'e3', text:"Digital India Launch", year:"2015", icon:"💻" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 16, title: "Science Milestones",
+      events: [
+        { id:'e1', text:"Newton's Principia", year:"1687", icon:"🍎" },
+        { id:'e2', text:"Darwin's Evolution Theory", year:"1859", icon:"🐒" },
+        { id:'e3', text:"Einstein's Theory of Relativity", year:"1905", icon:"⚛️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 17, title: "Exploration Age",
+      events: [
+        { id:'e1', text:"Columbus reaches Americas", year:"1492", icon:"🚢" },
+        { id:'e2', text:"Vasco da Gama reaches India", year:"1498", icon:"⚓" },
+        { id:'e3', text:"Magellan circumnavigates Earth", year:"1519", icon:"🌍" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 18, title: "Indian National Congress",
+      events: [
+        { id:'e1', text:"INC Founded", year:"1885", icon:"🏛️" },
+        { id:'e2', text:"Lucknow Pact", year:"1916", icon:"🤝" },
+        { id:'e3', text:"Congress Ministries", year:"1937", icon:"🗳️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 19, title: "Space Exploration",
+      events: [
+        { id:'e1', text:"Sputnik Launched", year:"1957", icon:"🛸" },
+        { id:'e2', text:"Moon Landing Apollo 11", year:"1969", icon:"🌕" },
+        { id:'e3', text:"Chandrayaan-1", year:"2008", icon:"🚀" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 20, title: "British India",
+      events: [
+        { id:'e1', text:"East India Company formed", year:"1600", icon:"🏢" },
+        { id:'e2', text:"Battle of Plassey", year:"1757", icon:"⚔️" },
+        { id:'e3', text:"Crown Rule in India", year:"1858", icon:"👑" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 21, title: "Vedic Age to Mauryas",
+      events: [
+        { id:'e1', text:"Indus Valley Civilization", year:"~2500 BC", icon:"🏺" },
+        { id:'e2', text:"Vedic Age", year:"~1500 BC", icon:"📜" },
+        { id:'e3', text:"Maurya Empire", year:"321 BC", icon:"👑" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 22, title: "Struggle for Independence",
+      events: [
+        { id:'e1', text:"Bal Gangadhar Tilak born", year:"1856", icon:"✍️" },
+        { id:'e2', text:"Gokhale founds Servants of India", year:"1905", icon:"🙏" },
+        { id:'e3', text:"Bhagat Singh executed", year:"1931", icon:"🌹" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 23, title: "Medieval India",
+      events: [
+        { id:'e1', text:"Delhi Sultanate Founded", year:"1206", icon:"🕌" },
+        { id:'e2', text:"Vijayanagara Empire", year:"1336", icon:"🏛️" },
+        { id:'e3', text:"Babur invades India", year:"1526", icon:"🏹" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 24, title: "Women in Indian History",
+      events: [
+        { id:'e1', text:"Rani Lakshmibai born", year:"1828", icon:"⚔️" },
+        { id:'e2', text:"Sarojini Naidu born", year:"1879", icon:"🌺" },
+        { id:'e3', text:"Indira Gandhi born", year:"1917", icon:"👩‍💼" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 25, title: "Constitutions of the World",
+      events: [
+        { id:'e1', text:"US Constitution signed", year:"1787", icon:"📜" },
+        { id:'e2', text:"Indian Constitution adopted", year:"1950", icon:"🇮🇳" },
+        { id:'e3', text:"South Africa's Constitution", year:"1996", icon:"🌍" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 26, title: "India's Conflicts",
+      events: [
+        { id:'e1', text:"Indo-Pakistan War", year:"1947", icon:"🪖" },
+        { id:'e2', text:"Sino-Indian War", year:"1962", icon:"⚔️" },
+        { id:'e3', text:"Kargil War", year:"1999", icon:"🏔️" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 27, title: "Reform Movements India",
+      events: [
+        { id:'e1', text:"Ram Mohan Roy's reforms", year:"1820s", icon:"🌟" },
+        { id:'e2', text:"Brahmo Samaj founded", year:"1828", icon:"🕉️" },
+        { id:'e3', text:"Arya Samaj founded", year:"1875", icon:"🔥" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 28, title: "Technology Timeline",
+      events: [
+        { id:'e1', text:"Telephone invented", year:"1876", icon:"📞" },
+        { id:'e2', text:"Wright Brothers fly", year:"1903", icon:"✈️" },
+        { id:'e3', text:"Internet invented", year:"1969", icon:"🌐" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 29, title: "Indian Railways",
+      events: [
+        { id:'e1', text:"First Indian Railway", year:"1853", icon:"🚂" },
+        { id:'e2', text:"Railways nationalized", year:"1951", icon:"🏛️" },
+        { id:'e3', text:"Bullet train project", year:"2017", icon:"🚄" }
+      ],
+      answer: ['e1','e2','e3']
+    },
+    {
+      id: 30, title: "Ancient Wonders",
+      events: [
+        { id:'e1', text:"Great Pyramid of Giza", year:"~2560 BC", icon:"🔺" },
+        { id:'e2', text:"Parthenon built", year:"447 BC", icon:"🏛️" },
+        { id:'e3', text:"Colosseum built", year:"80 AD", icon:"🏟️" }
+      ],
+      answer: ['e1','e2','e3']
+    }
+  ],
+  2: [ // Level 2 – 5-event, 30 sets
+    {
+      id: 31, title: "Gandhi's Campaign Trail",
+      events: [
+        { id:'e1', text:"Swadeshi Movement", year:"1905", icon:"🏭" },
+        { id:'e2', text:"Champaran Satyagraha", year:"1917", icon:"🌾" },
+        { id:'e3', text:"Jallianwala Bagh", year:"1919", icon:"🩸" },
+        { id:'e4', text:"Non-Cooperation Movement", year:"1920", icon:"✊" },
+        { id:'e5', text:"Salt March", year:"1930", icon:"🧂" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 32, title: "India's Modern Journey",
+      events: [
+        { id:'e1', text:"Indian Independence", year:"1947", icon:"🇮🇳" },
+        { id:'e2', text:"Green Revolution", year:"1960s", icon:"🌾" },
+        { id:'e3', text:"Indian Emergency", year:"1975", icon:"⚠️" },
+        { id:'e4', text:"Kargil War", year:"1999", icon:"🪖" },
+        { id:'e5', text:"Digital India", year:"2015", icon:"💻" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 33, title: "20th Century World Events",
+      events: [
+        { id:'e1', text:"World War I", year:"1914", icon:"⚔️" },
+        { id:'e2', text:"Russian Revolution", year:"1917", icon:"🔴" },
+        { id:'e3', text:"World War II", year:"1939", icon:"💣" },
+        { id:'e4', text:"Cold War", year:"1947", icon:"❄️" },
+        { id:'e5', text:"Fall of Berlin Wall", year:"1989", icon:"🧱" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 34, title: "Mughal Empire Timeline",
+      events: [
+        { id:'e1', text:"Babur defeats Ibrahim Lodi", year:"1526", icon:"🏹" },
+        { id:'e2', text:"Humayun recaptures Delhi", year:"1555", icon:"👑" },
+        { id:'e3', text:"Akbar's Din-i-Ilahi", year:"1582", icon:"☀️" },
+        { id:'e4', text:"Taj Mahal completed", year:"1653", icon:"🕌" },
+        { id:'e5', text:"Aurangzeb's death", year:"1707", icon:"⚰️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 35, title: "British India Milestones",
+      events: [
+        { id:'e1', text:"East India Company", year:"1600", icon:"🏢" },
+        { id:'e2', text:"Battle of Plassey", year:"1757", icon:"⚔️" },
+        { id:'e3', text:"Revolt of 1857", year:"1857", icon:"🔥" },
+        { id:'e4', text:"Morley-Minto Reforms", year:"1909", icon:"📜" },
+        { id:'e5', text:"Government of India Act", year:"1935", icon:"🏛️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 36, title: "Indian Science Achievements",
+      events: [
+        { id:'e1', text:"Aryabhata discovers zero", year:"~5th century", icon:"🔢" },
+        { id:'e2', text:"ISRO founded", year:"1969", icon:"🚀" },
+        { id:'e3', text:"Pokhran nuclear test", year:"1974", icon:"☢️" },
+        { id:'e4', text:"Chandrayaan-1", year:"2008", icon:"🌕" },
+        { id:'e5', text:"Chandrayaan-3 Moon landing", year:"2023", icon:"🛸" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 37, title: "World Revolutions",
+      events: [
+        { id:'e1', text:"Industrial Revolution", year:"1760s", icon:"⚙️" },
+        { id:'e2', text:"American Revolution", year:"1776", icon:"🦅" },
+        { id:'e3', text:"French Revolution", year:"1789", icon:"⚜️" },
+        { id:'e4', text:"Russian Revolution", year:"1917", icon:"🔴" },
+        { id:'e5', text:"Chinese Revolution", year:"1949", icon:"⭐" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 38, title: "Ancient Indian Empires",
+      events: [
+        { id:'e1', text:"Maurya Empire founded", year:"321 BC", icon:"👑" },
+        { id:'e2', text:"Ashoka's edicts", year:"~250 BC", icon:"☸️" },
+        { id:'e3', text:"Gupta Empire", year:"320 AD", icon:"🌟" },
+        { id:'e4', text:"Harsha's Empire", year:"606 AD", icon:"⚔️" },
+        { id:'e5', text:"Rashtrakuta Dynasty", year:"753 AD", icon:"🏛️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 39, title: "Medieval World History",
+      events: [
+        { id:'e1', text:"Fall of Western Rome", year:"476 AD", icon:"🏛️" },
+        { id:'e2', text:"Rise of Islam", year:"622 AD", icon:"☪️" },
+        { id:'e3', text:"Crusades begin", year:"1095 AD", icon:"✝️" },
+        { id:'e4', text:"Magna Carta", year:"1215 AD", icon:"📜" },
+        { id:'e5', text:"Black Death", year:"1347 AD", icon:"💀" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 40, title: "Freedom Fighters of India",
+      events: [
+        { id:'e1', text:"Mangal Pandey's revolt", year:"1857", icon:"⚔️" },
+        { id:'e2', text:"Bal Gangadhar Tilak's demand", year:"1906", icon:"🌟" },
+        { id:'e3', text:"Bhagat Singh born", year:"1907", icon:"🌹" },
+        { id:'e4', text:"Subhas Chandra Bose & INA", year:"1943", icon:"🪖" },
+        { id:'e5', text:"India's independence", year:"1947", icon:"🇮🇳" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 41, title: "Space Race",
+      events: [
+        { id:'e1', text:"Sputnik 1 launched", year:"1957", icon:"🛸" },
+        { id:'e2', text:"First human in space (Gagarin)", year:"1961", icon:"👨‍🚀" },
+        { id:'e3', text:"Moon landing Apollo 11", year:"1969", icon:"🌕" },
+        { id:'e4', text:"Space Shuttle first flight", year:"1981", icon:"🚀" },
+        { id:'e5', text:"International Space Station", year:"1998", icon:"🛰️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 42, title: "India's Economy",
+      events: [
+        { id:'e1', text:"Five Year Plans begin", year:"1951", icon:"📊" },
+        { id:'e2', text:"Green Revolution", year:"1966", icon:"🌾" },
+        { id:'e3', text:"Nationalisation of banks", year:"1969", icon:"🏦" },
+        { id:'e4', text:"Economic liberalisation", year:"1991", icon:"📈" },
+        { id:'e5', text:"UPI launched", year:"2016", icon:"📱" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 43, title: "World War II Key Events",
+      events: [
+        { id:'e1', text:"Germany invades Poland", year:"1939", icon:"💣" },
+        { id:'e2', text:"Battle of Britain", year:"1940", icon:"✈️" },
+        { id:'e3', text:"Pearl Harbor attack", year:"1941", icon:"⚓" },
+        { id:'e4', text:"D-Day Normandy", year:"1944", icon:"🏖️" },
+        { id:'e5', text:"Atomic bomb on Hiroshima", year:"1945", icon:"☢️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 44, title: "Vedic to Gupta India",
+      events: [
+        { id:'e1', text:"Vedic Age", year:"1500 BC", icon:"📜" },
+        { id:'e2', text:"Mahajanapadas", year:"600 BC", icon:"🏙️" },
+        { id:'e3', text:"Maurya Empire", year:"321 BC", icon:"👑" },
+        { id:'e4', text:"Kushan Empire", year:"30 AD", icon:"🏺" },
+        { id:'e5', text:"Gupta Empire", year:"320 AD", icon:"🌟" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 45, title: "Great Personalities of India",
+      events: [
+        { id:'e1', text:"Chanakya advises Chandragupta", year:"321 BC", icon:"📜" },
+        { id:'e2', text:"Aryabhata born", year:"476 AD", icon:"🔭" },
+        { id:'e3', text:"Kabir's bhakti movement", year:"15th c.", icon:"🎵" },
+        { id:'e4', text:"Guru Nanak born", year:"1469", icon:"🙏" },
+        { id:'e5', text:"Rabindranath Tagore born", year:"1861", icon:"✍️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 46, title: "Modern World Politics",
+      events: [
+        { id:'e1', text:"United Nations founded", year:"1945", icon:"🌐" },
+        { id:'e2', text:"NATO formed", year:"1949", icon:"🛡️" },
+        { id:'e3', text:"Korean War", year:"1950", icon:"⚔️" },
+        { id:'e4', text:"Vietnam War", year:"1955", icon:"🌿" },
+        { id:'e5', text:"9/11 attacks", year:"2001", icon:"🏙️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 47, title: "Indian Literature & Arts",
+      events: [
+        { id:'e1', text:"Kalidasa's Abhijnanasakuntalam", year:"~4th c.", icon:"📖" },
+        { id:'e2', text:"Tulsidas writes Ramcharitmanas", year:"1574", icon:"📚" },
+        { id:'e3', text:"Mirza Ghalib born", year:"1797", icon:"🖋️" },
+        { id:'e4', text:"Tagore wins Nobel Prize", year:"1913", icon:"🏅" },
+        { id:'e5', text:"Premchand's Godan", year:"1936", icon:"📕" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 48, title: "Indian Partition Events",
+      events: [
+        { id:'e1', text:"Cabinet Mission Plan", year:"1946", icon:"💼" },
+        { id:'e2', text:"Direct Action Day", year:"1946", icon:"🔥" },
+        { id:'e3', text:"Mountbatten Plan", year:"1947", icon:"📋" },
+        { id:'e4', text:"Independence & Partition", year:"1947", icon:"🇮🇳" },
+        { id:'e5', text:"India-Pakistan War", year:"1947", icon:"⚔️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 49, title: "European Empires",
+      events: [
+        { id:'e1', text:"Spanish Armada defeated", year:"1588", icon:"⚓" },
+        { id:'e2', text:"British Empire expands", year:"1700s", icon:"🌍" },
+        { id:'e3', text:"Napoleon's conquests", year:"1803", icon:"👑" },
+        { id:'e4', text:"Scramble for Africa", year:"1880s", icon:"🌍" },
+        { id:'e5', text:"World War I ends empires", year:"1918", icon:"⚔️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 50, title: "Constitutionalism in India",
+      events: [
+        { id:'e1', text:"Constituent Assembly formed", year:"1946", icon:"🏛️" },
+        { id:'e2', text:"Constitution adopted", year:"1949", icon:"📜" },
+        { id:'e3', text:"Republic Day", year:"1950", icon:"🇮🇳" },
+        { id:'e4', text:"First general elections", year:"1952", icon:"🗳️" },
+        { id:'e5', text:"Constitutional amendments begin", year:"1951", icon:"✏️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 51, title: "Indus Valley to Vedic",
+      events: [
+        { id:'e1', text:"Indus Valley at its peak", year:"2600 BC", icon:"🏺" },
+        { id:'e2', text:"Decline of Indus Valley", year:"1900 BC", icon:"📉" },
+        { id:'e3', text:"Early Vedic period", year:"1500 BC", icon:"🔥" },
+        { id:'e4', text:"Later Vedic period", year:"1000 BC", icon:"📜" },
+        { id:'e5', text:"Epic age (Ramayana/Mahabharata)", year:"600 BC", icon:"⚔️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 52, title: "Environmental History",
+      events: [
+        { id:'e1', text:"Chipko Movement India", year:"1973", icon:"🌳" },
+        { id:'e2', text:"Bhopal Gas Tragedy", year:"1984", icon:"☠️" },
+        { id:'e3', text:"Earth Summit Rio", year:"1992", icon:"🌍" },
+        { id:'e4', text:"Kyoto Protocol", year:"1997", icon:"🌡️" },
+        { id:'e5', text:"Paris Climate Accord", year:"2015", icon:"♻️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 53, title: "India's Neighbours – History",
+      events: [
+        { id:'e1', text:"Pakistan's first constitution", year:"1956", icon:"📜" },
+        { id:'e2', text:"Bangladesh Liberation War", year:"1971", icon:"🌿" },
+        { id:'e3', text:"Sri Lanka Civil War begins", year:"1983", icon:"⚔️" },
+        { id:'e4', text:"Nepal becomes republic", year:"2008", icon:"⛰️" },
+        { id:'e5', text:"Maldives first elections", year:"2008", icon:"🏝️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 54, title: "Indian Army History",
+      events: [
+        { id:'e1', text:"Sepoy Mutiny", year:"1857", icon:"🪖" },
+        { id:'e2', text:"India in World War I", year:"1914", icon:"⚔️" },
+        { id:'e3', text:"India in World War II", year:"1939", icon:"🏹" },
+        { id:'e4', text:"Indo-Pakistani War", year:"1965", icon:"💣" },
+        { id:'e5', text:"Kargil War", year:"1999", icon:"🏔️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 55, title: "History of Democracy",
+      events: [
+        { id:'e1', text:"Athenian Democracy", year:"508 BC", icon:"🏛️" },
+        { id:'e2', text:"Magna Carta signed", year:"1215", icon:"📜" },
+        { id:'e3', text:"Glorious Revolution England", year:"1688", icon:"👑" },
+        { id:'e4', text:"American Constitution", year:"1787", icon:"🦅" },
+        { id:'e5', text:"Universal suffrage spread", year:"1900s", icon:"🗳️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 56, title: "Printing & Communication",
+      events: [
+        { id:'e1', text:"Gutenberg's printing press", year:"1440", icon:"🖨️" },
+        { id:'e2', text:"First newspaper", year:"1605", icon:"📰" },
+        { id:'e3', text:"Telegraph invented", year:"1837", icon:"⚡" },
+        { id:'e4', text:"Telephone invented", year:"1876", icon:"📞" },
+        { id:'e5', text:"Internet launched publicly", year:"1991", icon:"🌐" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 57, title: "Decolonisation of Africa & Asia",
+      events: [
+        { id:'e1', text:"Indian Independence", year:"1947", icon:"🇮🇳" },
+        { id:'e2', text:"Chinese Revolution", year:"1949", icon:"⭐" },
+        { id:'e3', text:"Ghana independence", year:"1957", icon:"🌍" },
+        { id:'e4', text:"Bandung Conference", year:"1955", icon:"🕊️" },
+        { id:'e5', text:"African independence wave", year:"1960s", icon:"🌍" }
+      ],
+      answer: ['e1','e2','e4','e3','e5']
+    },
+    {
+      id: 58, title: "Medical History Milestones",
+      events: [
+        { id:'e1', text:"Smallpox vaccine discovered", year:"1796", icon:"💉" },
+        { id:'e2', text:"Germ theory by Pasteur", year:"1860s", icon:"🔬" },
+        { id:'e3', text:"Penicillin discovered", year:"1928", icon:"🧫" },
+        { id:'e4', text:"DNA structure discovered", year:"1953", icon:"🧬" },
+        { id:'e5', text:"First COVID-19 vaccine", year:"2020", icon:"🦠" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 59, title: "Agricultural History India",
+      events: [
+        { id:'e1', text:"Indus Valley farming", year:"3000 BC", icon:"🌱" },
+        { id:'e2', text:"Zamindari system", year:"1793", icon:"🏚️" },
+        { id:'e3', text:"Ryotwari Settlement", year:"1820", icon:"🌾" },
+        { id:'e4', text:"Green Revolution", year:"1966", icon:"🚜" },
+        { id:'e5', text:"Farm Laws passed", year:"2020", icon:"📋" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 60, title: "Indian Political Parties",
+      events: [
+        { id:'e1', text:"Indian National Congress", year:"1885", icon:"🏛️" },
+        { id:'e2', text:"Muslim League formed", year:"1906", icon:"☪️" },
+        { id:'e3', text:"Communist Party India", year:"1920", icon:"⭐" },
+        { id:'e4', text:"RSS formed", year:"1925", icon:"🔱" },
+        { id:'e5', text:"Janata Party formed", year:"1977", icon:"🗳️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    }
+  ],
+  3: [ // Level 3 – Mixed: People + Events + Places, 30 sets
+    {
+      id: 61, title: "Icons of Indian Civilisation",
+      events: [
+        { id:'e1', text:"Ashoka the Great", year:"268 BC", icon:"☸️" },
+        { id:'e2', text:"Nalanda University", year:"5th century", icon:"📚" },
+        { id:'e3', text:"Akbar the Great", year:"1556 AD", icon:"👑" },
+        { id:'e4', text:"Taj Mahal", year:"1632 AD", icon:"🕌" },
+        { id:'e5', text:"Mahatma Gandhi", year:"1869 AD", icon:"🧲" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 62, title: "Revolution & World Wars",
+      events: [
+        { id:'e1', text:"Industrial Revolution", year:"1760s", icon:"⚙️" },
+        { id:'e2', text:"American Revolution", year:"1776", icon:"🦅" },
+        { id:'e3', text:"French Revolution", year:"1789", icon:"⚜️" },
+        { id:'e4', text:"World War I", year:"1914", icon:"⚔️" },
+        { id:'e5', text:"World War II", year:"1939", icon:"💣" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 63, title: "Monuments of the Ages",
+      events: [
+        { id:'e1', text:"Pyramids of Giza", year:"2560 BC", icon:"🔺" },
+        { id:'e2', text:"Parthenon Athens", year:"447 BC", icon:"🏛️" },
+        { id:'e3', text:"Colosseum Rome", year:"80 AD", icon:"🏟️" },
+        { id:'e4', text:"Taj Mahal India", year:"1632", icon:"🕌" },
+        { id:'e5', text:"Eiffel Tower Paris", year:"1889", icon:"🗼" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 64, title: "Indian Rulers Through Ages",
+      events: [
+        { id:'e1', text:"Chandragupta Maurya", year:"321 BC", icon:"👑" },
+        { id:'e2', text:"Vikramaditya", year:"380 AD", icon:"⚔️" },
+        { id:'e3', text:"Harsha Vardhana", year:"606 AD", icon:"🌟" },
+        { id:'e4', text:"Akbar the Great", year:"1556 AD", icon:"🏰" },
+        { id:'e5', text:"Shivaji Maharaj", year:"1627 AD", icon:"🗡️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 65, title: "Philosophers of History",
+      events: [
+        { id:'e1', text:"Socrates (Greece)", year:"470 BC", icon:"🏛️" },
+        { id:'e2', text:"Chanakya (India)", year:"350 BC", icon:"📜" },
+        { id:'e3', text:"Confucius (China)", year:"551 BC", icon:"🎓" },
+        { id:'e4', text:"Aristotle (Greece)", year:"384 BC", icon:"🔭" },
+        { id:'e5', text:"Karl Marx (Germany)", year:"1818 AD", icon:"✊" }
+      ],
+      answer: ['e3','e4','e1','e2','e5']
+    },
+    {
+      id: 66, title: "India's Sacred Places",
+      events: [
+        { id:'e1', text:"Varanasi – Ancient holy city", year:"~1200 BC", icon:"🕉️" },
+        { id:'e2', text:"Bodh Gaya – Buddha's enlightenment", year:"528 BC", icon:"☸️" },
+        { id:'e3', text:"Ajanta Caves carved", year:"~2nd c. BC", icon:"🖼️" },
+        { id:'e4', text:"Golden Temple Amritsar", year:"1589 AD", icon:"🟡" },
+        { id:'e5', text:"Somnath Temple rebuilt", year:"1951 AD", icon:"🏛️" }
+      ],
+      answer: ['e1','e3','e2','e4','e5']
+    },
+    {
+      id: 67, title: "Nobel Peace Prizes",
+      events: [
+        { id:'e1', text:"Henry Dunant (founder Red Cross)", year:"1901", icon:"🏅" },
+        { id:'e2', text:"Mother Teresa", year:"1979", icon:"❤️" },
+        { id:'e3', text:"Nelson Mandela", year:"1993", icon:"✊" },
+        { id:'e4', text:"Kailash Satyarthi & Malala", year:"2014", icon:"🕊️" },
+        { id:'e5', text:"Maria Ressa (Philippines)", year:"2021", icon:"📰" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 68, title: "Indian Scientists",
+      events: [
+        { id:'e1', text:"Aryabhata (mathematician)", year:"476 AD", icon:"🔢" },
+        { id:'e2', text:"Brahmagupta", year:"598 AD", icon:"📐" },
+        { id:'e3', text:"Jagadish Chandra Bose born", year:"1858 AD", icon:"🌿" },
+        { id:'e4', text:"C.V. Raman (Nobel Prize)", year:"1930 AD", icon:"💡" },
+        { id:'e5', text:"APJ Abdul Kalam", year:"1931 AD", icon:"🚀" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 69, title: "Capitals of Empires",
+      events: [
+        { id:'e1', text:"Athens – Greek city-state", year:"5th c. BC", icon:"🏛️" },
+        { id:'e2', text:"Rome – Roman Empire", year:"1st c. BC", icon:"🏟️" },
+        { id:'e3', text:"Constantinople – Byzantine", year:"330 AD", icon:"⛪" },
+        { id:'e4', text:"Vijayanagara – S. India", year:"1336 AD", icon:"💎" },
+        { id:'e5', text:"Delhi – Mughal Empire", year:"1638 AD", icon:"🕌" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 70, title: "World's Great Explorers",
+      events: [
+        { id:'e1', text:"Marco Polo reaches China", year:"1275", icon:"🗺️" },
+        { id:'e2', text:"Columbus reaches Americas", year:"1492", icon:"🚢" },
+        { id:'e3', text:"Vasco da Gama to India", year:"1498", icon:"⚓" },
+        { id:'e4', text:"Magellan's circumnavigation", year:"1519", icon:"🌍" },
+        { id:'e5', text:"James Cook explores Pacific", year:"1769", icon:"🧭" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 71, title: "Indian Warriors & Battles",
+      events: [
+        { id:'e1', text:"Battle of Hydaspes", year:"326 BC", icon:"🏹" },
+        { id:'e2', text:"Battle of Tarain", year:"1192 AD", icon:"⚔️" },
+        { id:'e3', text:"Battle of Panipat (1st)", year:"1526 AD", icon:"💣" },
+        { id:'e4', text:"Battle of Haldighati", year:"1576 AD", icon:"🐴" },
+        { id:'e5', text:"Battle of Plassey", year:"1757 AD", icon:"🔫" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 72, title: "India's River Civilisations",
+      events: [
+        { id:'e1', text:"Indus Valley (Harappa)", year:"2600 BC", icon:"🏺" },
+        { id:'e2', text:"Gangetic Plains culture", year:"1200 BC", icon:"🌊" },
+        { id:'e3', text:"Narmada Valley settlements", year:"500 BC", icon:"🌿" },
+        { id:'e4', text:"Kaveri Delta kingdoms", year:"300 AD", icon:"🌾" },
+        { id:'e5', text:"Damodar Valley Project", year:"1948 AD", icon:"⚙️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 73, title: "World Religious Movements",
+      events: [
+        { id:'e1', text:"Buddhism founded (Siddhartha)", year:"528 BC", icon:"☸️" },
+        { id:'e2', text:"Christianity spreads", year:"1st c. AD", icon:"✝️" },
+        { id:'e3', text:"Islam founded", year:"610 AD", icon:"☪️" },
+        { id:'e4', text:"Sikhism founded (Guru Nanak)", year:"1469 AD", icon:"🙏" },
+        { id:'e5', text:"Protestant Reformation", year:"1517 AD", icon:"📖" }
+      ],
+      answer: ['e1','e2','e3','e5','e4']
+    },
+    {
+      id: 74, title: "India & the UN",
+      events: [
+        { id:'e1', text:"India joins United Nations", year:"1945", icon:"🌐" },
+        { id:'e2', text:"India's UN peacekeeping role", year:"1950s", icon:"🕊️" },
+        { id:'e3', text:"India-Pakistan UN resolutions", year:"1948", icon:"📋" },
+        { id:'e4', text:"India on UN Security Council", year:"2021", icon:"🏛️" },
+        { id:'e5', text:"India hosts G20 Presidency", year:"2023", icon:"🌍" }
+      ],
+      answer: ['e3','e1','e2','e4','e5']
+    },
+    {
+      id: 75, title: "Taj Mahal to Digital India",
+      events: [
+        { id:'e1', text:"Taj Mahal construction begins", year:"1632", icon:"🕌" },
+        { id:'e2', text:"Partition of India", year:"1947", icon:"📍" },
+        { id:'e3', text:"IIT Bombay founded", year:"1958", icon:"🎓" },
+        { id:'e4', text:"Infosys founded", year:"1981", icon:"💻" },
+        { id:'e5', text:"Digital India launch", year:"2015", icon:"📱" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 76, title: "Women Who Changed History",
+      events: [
+        { id:'e1', text:"Rani Lakshmibai leads revolt", year:"1857", icon:"⚔️" },
+        { id:'e2', text:"Marie Curie wins Nobel Prize", year:"1903", icon:"⚛️" },
+        { id:'e3', text:"Sarojini Naidu – Nightingale", year:"1925", icon:"🌺" },
+        { id:'e4', text:"Indira Gandhi PM of India", year:"1966", icon:"👩‍💼" },
+        { id:'e5', text:"Malala wins Nobel Peace Prize", year:"2014", icon:"🕊️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 77, title: "India's Administrative History",
+      events: [
+        { id:'e1', text:"Arthashastra of Chanakya", year:"321 BC", icon:"📜" },
+        { id:'e2', text:"Akbar's Ain-i-Akbari", year:"1598 AD", icon:"📚" },
+        { id:'e3', text:"ICS established", year:"1858", icon:"🏛️" },
+        { id:'e4', text:"IAS replaces ICS", year:"1946", icon:"🇮🇳" },
+        { id:'e5', text:"73rd Amendment (Panchayati Raj)", year:"1992", icon:"🏘️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 78, title: "Mathematical History",
+      events: [
+        { id:'e1', text:"Euclid's Elements", year:"300 BC", icon:"📐" },
+        { id:'e2', text:"Brahmagupta on zero", year:"628 AD", icon:"0️⃣" },
+        { id:'e3', text:"Al-Khwarizmi algebra", year:"820 AD", icon:"🔢" },
+        { id:'e4', text:"Newton & Leibniz calculus", year:"1670s", icon:"📊" },
+        { id:'e5', text:"Ramanujan's number theory", year:"1913", icon:"🧠" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 79, title: "Indian Cinema History",
+      events: [
+        { id:'e1', text:"First Indian silent film Raja Harishchandra", year:"1913", icon:"🎬" },
+        { id:'e2', text:"First Indian talkie – Alam Ara", year:"1931", icon:"🎙️" },
+        { id:'e3', text:"Do Bigha Zameen released", year:"1953", icon:"🌾" },
+        { id:'e4', text:"Sholay released", year:"1975", icon:"🎥" },
+        { id:'e5', text:"Slumdog Millionaire – Oscar", year:"2009", icon:"🏆" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 80, title: "India's Sporting Achievements",
+      events: [
+        { id:'e1', text:"India's first Olympic medal", year:"1900", icon:"🏅" },
+        { id:'e2', text:"India wins Hockey World Cup", year:"1975", icon:"🏑" },
+        { id:'e3', text:"India wins Cricket World Cup", year:"1983", icon:"🏏" },
+        { id:'e4', text:"Abhinav Bindra – Olympic gold", year:"2008", icon:"🥇" },
+        { id:'e5', text:"Neeraj Chopra – Olympic gold", year:"2021", icon:"🥇" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 81, title: "Empires of Antiquity",
+      events: [
+        { id:'e1', text:"Achaemenid Persian Empire", year:"550 BC", icon:"🏛️" },
+        { id:'e2', text:"Alexander the Great conquers", year:"330 BC", icon:"⚔️" },
+        { id:'e3', text:"Roman Republic", year:"509 BC", icon:"🦅" },
+        { id:'e4', text:"Han Dynasty China", year:"206 BC", icon:"🐉" },
+        { id:'e5', text:"Byzantine Empire founded", year:"330 AD", icon:"⛪" }
+      ],
+      answer: ['e3','e1','e2','e4','e5']
+    },
+    {
+      id: 82, title: "Bhakti & Sufi Movements",
+      events: [
+        { id:'e1', text:"Alvars (Tamil devotional poets)", year:"6th c. AD", icon:"🎵" },
+        { id:'e2', text:"Ramanuja's Vishishtadvaita", year:"1017 AD", icon:"🕉️" },
+        { id:'e3', text:"Kabir's dohas", year:"15th c.", icon:"✍️" },
+        { id:'e4', text:"Mirabai's bhajans", year:"1498 AD", icon:"🎶" },
+        { id:'e5', text:"Tukaram's abhangas", year:"1608 AD", icon:"🙏" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 83, title: "Indian Economy Post-Independence",
+      events: [
+        { id:'e1', text:"Planning Commission formed", year:"1950", icon:"📊" },
+        { id:'e2', text:"Steel plants at Bhilai, Rourkela", year:"1959", icon:"🏭" },
+        { id:'e3', text:"Nationalisation of banks", year:"1969", icon:"🏦" },
+        { id:'e4', text:"LPG Reforms", year:"1991", icon:"📈" },
+        { id:'e5', text:"NITI Aayog replaces Planning Commission", year:"2015", icon:"🏛️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 84, title: "India & China – Civilisational Milestones",
+      events: [
+        { id:'e1', text:"Indus Valley Civilization", year:"2600 BC", icon:"🏺" },
+        { id:'e2', text:"Xia Dynasty China", year:"2100 BC", icon:"🐉" },
+        { id:'e3', text:"Silk Road trade begins", year:"114 BC", icon:"🗺️" },
+        { id:'e4', text:"Buddhism travels to China", year:"67 AD", icon:"☸️" },
+        { id:'e5', text:"Sino-Indian war", year:"1962 AD", icon:"⚔️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 85, title: "Ancient Trade Routes",
+      events: [
+        { id:'e1', text:"Silk Road established", year:"114 BC", icon:"🗺️" },
+        { id:'e2', text:"Indian Ocean trade flourishes", year:"1st c. AD", icon:"🚢" },
+        { id:'e3', text:"Venice – East trade hub", year:"800 AD", icon:"⚓" },
+        { id:'e4', text:"Vasco da Gama sea route", year:"1498 AD", icon:"🌊" },
+        { id:'e5', text:"Suez Canal opens", year:"1869 AD", icon:"🏗️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 86, title: "Ecology & Conservation",
+      events: [
+        { id:'e1', text:"Jim Corbett National Park", year:"1936", icon:"🐯" },
+        { id:'e2', text:"Wildlife Protection Act India", year:"1972", icon:"🦁" },
+        { id:'e3', text:"Project Tiger launched", year:"1973", icon:"🐆" },
+        { id:'e4', text:"Chipko Movement", year:"1973", icon:"🌳" },
+        { id:'e5', text:"National Forest Policy", year:"1988", icon:"🌲" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 87, title: "India's President & PM History",
+      events: [
+        { id:'e1', text:"Rajendra Prasad – 1st President", year:"1950", icon:"🏛️" },
+        { id:'e2', text:"Jawaharlal Nehru – 1st PM", year:"1947", icon:"🌹" },
+        { id:'e3', text:"Indira Gandhi – 1st woman PM", year:"1966", icon:"👩‍💼" },
+        { id:'e4', text:"Rajiv Gandhi – youngest PM", year:"1984", icon:"💻" },
+        { id:'e5', text:"Narendra Modi – PM since", year:"2014", icon:"🇮🇳" }
+      ],
+      answer: ['e2','e1','e3','e4','e5']
+    },
+    {
+      id: 88, title: "Indian Diaspora Milestones",
+      events: [
+        { id:'e1', text:"Indian indentured labour to Fiji", year:"1879", icon:"🚢" },
+        { id:'e2', text:"Gandhi in South Africa", year:"1893", icon:"✊" },
+        { id:'e3', text:"First Indian-origin UK MP", year:"1892", icon:"🏛️" },
+        { id:'e4', text:"Kamala Harris – US VP", year:"2021", icon:"🇺🇸" },
+        { id:'e5', text:"Rishi Sunak – UK PM", year:"2022", icon:"🇬🇧" }
+      ],
+      answer: ['e3','e1','e2','e4','e5']
+    },
+    {
+      id: 89, title: "Sanskrit & Language History",
+      events: [
+        { id:'e1', text:"Vedic Sanskrit used", year:"1500 BC", icon:"📜" },
+        { id:'e2', text:"Panini's Ashtadhyayi (grammar)", year:"~400 BC", icon:"🔤" },
+        { id:'e3', text:"Pali becomes Buddhist scripture", year:"~250 BC", icon:"☸️" },
+        { id:'e4', text:"Tamil Sangam literature", year:"~3rd c. BC", icon:"🌺" },
+        { id:'e5', text:"Devanagari script develops", year:"~11th c. AD", icon:"🅰️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 90, title: "Globalisation Timeline",
+      events: [
+        { id:'e1', text:"WTO founded", year:"1995", icon:"🌐" },
+        { id:'e2', text:"Euro currency launched", year:"1999", icon:"💶" },
+        { id:'e3', text:"China joins WTO", year:"2001", icon:"🐉" },
+        { id:'e4', text:"Global Financial Crisis", year:"2008", icon:"📉" },
+        { id:'e5', text:"COVID-19 global pandemic", year:"2020", icon:"🦠" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    }
+  ],
+  4: [ // Level 4 – Advanced Chaotic, 30 sets
+    {
+      id: 91, title: "Indian Empires – Full Arc",
+      events: [
+        { id:'e1', text:"Maurya Empire", year:"321 BC", icon:"👑" },
+        { id:'e2', text:"Gupta Empire", year:"320 AD", icon:"🌟" },
+        { id:'e3', text:"Delhi Sultanate", year:"1206 AD", icon:"🕌" },
+        { id:'e4', text:"Mughal Empire", year:"1526 AD", icon:"🏰" },
+        { id:'e5', text:"British Rule in India", year:"1858 AD", icon:"🇬🇧" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 92, title: "Ages of Human Civilisation",
+      events: [
+        { id:'e1', text:"Stone Age", year:"3.3 million BC", icon:"🪨" },
+        { id:'e2', text:"Bronze Age", year:"3300 BC", icon:"🥉" },
+        { id:'e3', text:"Iron Age", year:"1200 BC", icon:"⚙️" },
+        { id:'e4', text:"Middle Ages", year:"500 AD", icon:"⚔️" },
+        { id:'e5', text:"Modern Age", year:"1500 AD", icon:"🏭" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 93, title: "Constitutional Amendments India",
+      events: [
+        { id:'e1', text:"1st Amendment – land reform", year:"1951", icon:"🌾" },
+        { id:'e2', text:"42nd Amendment – 'socialist'", year:"1976", icon:"📜" },
+        { id:'e3', text:"44th Amendment – emergency rights", year:"1978", icon:"🛡️" },
+        { id:'e4', text:"73rd Amendment – Panchayati Raj", year:"1992", icon:"🏘️" },
+        { id:'e5', text:"101st Amendment – GST", year:"2016", icon:"📊" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 94, title: "Climate & Industrial History",
+      events: [
+        { id:'e1', text:"First steam engine", year:"1698", icon:"⚙️" },
+        { id:'e2', text:"Industrial Revolution peaks", year:"1840s", icon:"🏭" },
+        { id:'e3', text:"First oil well drilled", year:"1859", icon:"🛢️" },
+        { id:'e4', text:"First IPCC Report on climate", year:"1990", icon:"🌡️" },
+        { id:'e5', text:"Paris Agreement on climate", year:"2015", icon:"♻️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 95, title: "India's Nuclear History",
+      events: [
+        { id:'e1', text:"Atomic Energy Act India", year:"1948", icon:"⚛️" },
+        { id:'e2', text:"First reactor Apsara", year:"1956", icon:"🔬" },
+        { id:'e3', text:"Pokhran-I (Smiling Buddha)", year:"1974", icon:"☢️" },
+        { id:'e4', text:"Pokhran-II (Operation Shakti)", year:"1998", icon:"💥" },
+        { id:'e5', text:"India joins NSG negotiations", year:"2008", icon:"🌐" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 96, title: "Panipat – Three Battles",
+      events: [
+        { id:'e1', text:"First Battle of Panipat – Babur vs Lodi", year:"1526", icon:"⚔️" },
+        { id:'e2', text:"Second Battle – Akbar vs Hemu", year:"1556", icon:"⚔️" },
+        { id:'e3', text:"Third Battle – Ahmed Shah Durrani vs Marathas", year:"1761", icon:"⚔️" },
+        { id:'e4', text:"Marathas regroup", year:"1770s", icon:"🐴" },
+        { id:'e5', text:"British defeat Marathas", year:"1818", icon:"🔫" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 97, title: "Digital Revolution",
+      events: [
+        { id:'e1', text:"ARPANET (internet precursor)", year:"1969", icon:"🌐" },
+        { id:'e2', text:"Personal computer (Apple II)", year:"1977", icon:"💻" },
+        { id:'e3', text:"World Wide Web created", year:"1991", icon:"🕸️" },
+        { id:'e4', text:"Google founded", year:"1998", icon:"🔍" },
+        { id:'e5', text:"ChatGPT / AI revolution", year:"2022", icon:"🤖" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 98, title: "India's Health History",
+      events: [
+        { id:'e1', text:"Ayurveda systematised (Charaka)", year:"~2nd c. AD", icon:"🌿" },
+        { id:'e2', text:"Plague epidemic in India", year:"1896", icon:"😷" },
+        { id:'e3', text:"All India Medical Institute (AIIMS)", year:"1956", icon:"🏥" },
+        { id:'e4', text:"Polio eradication India", year:"2014", icon:"💉" },
+        { id:'e5', text:"COVID-19 vaccination drive", year:"2021", icon:"🦠" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 99, title: "Education History India",
+      events: [
+        { id:'e1', text:"Nalanda University founded", year:"~427 AD", icon:"📚" },
+        { id:'e2', text:"Macaulay's Minute on Education", year:"1835", icon:"📖" },
+        { id:'e3', text:"IIT Kharagpur (first IIT)", year:"1951", icon:"🎓" },
+        { id:'e4', text:"Right to Education Act", year:"2009", icon:"✏️" },
+        { id:'e5', text:"National Education Policy (NEP)", year:"2020", icon:"🏫" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 100, title: "Decolonisation Wave",
+      events: [
+        { id:'e1', text:"India's independence", year:"1947", icon:"🇮🇳" },
+        { id:'e2', text:"Indonesia independence", year:"1945", icon:"🇮🇩" },
+        { id:'e3', text:"Ghana independence", year:"1957", icon:"🌍" },
+        { id:'e4', text:"Kenya independence", year:"1963", icon:"🦁" },
+        { id:'e5', text:"Zimbabwe independence", year:"1980", icon:"🌿" }
+      ],
+      answer: ['e2','e1','e3','e4','e5']
+    },
+    {
+      id: 101, title: "Indian Poets & Writers",
+      events: [
+        { id:'e1', text:"Valmiki composes Ramayana", year:"~500 BC", icon:"📜" },
+        { id:'e2', text:"Kalidasa – Meghaduta", year:"~4th c. AD", icon:"☁️" },
+        { id:'e3', text:"Tulsidas – Ramcharitmanas", year:"1574", icon:"📚" },
+        { id:'e4', text:"Rabindranath Tagore – Gitanjali", year:"1910", icon:"🌸" },
+        { id:'e5', text:"Amrita Pritam's Pinjar", year:"1950", icon:"🖋️" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 102, title: "Indian Newspapers & Media",
+      events: [
+        { id:'e1', text:"Bengal Gazette (1st Indian paper)", year:"1780", icon:"📰" },
+        { id:'e2', text:"The Hindu founded", year:"1878", icon:"📋" },
+        { id:'e3', text:"All India Radio launched", year:"1936", icon:"📻" },
+        { id:'e4', text:"Doordarshan launched", year:"1959", icon:"📺" },
+        { id:'e5', text:"Internet news in India", year:"1995", icon:"💻" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 103, title: "Floods, Droughts & Disasters India",
+      events: [
+        { id:'e1', text:"Great Bengal Famine", year:"1943", icon:"🌾" },
+        { id:'e2', text:"Bihar floods", year:"1954", icon:"🌊" },
+        { id:'e3', text:"Bhopal Gas Tragedy", year:"1984", icon:"☠️" },
+        { id:'e4', text:"Latur earthquake", year:"1993", icon:"🏚️" },
+        { id:'e5', text:"Indian Ocean Tsunami", year:"2004", icon:"🌊" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 104, title: "Cold War Events",
+      events: [
+        { id:'e1', text:"Iron Curtain speech Churchill", year:"1946", icon:"❄️" },
+        { id:'e2', text:"Korean War", year:"1950", icon:"⚔️" },
+        { id:'e3', text:"Cuban Missile Crisis", year:"1962", icon:"☢️" },
+        { id:'e4', text:"Vietnam War ends", year:"1975", icon:"🌿" },
+        { id:'e5', text:"USSR dissolved", year:"1991", icon:"🧱" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 105, title: "South Asian History",
+      events: [
+        { id:'e1', text:"Partition of Bengal", year:"1905", icon:"📍" },
+        { id:'e2', text:"Lucknow Pact – Congress & Muslim League", year:"1916", icon:"🤝" },
+        { id:'e3', text:"Lahore Resolution (Pakistan demand)", year:"1940", icon:"📜" },
+        { id:'e4', text:"India-Pakistan partition", year:"1947", icon:"⚔️" },
+        { id:'e5', text:"Bangladesh Liberation", year:"1971", icon:"🌿" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 106, title: "India's Water Projects",
+      events: [
+        { id:'e1', text:"Bhakra Nangal Dam", year:"1963", icon:"🌊" },
+        { id:'e2', text:"Damodar Valley Corporation", year:"1948", icon:"⚙️" },
+        { id:'e3', text:"Farakka Barrage", year:"1975", icon:"🏗️" },
+        { id:'e4', text:"Sardar Sarovar Dam", year:"2017", icon:"🏞️" },
+        { id:'e5', text:"Jal Jeevan Mission", year:"2019", icon:"💧" }
+      ],
+      answer: ['e2','e1','e3','e4','e5']
+    },
+    {
+      id: 107, title: "Ancient Trade & Economics",
+      events: [
+        { id:'e1', text:"Barter system prehistoric", year:"10,000 BC", icon:"🔄" },
+        { id:'e2', text:"First coins (Lydia)", year:"600 BC", icon:"🪙" },
+        { id:'e3', text:"Roman-Indian spice trade", year:"1st c. AD", icon:"🌶️" },
+        { id:'e4', text:"Bretton Woods system", year:"1944", icon:"💵" },
+        { id:'e5', text:"WTO formed", year:"1995", icon:"🌐" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 108, title: "India's Five Year Plans",
+      events: [
+        { id:'e1', text:"1st Five Year Plan", year:"1951", icon:"📊" },
+        { id:'e2', text:"3rd Five Year Plan", year:"1961", icon:"📈" },
+        { id:'e3', text:"Green Revolution launched", year:"1966", icon:"🌾" },
+        { id:'e4', text:"8th Five Year Plan – liberalisation", year:"1992", icon:"🏭" },
+        { id:'e5', text:"Planning Commission dissolved", year:"2014", icon:"❌" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 109, title: "Indian States Formation",
+      events: [
+        { id:'e1', text:"States Reorganisation Act", year:"1956", icon:"🗺️" },
+        { id:'e2', text:"Nagaland becomes state", year:"1963", icon:"🌿" },
+        { id:'e3', text:"Meghalaya, Manipur formed", year:"1972", icon:"🏔️" },
+        { id:'e4', text:"Chhattisgarh, Jharkhand formed", year:"2000", icon:"🌲" },
+        { id:'e5', text:"Telangana formed", year:"2014", icon:"🔵" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 110, title: "Indian Foreign Policy",
+      events: [
+        { id:'e1', text:"Non-Aligned Movement founded", year:"1955", icon:"🕊️" },
+        { id:'e2', text:"Indo-Soviet Treaty of Friendship", year:"1971", icon:"🤝" },
+        { id:'e3', text:"Look East Policy", year:"1991", icon:"🌏" },
+        { id:'e4', text:"India-US Nuclear Deal", year:"2008", icon:"⚛️" },
+        { id:'e5', text:"India's Neighbourhood First Policy", year:"2014", icon:"🌍" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 111, title: "Astronomy & Ancient Science",
+      events: [
+        { id:'e1', text:"Aryabhata calculates Earth's rotation", year:"499 AD", icon:"🌍" },
+        { id:'e2', text:"Brahmagupta's Brahmasphutasiddhanta", year:"628 AD", icon:"📐" },
+        { id:'e3', text:"Bhaskara II – Siddhantasiromani", year:"1150 AD", icon:"🔭" },
+        { id:'e4', text:"Copernicus heliocentric model", year:"1543 AD", icon:"☀️" },
+        { id:'e5', text:"Galileo's telescope observations", year:"1609 AD", icon:"🔭" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 112, title: "Maritime History India",
+      events: [
+        { id:'e1', text:"Lothal dockyard (Indus Valley)", year:"2400 BC", icon:"⚓" },
+        { id:'e2', text:"Chola naval expeditions", year:"11th c. AD", icon:"🚢" },
+        { id:'e3', text:"Vasco da Gama arrives Calicut", year:"1498 AD", icon:"🇵🇹" },
+        { id:'e4', text:"First Battle of Diu", year:"1509 AD", icon:"⚔️" },
+        { id:'e5', text:"Indian Navy established", year:"1950 AD", icon:"🇮🇳" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 113, title: "Food & Agriculture History",
+      events: [
+        { id:'e1', text:"First farming (Fertile Crescent)", year:"10,000 BC", icon:"🌾" },
+        { id:'e2', text:"Rice cultivation Asia", year:"7000 BC", icon:"🍚" },
+        { id:'e3', text:"Spice trade routes open", year:"1st c. AD", icon:"🌶️" },
+        { id:'e4', text:"Columbian Exchange (new crops)", year:"1492 AD", icon:"🌽" },
+        { id:'e5', text:"Green Revolution India", year:"1966 AD", icon:"🚜" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 114, title: "India's Urban History",
+      events: [
+        { id:'e1', text:"Mohenjo-daro – first planned city", year:"2500 BC", icon:"🏙️" },
+        { id:'e2', text:"Pataliputra – Maurya capital", year:"300 BC", icon:"🏛️" },
+        { id:'e3', text:"Delhi becomes capital", year:"1192 AD", icon:"🕌" },
+        { id:'e4', text:"Calcutta – colonial capital", year:"1773 AD", icon:"🏢" },
+        { id:'e5', text:"Smart Cities Mission", year:"2015 AD", icon:"💡" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 115, title: "India's Tribal & Folk History",
+      events: [
+        { id:'e1', text:"Santhal Rebellion", year:"1855", icon:"🏹" },
+        { id:'e2', text:"Birsa Munda's movement", year:"1895", icon:"🌲" },
+        { id:'e3', text:"5th Schedule – Tribal areas", year:"1950", icon:"📜" },
+        { id:'e4', text:"Forest Rights Act", year:"2006", icon:"🌳" },
+        { id:'e5', text:"Eklavya Model Residential Schools", year:"2018", icon:"🎓" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 116, title: "Epidemics & Pandemics",
+      events: [
+        { id:'e1', text:"Black Death Plague", year:"1347", icon:"💀" },
+        { id:'e2', text:"Smallpox eradicated globally", year:"1980", icon:"💉" },
+        { id:'e3', text:"Spanish Flu pandemic", year:"1918", icon:"😷" },
+        { id:'e4', text:"HIV/AIDS identified", year:"1981", icon:"🔴" },
+        { id:'e5', text:"COVID-19 pandemic", year:"2020", icon:"🦠" }
+      ],
+      answer: ['e1','e3','e2','e4','e5']
+    },
+    {
+      id: 117, title: "Banking History",
+      events: [
+        { id:'e1', text:"Bank of Hindustan (1st in India)", year:"1770", icon:"🏦" },
+        { id:'e2', text:"Reserve Bank of India founded", year:"1935", icon:"💰" },
+        { id:'e3', text:"SBI formed", year:"1955", icon:"🏧" },
+        { id:'e4', text:"Banks nationalised", year:"1969", icon:"🔒" },
+        { id:'e5', text:"UPI digital payments", year:"2016", icon:"📱" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 118, title: "India's Textile History",
+      events: [
+        { id:'e1', text:"Indus Valley cotton weaving", year:"3000 BC", icon:"🧵" },
+        { id:'e2', text:"Muslin of Dhaka – world famous", year:"17th c.", icon:"🪡" },
+        { id:'e3', text:"Manchester mills kill Indian textiles", year:"1800s", icon:"🏭" },
+        { id:'e4', text:"Swadeshi – burn foreign cloth", year:"1905", icon:"🔥" },
+        { id:'e5', text:"India's textile export boom", year:"1990s", icon:"📦" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 119, title: "India's Judicial History",
+      events: [
+        { id:'e1', text:"Supreme Court of India established", year:"1950", icon:"⚖️" },
+        { id:'e2', text:"Kesavananda Bharati case (Basic Structure)", year:"1973", icon:"📜" },
+        { id:'e3', text:"Habeas Corpus case – Emergency", year:"1976", icon:"⚠️" },
+        { id:'e4', text:"Shah Bano case", year:"1985", icon:"👩‍⚖️" },
+        { id:'e5', text:"RTI Act passed", year:"2005", icon:"📋" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    },
+    {
+      id: 120, title: "India's Space Programme",
+      events: [
+        { id:'e1', text:"ISRO established", year:"1969", icon:"🚀" },
+        { id:'e2', text:"Aryabhata satellite launched", year:"1975", icon:"🛸" },
+        { id:'e3', text:"INSAT-1 launched", year:"1983", icon:"📡" },
+        { id:'e4', text:"Chandrayaan-1 Moon mission", year:"2008", icon:"🌕" },
+        { id:'e5', text:"Chandrayaan-3 Moon landing", year:"2023", icon:"🎯" }
+      ],
+      answer: ['e1','e2','e3','e4','e5']
+    }
+  ]
+};
+
+/* ═══════════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════════ */
+let state = {
+  totalScore: 0,
+  totalCorrect: 0,
+  totalAttempted: 0,
+  levelProgress: { 1: [], 2: [], 3: [], 4: [] },
+  badges: ['🔰 Time Traveler']
+};
+
+let gameState = {
+  level: 1,
+  setIndex: 0,
+  sets: [],
+  sessionScore: 0,
+  sessionCorrect: 0,
+  sessionAttempted: 0,
+  sessionTimes: [],
+  currentSlots: [],
+  timer: null,
+  timeLeft: 60,
+  questionStart: 0
+};
+
+// Load from LocalStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('tt_state');
+    if (saved) state = { ...state, ...JSON.parse(saved) };
+  } catch(e) {}
+}
+function saveState() {
+  try { localStorage.setItem('tt_state', JSON.stringify(state)); } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  clearTimer();
+  document.getElementById('feedback-overlay').classList.remove('show');
+  updateHomeUI();
+  showScreen('screen-home');
+}
+
+function goSplash() { showScreen('screen-splash'); }
+
+/* ═══════════════════════════════════════════════
+   HOME UI
+═══════════════════════════════════════════════ */
+function updateHomeUI() {
+  document.getElementById('total-score').textContent = state.totalScore;
+  document.getElementById('total-correct').textContent = state.totalCorrect;
+  document.getElementById('hero-score').textContent = state.totalScore;
+  document.getElementById('hero-points').textContent = state.totalScore + ' pts';
+  const sub = state.totalAttempted === 0
+    ? 'Start your first timeline!'
+    : `${state.totalCorrect} / ${state.totalAttempted} correct`;
+  document.getElementById('hero-sub').textContent = sub;
+  const pct = Math.min(100, (state.totalScore / 500) * 100);
+  document.getElementById('score-circle').style.setProperty('--pct', pct + '%');
+
+  [1, 2, 3, 4].forEach(l => {
+    const done = state.levelProgress[l].length;
+    const total = 30;
+    document.getElementById(`l${l}-progress`).textContent = `${done}/${total}`;
+    document.getElementById(`l${l}-bar`).style.width = ((done / total) * 100) + '%';
+  });
+
+  // Badges
+  const badges = ['🔰 Time Traveler'];
+  if (state.totalScore >= 50) badges.push('⭐ Rising Star');
+  if (state.totalScore >= 150) badges.push('🏅 Historian');
+  if (state.totalScore >= 300) badges.push('🏆 Time Lord');
+  if (state.levelProgress[1].length >= 30) badges.push('✅ L1 Master');
+  if (state.levelProgress[2].length >= 30) badges.push('✅ L2 Scholar');
+  if (state.totalCorrect >= 50) badges.push('🎯 Sharp Mind');
+  state.badges = badges;
+  document.getElementById('badges-row').innerHTML = badges.map(b => `<div class="badge">${b}</div>`).join('');
+  saveState();
+}
+
+/* ═══════════════════════════════════════════════
+   LEVEL START
+═══════════════════════════════════════════════ */
+const LEVEL_NAMES = { 1: 'Level 1 · Novice', 2: 'Level 2 · Scholar', 3: 'Level 3 · Historian', 4: 'Level 4 · Time Lord' };
+const TIMER_SECONDS = { 1: 60, 2: 90, 3: 90, 4: 120 };
+
+function startLevel(level) {
+  gameState.level = level;
+  const allSets = TIMELINE_DATA[level];
+  // Shuffle sets
+  gameState.sets = [...allSets].sort(() => Math.random() - 0.5);
+  gameState.setIndex = 0;
+  gameState.sessionScore = 0;
+  gameState.sessionCorrect = 0;
+  gameState.sessionAttempted = 0;
+  gameState.sessionTimes = [];
+  showScreen('screen-game');
+  renderQuestion();
+}
+
+function retryLevel() { startLevel(gameState.level); }
+
+/* ═══════════════════════════════════════════════
+   QUESTION RENDER
+═══════════════════════════════════════════════ */
+function renderQuestion() {
+  if (gameState.setIndex >= gameState.sets.length) {
+    showResults();
+    return;
+  }
+  const set = gameState.sets[gameState.setIndex];
+  const level = gameState.level;
+  const total = gameState.sets.length;
+
+  // Top bar
+  document.getElementById('game-level-label').textContent = LEVEL_NAMES[level];
+  document.getElementById('game-set-label').textContent = `Set ${gameState.setIndex + 1} of ${total}`;
+  document.getElementById('game-score').textContent = gameState.sessionScore;
+  const progPct = ((gameState.setIndex) / total) * 100;
+  document.getElementById('game-progress-fill').style.width = progPct + '%';
+
+  // Timer
+  clearTimer();
+  gameState.timeLeft = TIMER_SECONDS[level];
+  updateTimerDisplay();
+  gameState.timer = setInterval(timerTick, 1000);
+  gameState.questionStart = Date.now();
+
+  // Shuffle events
+  const shuffled = [...set.events].sort(() => Math.random() - 0.5);
+  gameState.currentSlots = new Array(set.answer.length).fill(null);
+
+  const body = document.getElementById('game-body');
+  const n = set.answer.length;
+
+  body.innerHTML = `
+    <div class="question-card">
+      <div class="q-instruction">🕐 Arrange in chronological order</div>
+      <div class="q-title">${set.title}</div>
+    </div>
+
+    <div class="timeline-section">
+      <div class="timeline-label">📅 Your Timeline (drop here)</div>
+      <div class="timeline-slots" id="slots">
+        ${Array.from({length: n}, (_, i) => `
+          <div class="timeline-slot" id="slot-${i}"
+               ondragover="dragOver(event, ${i})" ondragleave="dragLeave(event, ${i})"
+               ondrop="dropOnSlot(event, ${i})">
+            <div class="slot-num">${i+1}</div>
+            <div class="slot-empty-text">Drop here</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="events-section">
+      <div class="events-label">🃏 Event Cards (drag to arrange)</div>
+      <div class="events-pool" id="events-pool">
+        ${shuffled.map(e => `
+          <div class="event-card" id="card-${e.id}"
+               draggable="true"
+               ondragstart="dragStart(event, '${e.id}')"
+               ontouchstart="touchStart(event, '${e.id}')"
+               ontouchmove="touchMove(event)"
+               ontouchend="touchEnd(event, '${e.id}')">
+            <div class="card-icon">${e.icon}</div>
+            <div class="card-text">
+              <div class="card-title">${e.text}</div>
+              <div class="card-year">${e.year}</div>
+            </div>
+            <div class="drag-handle">⠿</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-secondary" onclick="resetSlots()">↺ Reset</button>
+      <button class="btn btn-primary" onclick="checkAnswer()">✓ Submit</button>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════
+   DRAG & DROP (Desktop)
+═══════════════════════════════════════════════ */
+let draggedCardId = null;
+let dragSourceSlot = null;
+
+function dragStart(event, cardId) {
+  draggedCardId = cardId;
+  event.dataTransfer.setData('text/plain', cardId);
+  setTimeout(() => {
+    const el = document.getElementById('card-' + cardId);
+    if (el) el.classList.add('dragging');
+  }, 0);
+  // Check if dragging from a slot
+  dragSourceSlot = null;
+  gameState.currentSlots.forEach((id, i) => {
+    if (id === cardId) { dragSourceSlot = i; }
+  });
+}
+
+function dragOver(event, slotIndex) {
+  event.preventDefault();
+  document.getElementById('slot-' + slotIndex).classList.add('drag-over');
+}
+function dragLeave(event, slotIndex) {
+  document.getElementById('slot-' + slotIndex).classList.remove('drag-over');
+}
+
+function dropOnSlot(event, slotIndex) {
+  event.preventDefault();
+  const cardId = draggedCardId || event.dataTransfer.getData('text/plain');
+  const el = document.getElementById('card-' + cardId);
+  if (el) el.classList.remove('dragging');
+  document.getElementById('slot-' + slotIndex).classList.remove('drag-over');
+
+  // If this slot already has a card, swap it back
+  const existingInSlot = gameState.currentSlots[slotIndex];
+  if (existingInSlot) {
+    // Put existing card back in pool
+    gameState.currentSlots[slotIndex] = null;
+    const exEl = document.getElementById('card-' + existingInSlot);
+    if (exEl) { exEl.style.display = 'flex'; }
+    // If source was a slot, place existing card there instead
+    if (dragSourceSlot !== null) {
+      placeCardInSlot(existingInSlot, dragSourceSlot);
+    }
+  } else if (dragSourceSlot !== null) {
+    gameState.currentSlots[dragSourceSlot] = null;
+    clearSlot(dragSourceSlot);
+  }
+
+  placeCardInSlot(cardId, slotIndex);
+  draggedCardId = null;
+  dragSourceSlot = null;
+}
+
+function placeCardInSlot(cardId, slotIndex) {
+  const set = gameState.sets[gameState.setIndex];
+  const ev = set.events.find(e => e.id === cardId);
+  if (!ev) return;
+  gameState.currentSlots[slotIndex] = cardId;
+  const slotEl = document.getElementById('slot-' + slotIndex);
+  slotEl.classList.add('has-card');
+  slotEl.innerHTML = `
+    <div class="slot-num">${slotIndex + 1}</div>
+    <div class="placed-card-in-slot">
+      <div class="card-icon">${ev.icon}</div>
+      <div class="card-text">
+        <div class="card-title">${ev.text}</div>
+      </div>
+      <div class="remove-btn" onclick="removeFromSlot(${slotIndex})">✕</div>
+    </div>
+  `;
+  // Hide card from pool
+  const cardEl = document.getElementById('card-' + cardId);
+  if (cardEl) cardEl.style.display = 'none';
+}
+
+function clearSlot(slotIndex) {
+  const slotEl = document.getElementById('slot-' + slotIndex);
+  slotEl.classList.remove('has-card');
+  slotEl.innerHTML = `<div class="slot-num">${slotIndex + 1}</div><div class="slot-empty-text">Drop here</div>`;
+  slotEl.ondragover = (e) => dragOver(e, slotIndex);
+  slotEl.ondragleave = (e) => dragLeave(e, slotIndex);
+  slotEl.ondrop = (e) => dropOnSlot(e, slotIndex);
+}
+
+function removeFromSlot(slotIndex) {
+  const cardId = gameState.currentSlots[slotIndex];
+  if (!cardId) return;
+  gameState.currentSlots[slotIndex] = null;
+  clearSlot(slotIndex);
+  const cardEl = document.getElementById('card-' + cardId);
+  if (cardEl) cardEl.style.display = 'flex';
+}
+
+function resetSlots() {
+  const set = gameState.sets[gameState.setIndex];
+  gameState.currentSlots = new Array(set.answer.length).fill(null);
+  set.events.forEach(e => {
+    const el = document.getElementById('card-' + e.id);
+    if (el) el.style.display = 'flex';
+  });
+  for (let i = 0; i < set.answer.length; i++) { clearSlot(i); }
+}
+
+/* ═══════════════════════════════════════════════
+   TOUCH DRAG (Mobile)
+═══════════════════════════════════════════════ */
+let touchDragId = null;
+let touchClone = null;
+let touchOffX = 0, touchOffY = 0;
+
+function touchStart(event, cardId) {
+  const touch = event.touches[0];
+  const el = event.currentTarget;
+  const rect = el.getBoundingClientRect();
+  touchOffX = touch.clientX - rect.left;
+  touchOffY = touch.clientY - rect.top;
+  touchDragId = cardId;
+
+  touchClone = el.cloneNode(true);
+  touchClone.style.cssText = `
+    position: fixed; z-index: 9999; pointer-events: none; opacity: 0.85;
+    width: ${rect.width}px; left: ${rect.left}px; top: ${rect.top}px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5); transform: scale(1.03);
+    transition: none;
+  `;
+  document.body.appendChild(touchClone);
+  el.classList.add('dragging');
+}
+
+function touchMove(event) {
+  if (!touchClone) return;
+  event.preventDefault();
+  const touch = event.touches[0];
+  touchClone.style.left = (touch.clientX - touchOffX) + 'px';
+  touchClone.style.top = (touch.clientY - touchOffY) + 'px';
+}
+
+function touchEnd(event, cardId) {
+  if (!touchClone) return;
+  const touch = event.changedTouches[0];
+  touchClone.remove(); touchClone = null;
+  const el = document.getElementById('card-' + cardId);
+  if (el) el.classList.remove('dragging');
+
+  // Find which slot we're over
+  const set = gameState.sets[gameState.setIndex];
+  for (let i = 0; i < set.answer.length; i++) {
+    const slot = document.getElementById('slot-' + i);
+    if (!slot) continue;
+    const r = slot.getBoundingClientRect();
+    if (touch.clientX >= r.left && touch.clientX <= r.right &&
+        touch.clientY >= r.top && touch.clientY <= r.bottom) {
+      // Simulate drop
+      draggedCardId = cardId;
+      dragSourceSlot = null;
+      gameState.currentSlots.forEach((id, si) => { if (id === cardId) dragSourceSlot = si; });
+      dropOnSlot({ preventDefault: () => {} }, i);
+      break;
+    }
+  }
+  touchDragId = null;
+}
+
+/* ═══════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════ */
+function timerTick() {
+  gameState.timeLeft--;
+  updateTimerDisplay();
+  if (gameState.timeLeft <= 0) {
+    clearTimer();
+    autoSubmit();
+  }
+}
+function updateTimerDisplay() {
+  document.getElementById('timer-val').textContent = gameState.timeLeft;
+  const hud = document.getElementById('timer-hud');
+  if (gameState.timeLeft <= 10) hud.classList.add('urgent');
+  else hud.classList.remove('urgent');
+}
+function clearTimer() {
+  if (gameState.timer) { clearInterval(gameState.timer); gameState.timer = null; }
+}
+function autoSubmit() {
+  checkAnswer(true);
+}
+
+/* ═══════════════════════════════════════════════
+   ANSWER CHECK
+═══════════════════════════════════════════════ */
+function checkAnswer(timedOut = false) {
+  const set = gameState.sets[gameState.setIndex];
+  clearTimer();
+  const timeTaken = Math.round((Date.now() - gameState.questionStart) / 1000);
+  gameState.sessionTimes.push(timeTaken);
+
+  // Check all slots filled
+  const filled = gameState.currentSlots.filter(Boolean);
+  if (!timedOut && filled.length < set.answer.length) {
+    showToast('⚠️ Place all events first!');
+    // Restart timer
+    gameState.timer = setInterval(timerTick, 1000);
+    return;
+  }
+
+  gameState.sessionAttempted++;
+  state.totalAttempted++;
+
+  const isCorrect = gameState.currentSlots.join(',') === set.answer.join(',');
+  let pts = 0;
+  if (isCorrect) {
+    pts = 5 + 2; // correct +5, placement bonus +2
+    gameState.sessionCorrect++;
+    state.totalCorrect++;
+    state.levelProgress[gameState.level] = [
+      ...new Set([...state.levelProgress[gameState.level], set.id])
+    ];
+  } else {
+    pts = -1;
+  }
+
+  gameState.sessionScore = Math.max(0, gameState.sessionScore + pts);
+  state.totalScore = Math.max(0, state.totalScore + pts);
+  document.getElementById('game-score').textContent = gameState.sessionScore;
+
+  showFeedback(isCorrect, pts, set);
+}
+
+function showFeedback(isCorrect, pts, set) {
+  const overlay = document.getElementById('feedback-overlay');
+  document.getElementById('fb-icon').textContent = isCorrect ? '🎉' : '⏰';
+  const title = document.getElementById('fb-title');
+  title.textContent = isCorrect ? 'Correct!' : 'Not Quite!';
+  title.className = 'feedback-title ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('fb-msg').textContent = isCorrect
+    ? 'Excellent historical thinking!'
+    : 'Study this order carefully.';
+
+  // Correct order list
+  const orderList = set.answer.map((id, i) => {
+    const ev = set.events.find(e => e.id === id);
+    return `${i + 1}. ${ev.icon} ${ev.text} (${ev.year})`;
+  }).join('\n');
+  document.getElementById('fb-order-list').textContent = orderList;
+
+  const ptsEl = document.getElementById('fb-points');
+  ptsEl.textContent = pts > 0 ? `+${pts} pts` : `${pts} pts`;
+  ptsEl.className = 'points-gained ' + (pts > 0 ? 'pos' : 'neg');
+
+  overlay.classList.add('show');
+}
+
+function nextQuestion() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+  gameState.setIndex++;
+  if (gameState.setIndex >= gameState.sets.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RESULTS
+═══════════════════════════════════════════════ */
+function showResults() {
+  const { sessionScore, sessionCorrect, sessionAttempted, sessionTimes } = gameState;
+  const accuracy = sessionAttempted > 0 ? Math.round((sessionCorrect / sessionAttempted) * 100) : 0;
+  const avgTime = sessionTimes.length > 0 ? Math.round(sessionTimes.reduce((a, b) => a + b, 0) / sessionTimes.length) : 0;
+
+  document.getElementById('res-score').textContent = sessionScore;
+  document.getElementById('res-correct').textContent = sessionCorrect;
+  document.getElementById('res-accuracy').textContent = accuracy + '%';
+  document.getElementById('res-time').textContent = avgTime + 's';
+
+  const icon = accuracy >= 80 ? '🏆' : accuracy >= 50 ? '⭐' : '📚';
+  const title = accuracy >= 80 ? 'Outstanding!' : accuracy >= 50 ? 'Good Work!' : 'Keep Practicing!';
+  const sub = `${LEVEL_NAMES[gameState.level]} complete!`;
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-subtitle').textContent = sub;
+
+  saveState();
+  showScreen('screen-result');
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ═══════════════════════════════════════════════
+   PWA INSTALL
+═══════════════════════════════════════════════ */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (!localStorage.getItem('install-dismissed')) {
+    banner.classList.add('show');
+  }
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') showToast('✅ App installed!');
+    deferredPrompt = null;
+  }
+  document.getElementById('install-banner').classList.remove('show');
+});
+function dismissInstall() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('install-dismissed', '1');
+}
+
+/* ═══════════════════════════════════════════════
+   AUTHOR PHOTO
+═══════════════════════════════════════════════ */
+document.getElementById('author-img').onload = function() {
+  document.getElementById('author-avatar').style.display = 'none';
+};
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => { navigator.serviceWorker.register("./service-worker.js").then(r => console.log("[SW] registered")).catch(e => console.log("[SW] failed", e)); }); }
+loadState();
+
+// Splash auto-advance after 3s
+setTimeout(() => {
+  if (document.getElementById('screen-splash').classList.contains('active')) {
+    goHome();
+  }
+}, 3500);
+</script>
+</body>
+</html>
