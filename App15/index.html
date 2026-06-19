@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1f3c">
+<meta name="description" content="EduConcepts Challenge - Vision, Aim, Curricular Goals, Competencies & Learning Outcomes">
+<link rel="manifest" href="manifest.json">
+<title>EduConcepts Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1f3c;
+  --bg2: #0a1628;
+  --card: #112244;
+  --vision: #1a5276;
+  --aim: #1e7e34;
+  --cg: #d35400;
+  --comp: #7d3c98;
+  --lo: #0e7490;
+  --gold: #f4c542;
+  --silver: #b0bec5;
+  --white: #f0f4ff;
+  --text: #cdd9f0;
+  --correct: #27ae60;
+  --wrong: #e74c3c;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== PARTICLES ===== */
+#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float linear infinite;
+}
+@keyframes float {
+  0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.15; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+/* ===== SCREENS ===== */
+.screen { position: relative; z-index: 1; display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ===== TITLE SCREEN ===== */
+#titleScreen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at center, #1a3a6b 0%, #0a1628 70%);
+}
+
+.title-badge {
+  background: linear-gradient(135deg, #1a5276, #7d3c98);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+
+.title-icon { font-size: 5rem; margin-bottom: 10px; animation: bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+h1.game-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+h1.game-title span { color: var(--gold); }
+
+.subtitle { font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--text); margin-bottom: 30px; opacity: 0.85; }
+
+.concept-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; }
+.pill {
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.pill-v { background: var(--vision); color: #fff; }
+.pill-a { background: var(--aim); color: #fff; }
+.pill-c { background: var(--cg); color: #fff; }
+.pill-co { background: var(--comp); color: #fff; }
+.pill-l { background: var(--lo); color: #fff; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), #e5a820);
+  color: #0d1f3c;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 48px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(244,197,66,0.4);
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(244,197,66,0.5); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: 50px;
+  padding: 12px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+}
+.btn-secondary:hover { background: rgba(244,197,66,0.1); }
+
+.dev-credit {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  max-width: 420px;
+  width: 100%;
+}
+.dev-credit .dev-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+.dev-credit .dev-role { font-size: 0.82rem; color: var(--text); line-height: 1.6; margin-top: 4px; }
+
+/* ===== MODE SELECT ===== */
+#modeScreen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.mode-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.mode-subtitle { color: var(--text); font-size: 0.9rem; margin-bottom: 32px; opacity: 0.8; }
+
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 560px; width: 100%; }
+.mode-card {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 24px 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+.mode-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(244,197,66,0.15); }
+.mode-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.mode-name { font-size: 1rem; font-weight: 800; color: var(--white); margin-bottom: 4px; }
+.mode-desc { font-size: 0.75rem; color: var(--text); opacity: 0.7; }
+
+/* ===== REFERENCE SCREEN ===== */
+#referenceScreen {
+  padding: 20px;
+}
+.ref-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.ref-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--white);
+}
+.back-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--white);
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.15); }
+
+.ref-cards { display: flex; flex-direction: column; gap: 12px; }
+.ref-card {
+  border-radius: 16px;
+  padding: 16px 20px;
+  border-left: 5px solid;
+}
+.ref-card.v { background: rgba(26,82,118,0.3); border-color: var(--vision); }
+.ref-card.a { background: rgba(30,126,52,0.3); border-color: var(--aim); }
+.ref-card.c { background: rgba(211,84,0,0.3); border-color: var(--cg); }
+.ref-card.co { background: rgba(125,60,152,0.3); border-color: var(--comp); }
+.ref-card.l { background: rgba(14,116,144,0.3); border-color: var(--lo); }
+
+.ref-card-title { font-size: 1rem; font-weight: 800; color: var(--white); margin-bottom: 4px; }
+.ref-card-scope { font-size: 0.72rem; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.ref-card-desc { font-size: 0.82rem; line-height: 1.5; color: var(--text); }
+.ref-card-key { font-size: 0.75rem; margin-top: 8px; color: rgba(255,255,255,0.5); font-style: italic; }
+
+/* ===== GAME SCREEN ===== */
+#gameScreen { padding: 16px; }
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.game-meta { display: flex; gap: 12px; align-items: center; }
+.score-badge {
+  background: rgba(244,197,66,0.15);
+  border: 1px solid var(--gold);
+  border-radius: 50px;
+  padding: 5px 16px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+.progress-wrap { width: 100%; background: rgba(255,255,255,0.08); border-radius: 50px; height: 6px; margin-bottom: 16px; }
+.progress-bar { height: 6px; border-radius: 50px; background: linear-gradient(90deg, var(--gold), #e5a820); transition: width 0.5s; }
+
+.question-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: var(--shadow);
+}
+.q-subject {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  background: rgba(244,197,66,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(244,197,66,0.3);
+}
+.q-mode-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.q-text {
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  color: var(--white);
+  line-height: 1.6;
+  font-weight: 600;
+}
+.q-context {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  font-size: 0.83rem;
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.option-btn {
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: var(--white);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--gold); background: rgba(244,197,66,0.08); transform: translateY(-1px); }
+.option-btn.correct { background: rgba(39,174,96,0.25); border-color: var(--correct); color: #fff; }
+.option-btn.wrong { background: rgba(231,76,60,0.25); border-color: var(--wrong); color: #fff; }
+.option-btn:disabled { cursor: not-allowed; }
+
+.option-v { --opt-color: var(--vision); }
+.option-a { --opt-color: var(--aim); }
+.option-c { --opt-color: var(--cg); }
+.option-co { --opt-color: var(--comp); }
+.option-l { --opt-color: var(--lo); }
+.option-btn:hover:not(:disabled) { border-color: var(--opt-color, var(--gold)); }
+
+.feedback-box {
+  display: none;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.feedback-box.correct { background: rgba(39,174,96,0.15); border: 1px solid var(--correct); }
+.feedback-box.wrong { background: rgba(231,76,60,0.12); border: 1px solid var(--wrong); }
+.feedback-box .feedback-title { font-size: 1rem; margin-bottom: 4px; }
+.feedback-box .feedback-explain { font-weight: 400; color: var(--text); }
+
+.next-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #1a3a6b, #2563aa);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  display: none;
+  transition: all 0.2s;
+}
+.next-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ===== FLASHCARD MODE ===== */
+.flashcard-wrap {
+  perspective: 1000px;
+  height: 260px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.flashcard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 20px;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.card-front {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.1);
+}
+.card-back {
+  transform: rotateY(180deg);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.card-back.v { background: linear-gradient(135deg, #0d3260, var(--vision)); }
+.card-back.a { background: linear-gradient(135deg, #0d3b1a, var(--aim)); }
+.card-back.c { background: linear-gradient(135deg, #6e2a00, var(--cg)); }
+.card-back.co { background: linear-gradient(135deg, #3d1c50, var(--comp)); }
+.card-back.l { background: linear-gradient(135deg, #053a4a, var(--lo)); }
+
+.fc-hint { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.fc-scenario { font-size: 1rem; color: var(--white); font-weight: 700; line-height: 1.6; }
+.fc-answer-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.fc-concept { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #fff; font-weight: 900; margin-bottom: 8px; }
+.fc-why { font-size: 0.82rem; color: rgba(255,255,255,0.85); line-height: 1.5; }
+
+.fc-controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+.fc-btn {
+  flex: 1;
+  max-width: 140px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fc-knew { background: rgba(39,174,96,0.2); color: var(--correct); border: 2px solid var(--correct); }
+.fc-knew:hover { background: var(--correct); color: #fff; }
+.fc-unsure { background: rgba(231,76,60,0.15); color: #e74c3c; border: 2px solid #e74c3c; }
+.fc-unsure:hover { background: #e74c3c; color: #fff; }
+
+/* ===== RESULTS SCREEN ===== */
+#resultsScreen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.results-icon { font-size: 5rem; margin-bottom: 12px; animation: bounce 1.5s ease-in-out infinite; }
+.results-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); margin-bottom: 8px; }
+.results-score { font-size: 3.5rem; font-weight: 900; color: var(--gold); margin: 12px 0; }
+.results-label { font-size: 1rem; color: var(--text); margin-bottom: 24px; }
+.results-breakdown {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.breakdown-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+.breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.breakdown-row:last-child { border-bottom: none; }
+.br-concept { font-weight: 700; color: var(--white); font-size: 0.9rem; }
+.br-dot { width: 10px; height: 10px; border-radius: 50%; }
+.br-right { font-size: 0.85rem; color: var(--text); }
+
+.results-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
+
+/* ===== STREAK BADGE ===== */
+.streak-badge {
+  position: fixed;
+  top: 20px;
+  right: 16px;
+  z-index: 100;
+  background: linear-gradient(135deg, #e67e22, #e74c3c);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s;
+}
+.streak-badge.show { opacity: 1; transform: scale(1); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1a3a6b;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  z-index: 999;
+  transition: transform 0.3s;
+  border: 1px solid rgba(255,255,255,0.15);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== CONFETTI ===== */
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+  pointer-events: none;
+  z-index: 999;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== TIMER ===== */
+.timer-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 900;
+  background: rgba(255,255,255,0.05);
+  border: 3px solid var(--gold);
+  color: var(--gold);
+  transition: border-color 0.3s, color 0.3s;
+}
+.timer-ring.urgent { border-color: var(--wrong); color: var(--wrong); animation: urgentPulse 0.5s ease-in-out infinite; }
+@keyframes urgentPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+/* ===== ANSWER FILL MODE ===== */
+.fill-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--white);
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+.fill-input:focus { border-color: var(--gold); }
+
+/* ===== CONCEPT LABELS ===== */
+.label-v { color: #5dade2; }
+.label-a { color: #58d68d; }
+.label-c { color: #f0a500; }
+.label-co { color: #c39bd3; }
+.label-l { color: #48c9b0; }
+
+@media (max-width: 400px) {
+  .options-grid { grid-template-columns: 1fr; }
+  .mode-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+<div class="streak-badge" id="streakBadge">🔥 Streak x<span id="streakNum">0</span></div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div class="screen active" id="titleScreen">
+  <div class="title-badge">🎓 Teacher Training Programme</div>
+  <div class="title-icon">📚</div>
+  <h1 class="game-title">EduConcepts<br><span>Challenge</span></h1>
+  <p class="subtitle">Vision · Aim · Curricular Goals · Competencies · Learning Outcomes</p>
+
+  <div class="concept-pills">
+    <span class="pill pill-v">👁 Vision</span>
+    <span class="pill pill-a">🎯 Aim</span>
+    <span class="pill pill-c">📖 Curricular Goals</span>
+    <span class="pill pill-co">🧠 Competencies</span>
+    <span class="pill pill-l">✅ Learning Outcomes</span>
+  </div>
+
+  <button class="btn-primary" onclick="showScreen('modeScreen')">▶ Start Game</button>
+  <button class="btn-secondary" onclick="showScreen('referenceScreen')">📋 Quick Reference Card</button>
+
+  <div class="dev-credit">
+    <div class="dev-name">Dr. Mateen Yousuf</div>
+    <div class="dev-role">Key Resource Person<br>GGHSS Khanyar — School Education Department J&K</div>
+  </div>
+</div>
+
+<!-- ===== MODE SCREEN ===== -->
+<div class="screen" id="modeScreen">
+  <div style="padding:24px; width:100%; max-width:600px; margin:0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;">
+    <button class="back-btn" onclick="showScreen('titleScreen')" style="align-self:flex-start; margin-bottom:16px;">←</button>
+    <p class="mode-title">Choose Your Mode</p>
+    <p class="mode-subtitle">Select how you'd like to practice</p>
+    <div class="mode-grid" style="margin-bottom:20px;">
+      <div class="mode-card" onclick="startGame('mcq')">
+        <div class="mode-icon">🎮</div>
+        <div class="mode-name">MCQ Quiz</div>
+        <div class="mode-desc">4-option multiple choice with timer</div>
+      </div>
+      <div class="mode-card" onclick="startGame('flash')">
+        <div class="mode-icon">🃏</div>
+        <div class="mode-name">Flashcards</div>
+        <div class="mode-desc">Flip to reveal concept & explanation</div>
+      </div>
+      <div class="mode-card" onclick="startGame('classify')">
+        <div class="mode-icon">🗂️</div>
+        <div class="mode-name">Classify It</div>
+        <div class="mode-desc">Drag the statement to the right box</div>
+      </div>
+      <div class="mode-card" onclick="startGame('rapid')">
+        <div class="mode-icon">⚡</div>
+        <div class="mode-name">Rapid Fire</div>
+        <div class="mode-desc">Quick 2-option decisions, speed counts!</div>
+      </div>
+    </div>
+    <button class="btn-secondary" style="width:100%;max-width:280px;" onclick="showScreen('referenceScreen')">📋 Reference Card First</button>
+  </div>
+</div>
+
+<!-- ===== REFERENCE SCREEN ===== -->
+<div class="screen" id="referenceScreen" style="padding:20px; max-width:640px; margin:0 auto;">
+  <div class="ref-header">
+    <button class="back-btn" onclick="goBackFromRef()">←</button>
+    <div class="ref-title">📋 Quick Reference Card</div>
+  </div>
+  <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:16px;">Memorise these before playing!</div>
+  <div class="ref-cards">
+    <div class="ref-card v">
+      <div class="ref-card-title">👁 1. VISION</div>
+      <div class="ref-card-scope">Scope: Nation/System Level · Very Long-term · Not Measurable</div>
+      <div class="ref-card-desc">The highest, broadest educational dream or philosophy. Inspirational, value-based, and philosophical. Sets the overarching direction for an entire education system.</div>
+      <div class="ref-card-key">Key Question: "What kind of society do we want to create?"</div>
+    </div>
+    <div class="ref-card a">
+      <div class="ref-card-title">🎯 2. AIM</div>
+      <div class="ref-card-scope">Scope: Education Level (General) · Long-term · Difficult to Measure</div>
+      <div class="ref-card-desc">Broad educational purposes derived from Vision. They describe WHY we are educating learners. Developmental and purpose-oriented.</div>
+      <div class="ref-card-key">Key Question: "Why are we educating learners?"</div>
+    </div>
+    <div class="ref-card c">
+      <div class="ref-card-title">📖 3. CURRICULAR GOALS (CGs)</div>
+      <div class="ref-card-scope">Scope: Stage/Subject Level · Medium-term · Partly Measurable</div>
+      <div class="ref-card-desc">Broad learning expectations for a stage or subject. Translates aims into curriculum directions. More specific than aims, stage-wise and curriculum-oriented.</div>
+      <div class="ref-card-key">Key Question: "What broad learning should happen at this stage/subject?"</div>
+    </div>
+    <div class="ref-card co">
+      <div class="ref-card-title">🧠 4. COMPETENCIES</div>
+      <div class="ref-card-scope">Scope: Subject/Grade Level · Short-term · Measurable</div>
+      <div class="ref-card-desc">Integrated abilities learners must demonstrate — combining knowledge, skills, values, attitudes and application. Action-oriented, observable and performance-based.</div>
+      <div class="ref-card-key">Key Question: "What should learners be able to DO with what they learn?"</div>
+    </div>
+    <div class="ref-card l">
+      <div class="ref-card-title">✅ 5. LEARNING OUTCOMES (LOs)</div>
+      <div class="ref-card-scope">Scope: Lesson/Unit Level · Immediate · Easily Measurable</div>
+      <div class="ref-card-desc">Specific and measurable achievements expected after a lesson/unit/activity. Shows what learners actually achieve. Very specific, observable and assessable.</div>
+      <div class="ref-card-key">Key Question: "What exactly will the learner achieve after THIS lesson/unit?"</div>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:24px;">
+    <button class="btn-primary" onclick="goBackFromRef()">I'm Ready to Play! ▶</button>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="gameScreen" style="max-width:640px; margin:0 auto;">
+  <div class="game-header">
+    <button class="back-btn" onclick="showScreen('modeScreen')" title="Quit">←</button>
+    <div class="game-meta">
+      <span class="score-badge" id="scoreDisplay">⭐ 0</span>
+      <span class="score-badge" id="qCountDisplay" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.2);color:var(--text);">Q 1/15</span>
+      <div class="timer-ring" id="timerRing">30</div>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+  <!-- MCQ / Rapid Fire -->
+  <div id="mcqContainer">
+    <div class="question-card" id="questionCard">
+      <div class="q-subject" id="qSubject">Subject</div>
+      <div class="q-mode-label" id="qModeLabel"></div>
+      <div class="q-text" id="questionText">Question goes here</div>
+      <div class="q-context" id="qContext" style="display:none;"></div>
+    </div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-title" id="feedbackTitle"></div>
+      <div class="feedback-explain" id="feedbackExplain"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <!-- Flashcard Mode -->
+  <div id="flashContainer" style="display:none;">
+    <div class="flashcard-wrap" onclick="flipCard()" id="flashcardWrap">
+      <div class="flashcard" id="flashcard">
+        <div class="card-face card-front">
+          <div class="fc-hint">TAP TO REVEAL ANSWER</div>
+          <div class="fc-scenario" id="fcScenario">Scenario text</div>
+        </div>
+        <div class="card-face card-back" id="fcBack">
+          <div class="fc-answer-label">This is a...</div>
+          <div class="fc-concept" id="fcConcept">Concept</div>
+          <div class="fc-why" id="fcWhy">Explanation</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-controls" id="fcControls" style="display:none;">
+      <button class="fc-btn fc-knew" onclick="fcScore(true)">✅ Got it!</button>
+      <button class="fc-btn fc-unsure" onclick="fcScore(false)">🔄 Review again</button>
+    </div>
+    <div style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.8rem;" id="fcCardCount"></div>
+  </div>
+
+  <!-- Classify Mode -->
+  <div id="classifyContainer" style="display:none;">
+    <div class="question-card" id="classifyStatement" style="margin-bottom:12px;">
+      <div class="q-subject" id="clSubject">Subject</div>
+      <div class="q-text" id="clText" style="font-size:1rem;">Statement</div>
+    </div>
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:10px;">Where does this belong?</div>
+    <div class="options-grid" id="classifyOptions"></div>
+    <div class="feedback-box" id="classifyFeedback">
+      <div class="feedback-title" id="clFbTitle"></div>
+      <div class="feedback-explain" id="clFbExplain"></div>
+    </div>
+    <button class="next-btn" id="clNextBtn" onclick="nextClassify()">Next →</button>
+  </div>
+</div>
+
+<!-- ===== RESULTS SCREEN ===== -->
+<div class="screen" id="resultsScreen">
+  <div class="results-icon" id="resultsIcon">🏆</div>
+  <div class="results-title" id="resultsTitle">Well Done!</div>
+  <div class="results-score" id="resultsScore">0/15</div>
+  <div class="results-label" id="resultsLabel">Keep practicing!</div>
+  <div class="results-breakdown" id="resultsBreakdown">
+    <div class="breakdown-title">Concept Performance</div>
+    <div id="breakdownRows"></div>
+  </div>
+  <div class="results-btns">
+    <button class="btn-primary" onclick="showScreen('modeScreen')">🔄 Play Again</button>
+    <button class="btn-secondary" onclick="showScreen('referenceScreen')">📋 Review Reference Card</button>
+    <button class="btn-secondary" onclick="showScreen('titleScreen')">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+// ===========================
+// DATA: 15 Questions across subjects
+// ===========================
+const CONCEPTS = {
+  V:  { name: 'Vision',           emoji: '👁',  color: '#1a5276', letter:'V' },
+  A:  { name: 'Aim',              emoji: '🎯', color: '#1e7e34', letter:'A' },
+  CG: { name: 'Curricular Goal',  emoji: '📖', color: '#d35400', letter:'CG' },
+  CO: { name: 'Competency',       emoji: '🧠', color: '#7d3c98', letter:'CO' },
+  LO: { name: 'Learning Outcome', emoji: '✅', color: '#0e7490', letter:'LO' }
+};
+
+const QUESTIONS = [
+  {
+    id:1, subject:'English Language', subjectIcon:'📝',
+    scenario: '"Students will be able to identify the main idea and three supporting details from a given paragraph by the end of this lesson."',
+    concept:'LO',
+    explanation:'This is a Learning Outcome — it is specific, measurable, tied to a single lesson, and describes exactly what the learner will achieve.',
+    question:'Which educational concept does this statement represent?'
+  },
+  {
+    id:2, subject:'Mathematics', subjectIcon:'🔢',
+    scenario: '"To develop logical, innovative and responsible problem-solvers who contribute meaningfully to society."',
+    concept:'V',
+    explanation:'This is a Vision — it is broad, inspirational, long-term, and philosophical, describing the kind of people and society we aspire to create.',
+    question:'What does this broad aspirational statement represent?'
+  },
+  {
+    id:3, subject:'Science', subjectIcon:'🔬',
+    scenario: '"Develop scientific literacy, curiosity and investigative skills among learners across the secondary stage."',
+    concept:'CG',
+    explanation:'This is a Curricular Goal — it sets broad learning expectations for a stage (secondary) and a subject (science), translating aims into curriculum direction.',
+    question:'Identify the educational concept in this statement.'
+  },
+  {
+    id:4, subject:'Social Studies', subjectIcon:'🌍',
+    scenario: '"To develop responsible, empathetic and informed citizens who can engage critically with their social and natural world."',
+    concept:'A',
+    explanation:'This is an Aim — it describes the broad purpose of Social Studies education (WHY we teach it), derived from the Vision, and applies across the education level.',
+    question:'What educational concept does this represent?'
+  },
+  {
+    id:5, subject:'Physical Education', subjectIcon:'⚽',
+    scenario: '"By the end of this unit, the learner will be able to perform three basketball defensive techniques: man-to-man marking, zone defence, and full-court press."',
+    concept:'LO',
+    explanation:'This is a Learning Outcome — it is specific, unit-level, observable, assessable, and precisely describes what the learner will demonstrate after this unit.',
+    question:'Which concept is demonstrated by this unit-level statement?'
+  },
+  {
+    id:6, subject:'Urdu / Language Arts', subjectIcon:'✍️',
+    scenario: '"Learners can communicate thoughts, feelings and information clearly and effectively in oral and written forms in various social contexts."',
+    concept:'CO',
+    explanation:'This is a Competency — it integrates knowledge, skills and attitudes into an observable, performance-based ability across varied situations (not tied to a single lesson).',
+    question:'What is this integrated, performance-based ability called?'
+  },
+  {
+    id:7, subject:'History', subjectIcon:'🏛️',
+    scenario: '"To create a culturally aware, historically conscious and critically thinking generation that values its heritage and understands global interdependence."',
+    concept:'V',
+    explanation:'This is a Vision — it is the broadest, most philosophical educational dream at the national/system level, setting the entire direction for History education.',
+    question:'Identify the educational concept in this sweeping national-level statement.'
+  },
+  {
+    id:8, subject:'Chemistry', subjectIcon:'⚗️',
+    scenario: '"Students will conduct a titration experiment to determine the concentration of hydrochloric acid, recording results to two decimal places."',
+    concept:'LO',
+    explanation:'This is a Learning Outcome — it is immediate, measurable (titration, two decimal places), tied to a specific activity, and describes exactly what learners will achieve.',
+    question:'This statement about a specific lab activity represents which concept?'
+  },
+  {
+    id:9, subject:'Mathematics', subjectIcon:'🔢',
+    scenario: '"Develop mathematical reasoning abilities and problem-solving skills in learners at the primary stage."',
+    concept:'A',
+    explanation:'This is an Aim — it is a broad educational purpose for primary Mathematics, describing WHY we teach maths (to develop reasoning), and is difficult to measure directly.',
+    question:'Which concept is represented by this broad purpose statement for Primary Mathematics?'
+  },
+  {
+    id:10, subject:'Biology', subjectIcon:'🌱',
+    scenario: '"Learners use biological concepts and processes to investigate, analyse, and evaluate real-world health and environmental issues."',
+    concept:'CO',
+    explanation:'This is a Competency — it integrates knowledge (biological concepts), skills (investigate, analyse) and application to real situations — performance-based and observable.',
+    question:'What type of educational concept combines knowledge, skills, and application like this?'
+  },
+  {
+    id:11, subject:'Islamic Studies', subjectIcon:'📿',
+    scenario: '"Learners understand the values of justice, honesty and compassion as taught in Islamic studies across the secondary curriculum."',
+    concept:'CG',
+    explanation:'This is a Curricular Goal — it sets broad learning expectations (values) for a subject (Islamic Studies) across a curriculum stage, translating the aim into curriculum direction.',
+    question:'This subject-level learning expectation is an example of which concept?'
+  },
+  {
+    id:12, subject:'Computer Science', subjectIcon:'💻',
+    scenario: '"To educate students to become ethical, innovative and technologically empowered citizens who drive national development."',
+    concept:'V',
+    explanation:'This is a Vision — it is broad, aspirational, national-level, and philosophical. It describes the kind of citizens and society ICT education aspires to create.',
+    question:'Identify the concept in this national-level aspirational statement for Computer Science.'
+  },
+  {
+    id:13, subject:'Art & Craft', subjectIcon:'🎨',
+    scenario: '"By the end of Class 7, learners appreciate diverse art forms, apply design principles and express original ideas through various media."',
+    concept:'CG',
+    explanation:'This is a Curricular Goal — it covers a stage (Class 7), a subject (Art), sets broad expectations (appreciate, apply, express), and is partly measurable, not tied to one lesson.',
+    question:'This stage-level, broad expectation statement for Art represents which concept?'
+  },
+  {
+    id:14, subject:'English Language', subjectIcon:'📝',
+    scenario: '"Learner can write a formal letter applying the correct format, appropriate register, and proper punctuation in an exam setting."',
+    concept:'CO',
+    explanation:'This is a Competency — it describes an integrated ability (write a formal letter) combining knowledge (format), skill (register), and application (exam setting) in an observable performance.',
+    question:'What concept is demonstrated when a learner performs this integrated, multi-skill task?'
+  },
+  {
+    id:15, subject:'General Education', subjectIcon:'🏫',
+    scenario: '"To foster holistic development — intellectual, physical, emotional, social and moral — in every child attending the nation\'s schools."',
+    concept:'A',
+    explanation:'This is an Aim — it is a broad, developmental, long-term educational purpose applicable across all subjects and levels, describing the overarching WHY of schooling.',
+    question:'This cross-subject, developmental purpose statement represents which concept?'
+  }
+];
+
+// Extra for flashcard/classify pool
+const EXTRA_STATEMENTS = [
+  { subject:'Geography', subjectIcon:'🗺️', scenario:'"Students will locate the 5 major rivers of South Asia on an outline map by the end of today\'s lesson."', concept:'LO', explanation:'Lesson-specific, measurable, immediate — a Learning Outcome.' },
+  { subject:'Physics', subjectIcon:'⚡', scenario:'"Learners apply principles of mechanics to solve problems in engineering and daily life situations."', concept:'CO', explanation:'Integrated ability combining knowledge and application — a Competency.' },
+  { subject:'Civics', subjectIcon:'🏛️', scenario:'"Develop informed, responsible and participatory citizens who uphold democratic values."', concept:'A', explanation:'Broad educational purpose for Civics — an Aim.' },
+  { subject:'Environmental Science', subjectIcon:'🌿', scenario:'"Learners develop awareness of environmental issues and sustainable practices across the middle school curriculum."', concept:'CG', explanation:'Stage-level curriculum expectation — a Curricular Goal.' },
+  { subject:'National Vision', subjectIcon:'🇮🇳', scenario:'"To create a knowledge-based, equitable and progressive society through transformative education."', concept:'V', explanation:'Broad, national-level philosophical dream — the Vision.' }
+];
+
+const ALL_STATEMENTS = [...QUESTIONS, ...EXTRA_STATEMENTS];
+
+// ===========================
+// STATE
+// ===========================
+let currentMode = 'mcq';
+let shuffledQuestions = [];
+let currentQIndex = 0;
+let score = 0;
+let streak = 0;
+let timerInterval = null;
+let timeLeft = 30;
+let answered = false;
+let conceptCorrect = {V:0, A:0, CG:0, CO:0, LO:0};
+let conceptTotal = {V:0, A:0, CG:0, CO:0, LO:0};
+let fcIndex = 0;
+let fcShuffled = [];
+let fcKnew = 0;
+let prevScreen = 'titleScreen';
+
+// Audio context for sounds
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playBeep(freq, dur, type='sine', vol=0.3) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+
+function playCorrect() {
+  playBeep(523, 0.1, 'sine', 0.3);
+  setTimeout(() => playBeep(659, 0.1, 'sine', 0.3), 100);
+  setTimeout(() => playBeep(784, 0.2, 'sine', 0.3), 200);
+}
+function playWrong() {
+  playBeep(200, 0.3, 'sawtooth', 0.2);
+  setTimeout(() => playBeep(180, 0.3, 'sawtooth', 0.2), 150);
+}
+function playTick() { playBeep(440, 0.05, 'square', 0.05); }
+function playFanfare() {
+  [523,659,784,1047].forEach((f,i) => setTimeout(() => playBeep(f, 0.25, 'sine', 0.35), i*120));
+}
+function playClick() { playBeep(880, 0.04, 'sine', 0.1); }
+
+// ===========================
+// PARTICLES
+// ===========================
+function initParticles() {
+  const container = document.getElementById('particles');
+  container.innerHTML = '';
+  const colors = ['#1a5276','#1e7e34','#d35400','#7d3c98','#0e7490','#f4c542'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 40 + 10;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*20+15}s;
+      animation-delay:${Math.random()*15}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ===========================
+// SCREEN MANAGEMENT
+// ===========================
+function showScreen(id) {
+  playClick();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goBackFromRef() {
+  showScreen(prevScreen === 'modeScreen' ? 'modeScreen' : 'titleScreen');
+}
+
+// ===========================
+// SHUFFLE
+// ===========================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ===========================
+// START GAME
+// ===========================
+function startGame(mode) {
+  currentMode = mode;
+  score = 0; streak = 0; currentQIndex = 0;
+  conceptCorrect = {V:0, A:0, CG:0, CO:0, LO:0};
+  conceptTotal = {V:0, A:0, CG:0, CO:0, LO:0};
+  document.getElementById('streakBadge').classList.remove('show');
+
+  shuffledQuestions = shuffle(QUESTIONS).slice(0,15);
+
+  document.getElementById('mcqContainer').style.display = 'none';
+  document.getElementById('flashContainer').style.display = 'none';
+  document.getElementById('classifyContainer').style.display = 'none';
+  document.getElementById('timerRing').style.display = 'flex';
+
+  if (mode === 'flash') {
+    document.getElementById('flashContainer').style.display = 'block';
+    document.getElementById('timerRing').style.display = 'none';
+    fcShuffled = shuffle(ALL_STATEMENTS);
+    fcIndex = 0; fcKnew = 0;
+    showFlashcard();
+  } else if (mode === 'classify') {
+    document.getElementById('classifyContainer').style.display = 'block';
+    document.getElementById('timerRing').style.display = 'none';
+    showClassify();
+  } else {
+    document.getElementById('mcqContainer').style.display = 'block';
+    showQuestion();
+  }
+
+  updateScoreDisplay();
+  updateProgress();
+  showScreen('gameScreen');
+}
+
+// ===========================
+// MCQ / RAPID FIRE
+// ===========================
+function showQuestion() {
+  if (currentQIndex >= shuffledQuestions.length) { showResults(); return; }
+  answered = false;
+  const q = shuffledQuestions[currentQIndex];
+  conceptTotal[q.concept]++;
+
+  document.getElementById('qSubject').textContent = (q.subjectIcon || '') + ' ' + q.subject;
+
+  const modeLabel = currentMode === 'rapid' ? '⚡ RAPID FIRE — Choose fast!' : '🎮 MCQ CHALLENGE';
+  document.getElementById('qModeLabel').textContent = modeLabel;
+  document.getElementById('questionText').textContent = q.question;
+
+  const ctx = document.getElementById('qContext');
+  ctx.textContent = q.scenario;
+  ctx.style.display = 'block';
+
+  // Build options
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+
+  const keys = Object.keys(CONCEPTS);
+  const allOpts = shuffle(keys);
+
+  allOpts.forEach(key => {
+    const c = CONCEPTS[key];
+    const btn = document.createElement('button');
+    btn.className = 'option-btn option-'+key.toLowerCase();
+    btn.textContent = c.emoji + ' ' + c.name;
+    btn.onclick = () => selectAnswer(key, btn);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  // Timer
+  clearInterval(timerInterval);
+  timeLeft = currentMode === 'rapid' ? 12 : 30;
+  updateTimer();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimer();
+    if (timeLeft <= 5) playTick();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) timeOut();
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  const el = document.getElementById('timerRing');
+  el.textContent = timeLeft;
+  el.classList.toggle('urgent', timeLeft <= 5);
+}
+
+function timeOut() {
+  if (answered) return;
+  answered = true; streak = 0;
+  updateStreakBadge();
+  const q = shuffledQuestions[currentQIndex];
+  showFeedback(false, `⏱️ Time's up!`, `The correct answer was: ${CONCEPTS[q.concept].emoji} ${CONCEPTS[q.concept].name}. ${q.explanation}`);
+  playWrong();
+  markAnswers(null, q.concept);
+}
+
+function selectAnswer(chosen, btn) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  const q = shuffledQuestions[currentQIndex];
+  const isCorrect = chosen === q.concept;
+
+  if (isCorrect) {
+    score++;
+    streak++;
+    conceptCorrect[q.concept]++;
+    playCorrect();
+    showFeedback(true, '✅ Correct!', q.explanation);
+    if (streak >= 3) showStreakBadge();
+  } else {
+    streak = 0;
+    updateStreakBadge();
+    playWrong();
+    showFeedback(false, `❌ Not quite! It's ${CONCEPTS[q.concept].emoji} ${CONCEPTS[q.concept].name}`, q.explanation);
+  }
+
+  markAnswers(chosen, q.concept);
+  updateScoreDisplay();
+}
+
+function markAnswers(chosen, correct) {
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    const label = btn.textContent;
+    const key = Object.keys(CONCEPTS).find(k => label.includes(CONCEPTS[k].name));
+    if (key === correct) btn.classList.add('correct');
+    else if (key === chosen && chosen !== correct) btn.classList.add('wrong');
+    btn.disabled = true;
+  });
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function showFeedback(correct, title, explain) {
+  const box = document.getElementById('feedbackBox');
+  box.className = 'feedback-box ' + (correct ? 'correct' : 'wrong');
+  document.getElementById('feedbackTitle').textContent = title;
+  document.getElementById('feedbackExplain').textContent = explain;
+  box.style.display = 'block';
+}
+
+function nextQuestion() {
+  playClick();
+  currentQIndex++;
+  updateProgress();
+  if (currentQIndex >= shuffledQuestions.length) { showResults(); return; }
+  showQuestion();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreDisplay').textContent = '⭐ ' + score;
+  document.getElementById('qCountDisplay').textContent = `Q ${Math.min(currentQIndex+1,15)}/15`;
+}
+
+function updateProgress() {
+  const pct = (currentQIndex / shuffledQuestions.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function showStreakBadge() {
+  document.getElementById('streakNum').textContent = streak;
+  const badge = document.getElementById('streakBadge');
+  badge.classList.add('show');
+  if (streak >= 5) playFanfare();
+}
+function updateStreakBadge() {
+  if (streak >= 3) {
+    document.getElementById('streakNum').textContent = streak;
+    document.getElementById('streakBadge').classList.add('show');
+  } else {
+    document.getElementById('streakBadge').classList.remove('show');
+  }
+}
+
+// ===========================
+// CLASSIFY MODE
+// ===========================
+let clIndex = 0;
+let clShuffled = [];
+let clScore = 0;
+
+function showClassify() {
+  clShuffled = shuffle(ALL_STATEMENTS);
+  clIndex = 0; clScore = 0;
+  renderClassify();
+}
+
+function renderClassify() {
+  if (clIndex >= 15) { currentQIndex = 15; score = clScore; showResults(); return; }
+  const q = clShuffled[clIndex];
+  conceptTotal[q.concept] = (conceptTotal[q.concept]||0) + 1;
+
+  document.getElementById('clSubject').textContent = (q.subjectIcon||'') + ' ' + q.subject;
+  document.getElementById('clText').textContent = q.scenario;
+
+  const opts = document.getElementById('classifyOptions');
+  opts.innerHTML = '';
+  shuffle(Object.keys(CONCEPTS)).forEach(key => {
+    const c = CONCEPTS[key];
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span style="font-size:1.4rem">${c.emoji}</span><br><span style="font-size:0.82rem">${c.name}</span>`;
+    btn.onclick = () => classifySelect(key, btn, q);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('classifyFeedback').style.display = 'none';
+  document.getElementById('clNextBtn').style.display = 'none';
+  document.getElementById('qCountDisplay').textContent = `Q ${clIndex+1}/15`;
+  const pct = (clIndex/15)*100;
+  document.getElementById('progressBar').style.width = pct+'%';
+}
+
+function classifySelect(chosen, btn, q) {
+  document.querySelectorAll('#classifyOptions .option-btn').forEach(b => b.disabled = true);
+  const isCorrect = chosen === q.concept;
+
+  document.querySelectorAll('#classifyOptions .option-btn').forEach(b => {
+    const label = b.textContent;
+    const key = Object.keys(CONCEPTS).find(k => label.includes(CONCEPTS[k].name));
+    if (key === q.concept) b.classList.add('correct');
+    else if (key === chosen && !isCorrect) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('classifyFeedback');
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('clFbTitle').textContent = isCorrect ? `✅ Correct! It's ${CONCEPTS[q.concept].name}` : `❌ It's a ${CONCEPTS[q.concept].name}`;
+  document.getElementById('clFbExplain').textContent = q.explanation;
+  fb.style.display = 'block';
+
+  if (isCorrect) { clScore++; score = clScore; conceptCorrect[q.concept]=(conceptCorrect[q.concept]||0)+1; playCorrect(); }
+  else { playWrong(); }
+
+  document.getElementById('scoreDisplay').textContent = '⭐ ' + score;
+  document.getElementById('clNextBtn').style.display = 'block';
+}
+
+function nextClassify() {
+  playClick();
+  clIndex++;
+  renderClassify();
+}
+
+// ===========================
+// FLASHCARD MODE
+// ===========================
+function showFlashcard() {
+  if (fcIndex >= fcShuffled.length || fcIndex >= 15) {
+    score = fcKnew; currentQIndex = 15;
+    showResults(); return;
+  }
+  const q = fcShuffled[fcIndex];
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  document.getElementById('fcControls').style.display = 'none';
+
+  document.getElementById('fcScenario').textContent = q.scenario;
+  document.getElementById('fcConcept').textContent = CONCEPTS[q.concept].emoji + ' ' + CONCEPTS[q.concept].name;
+  document.getElementById('fcWhy').textContent = q.explanation;
+
+  const back = document.getElementById('fcBack');
+  back.className = 'card-face card-back ' + q.concept.toLowerCase().replace('cg','c').replace('co','co').replace('lo','l');
+
+  document.getElementById('fcCardCount').textContent = `Card ${fcIndex+1} of ${Math.min(fcShuffled.length,15)} · ✅ ${fcKnew} known`;
+  document.getElementById('qCountDisplay').textContent = `Card ${fcIndex+1}/15`;
+  const pct = (fcIndex/15)*100;
+  document.getElementById('progressBar').style.width = pct+'%';
+}
+
+function flipCard() {
+  const fc = document.getElementById('flashcard');
+  fc.classList.toggle('flipped');
+  if (fc.classList.contains('flipped')) {
+    playBeep(660, 0.1, 'sine', 0.15);
+    document.getElementById('fcControls').style.display = 'flex';
+  }
+}
+
+function fcScore(knew) {
+  playClick();
+  if (knew) {
+    fcKnew++;
+    score = fcKnew;
+    conceptCorrect[fcShuffled[fcIndex].concept] = (conceptCorrect[fcShuffled[fcIndex].concept]||0)+1;
+    playCorrect();
+  } else playWrong();
+  conceptTotal[fcShuffled[fcIndex].concept] = (conceptTotal[fcShuffled[fcIndex].concept]||0)+1;
+  document.getElementById('scoreDisplay').textContent = '⭐ ' + score;
+  fcIndex++;
+  showFlashcard();
+}
+
+// ===========================
+// RESULTS
+// ===========================
+function showResults() {
+  clearInterval(timerInterval);
+  document.getElementById('streakBadge').classList.remove('show');
+  const total = Math.min(currentQIndex || 15, 15);
+  const pct = Math.round((score/total)*100);
+
+  let icon = pct >= 80 ? '🏆' : pct >= 60 ? '🎖️' : pct >= 40 ? '📚' : '💪';
+  let title = pct >= 80 ? 'Outstanding!' : pct >= 60 ? 'Well Done!' : pct >= 40 ? 'Good Effort!' : 'Keep Practising!';
+  let label = pct >= 80 ? 'Excellent understanding of educational concepts!' : pct >= 60 ? 'Good grasp — review weaker concepts.' : pct >= 40 ? 'You\'re learning — use the Reference Card and try again.' : 'Study the Reference Card, then give it another go!';
+
+  document.getElementById('resultsIcon').textContent = icon;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsScore').textContent = score + '/' + total;
+  document.getElementById('resultsLabel').textContent = label;
+
+  // Breakdown
+  const rows = document.getElementById('breakdownRows');
+  rows.innerHTML = '';
+  Object.keys(CONCEPTS).forEach(key => {
+    const c = CONCEPTS[key];
+    const got = conceptCorrect[key]||0;
+    const tot = conceptTotal[key]||0;
+    if (tot === 0) return;
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="br-dot" style="background:${c.color}"></div>
+        <span class="br-concept">${c.emoji} ${c.name}</span>
+      </div>
+      <span class="br-right">${got}/${tot} ${got===tot&&tot>0?'✅':''}</span>
+    `;
+    rows.appendChild(row);
+  });
+
+  if (pct >= 80) {
+    confetti();
+    playFanfare();
+  } else if (pct >= 60) {
+    playCorrect();
+  }
+
+  showScreen('resultsScreen');
+}
+
+function confetti() {
+  const colors = ['#f4c542','#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const size = Math.random()*8+4;
+      el.style.cssText = `
+        left:${Math.random()*100}vw;
+        width:${size}px; height:${size*0.6}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        animation-duration:${Math.random()*2+2}s;
+        animation-delay:${Math.random()*0.5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }, i*30);
+  }
+}
+
+// ===========================
+// TOAST
+// ===========================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===========================
+// PWA SERVICE WORKER
+// ===========================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Inline SW
+    const swCode = `
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('activate', e => clients.claim());
+      self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
+    `;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  });
+}
+
+// ===========================
+// INIT
+// ===========================
+initParticles();
+prevScreen = 'titleScreen';
+
+// Override reference back logic
+const origRef = document.getElementById('referenceScreen');
+document.querySelectorAll('[onclick*="referenceScreen"]').forEach(el => {
+  const orig = el.getAttribute('onclick');
+  el.addEventListener('click', () => { prevScreen = 'modeScreen'; });
+});
+</script>
+</body>
+</html>
