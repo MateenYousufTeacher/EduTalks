@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BizMatch" />
+  <meta name="description" content="Business Studies Concept-to-Example Game for Class 11-12" />
+  <title>💼 BizMatch – Business Studies Game</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+      --gold: #f5a623;
+      --gold-light: #ffd07a;
+      --gold-dim: rgba(245,166,35,0.15);
+      --dark: #0a0e1a;
+      --dark2: #111827;
+      --dark3: #1a2332;
+      --card: #141e2e;
+      --text: #e8eaf0;
+      --text-dim: #8892a4;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --radius: 18px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .screen.active { display: flex; }
+
+    /* ── SPLASH / HOME ── */
+    #home-screen {
+      background: radial-gradient(ellipse at 50% 0%, #1a2d50 0%, var(--dark) 70%);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      gap: 0;
+    }
+
+    .home-badge {
+      background: var(--gold-dim);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .home-icon {
+      font-size: 80px;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .home-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .home-title span { color: var(--gold); }
+
+    .home-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 36px;
+      letter-spacing: 0.5px;
+    }
+
+    .home-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .stat-pill {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #e8941a 100%);
+      color: #0a0e1a;
+      border: none;
+      border-radius: var(--radius);
+      padding: 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 8px 32px rgba(245,166,35,0.35);
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      width: 100%;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 12px;
+    }
+
+    .btn-secondary:active { background: var(--dark3); }
+
+    .home-btns { width: 100%; }
+
+    .home-author {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 12px 16px;
+      width: 100%;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--gold-dim);
+      border: 2px solid var(--gold);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .author-info { text-align: left; }
+
+    .author-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .author-role {
+      font-size: 11px;
+      color: var(--gold);
+      margin-top: 1px;
+    }
+
+    /* ── LEVEL SELECT ── */
+    #level-screen {
+      padding: 24px;
+      gap: 16px;
+    }
+
+    .screen-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0 8px;
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .screen-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .level-cards { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+
+    .level-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .level-card:active { transform: scale(0.98); }
+
+    .level-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      opacity: 0.08;
+      transform: translate(20px, -20px);
+    }
+
+    .level-card.basic { border-color: rgba(34,197,94,0.3); }
+    .level-card.basic::before { background: var(--green); }
+    .level-card.intermediate { border-color: rgba(245,166,35,0.3); }
+    .level-card.intermediate::before { background: var(--gold); }
+    .level-card.advanced { border-color: rgba(239,68,68,0.3); }
+    .level-card.advanced::before { background: var(--red); }
+    .level-card.mixed { border-color: rgba(139,92,246,0.3); }
+    .level-card.mixed::before { background: var(--purple); }
+
+    .level-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .level-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .level-card.basic .level-tag { color: var(--green); }
+    .level-card.intermediate .level-tag { color: var(--gold); }
+    .level-card.advanced .level-tag { color: var(--red); }
+    .level-card.mixed .level-tag { color: var(--purple); }
+
+    .level-card.basic .level-dot { background: var(--green); }
+    .level-card.intermediate .level-dot { background: var(--gold); }
+    .level-card.advanced .level-dot { background: var(--red); }
+    .level-card.mixed .level-dot { background: var(--purple); }
+
+    .level-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .level-desc { font-size: 13px; color: var(--text-dim); }
+
+    .level-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+
+    .level-count {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .level-progress-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      flex: 1;
+      margin: 0 12px;
+      overflow: hidden;
+    }
+
+    .level-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .level-card.basic .level-progress-fill { background: var(--green); }
+    .level-card.intermediate .level-progress-fill { background: var(--gold); }
+    .level-card.advanced .level-progress-fill { background: var(--red); }
+    .level-card.mixed .level-progress-fill { background: var(--purple); }
+
+    /* ── GAME SCREEN ── */
+    #game-screen { padding: 0; }
+
+    .game-topbar {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--dark);
+      flex-shrink: 0;
+    }
+
+    .game-progress-wrap {
+      flex: 1;
+    }
+
+    .game-progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .game-progress-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .game-progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .game-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .score-badge {
+      background: var(--gold-dim);
+      border: 1px solid rgba(245,166,35,0.4);
+      border-radius: 12px;
+      padding: 6px 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .score-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 9px;
+      color: var(--gold);
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .game-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Concept Card */
+    .concept-card {
+      background: linear-gradient(135deg, #1a2d50 0%, #0f1e38 100%);
+      border: 1px solid rgba(245,166,35,0.2);
+      border-radius: 22px;
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .concept-card::after {
+      content: '💼';
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      font-size: 32px;
+      opacity: 0.3;
+    }
+
+    .concept-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      opacity: 0.8;
+    }
+
+    .concept-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .concept-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* Options */
+    .options-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: var(--card);
+      border: 2px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 16px 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .option-btn:active { transform: scale(0.98); }
+
+    .option-letter {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .option-text {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    /* Option States */
+    .option-btn.correct {
+      background: rgba(34,197,94,0.1);
+      border-color: var(--green);
+    }
+
+    .option-btn.correct .option-letter {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      background: rgba(239,68,68,0.08);
+      border-color: var(--red);
+    }
+
+    .option-btn.wrong .option-letter {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .option-btn.disabled.correct { opacity: 1; }
+
+    /* Feedback */
+    .feedback-bar {
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .feedback-bar.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feedback-bar.correct-fb {
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--green);
+    }
+
+    .feedback-bar.wrong-fb {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171;
+    }
+
+    .feedback-icon { font-size: 22px; }
+
+    .next-btn {
+      background: linear-gradient(135deg, var(--gold), #e8941a);
+      color: #0a0e1a;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s, opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .next-btn.show { opacity: 1; pointer-events: auto; }
+    .next-btn:active { transform: scale(0.97); }
+
+    /* ── RESULT SCREEN ── */
+    #result-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, #1a2d50 0%, var(--dark) 60%);
+      gap: 0;
+    }
+
+    .result-trophy {
+      font-size: 80px;
+      margin-bottom: 16px;
+      animation: pop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .result-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .result-grade {
+      font-size: 14px;
+      margin-bottom: 32px;
+      color: var(--text-dim);
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 32px;
+    }
+
+    .result-stat {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .result-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .result-stat-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+
+    .result-btns { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+
+    /* ── LEADERBOARD / PROGRESS ── */
+    #progress-screen {
+      padding: 24px;
+      gap: 16px;
+    }
+
+    .progress-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: -4px;
+    }
+
+    .progress-cards { display: flex; flex-direction: column; gap: 10px; }
+
+    .progress-row {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .progress-level-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .progress-info { flex: 1; }
+
+    .progress-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+
+    .progress-bar-mini {
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill-mini {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .progress-pct {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .overall-score-card {
+      background: linear-gradient(135deg, #1a2d50, #0f1e38);
+      border: 1px solid rgba(245,166,35,0.25);
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .overall-score-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 3px solid var(--gold);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .overall-score-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .overall-score-pct {
+      font-size: 10px;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    .overall-info {}
+    .overall-label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+    .overall-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+    .overall-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      display: flex;
+      background: var(--dark2);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 0;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      transition: color 0.2s;
+    }
+
+    .nav-btn.active { color: var(--gold); }
+
+    .nav-icon { font-size: 22px; }
+    .nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in { animation: slideUp 0.35s ease forwards; }
+
+    .shake {
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* Streak badge */
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(245,166,35,0.15);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    /* Install banner */
+    #install-banner {
+      display: none;
+      background: linear-gradient(135deg, #1a3a6e, #0f2248);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin: 0 20px;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    #install-banner.show { display: flex; }
+
+    .install-text { flex: 1; font-size: 13px; }
+    .install-text strong { display: block; color: #fff; margin-bottom: 2px; }
+    .install-text span { color: var(--text-dim); font-size: 11px; }
+
+    .install-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    /* Question counter */
+    .q-counter {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══════════ HOME SCREEN ══════════ -->
+  <div id="home-screen" class="screen active">
+    <div class="home-badge">Class 11–12 • Business Studies</div>
+    <div class="home-icon">💼</div>
+    <h1 class="home-title">Biz<span>Match</span></h1>
+    <p class="home-subtitle">Concept → Example • Master Business in Minutes</p>
+
+    <div class="home-stats">
+      <div class="stat-pill">
+        <div class="stat-num">250+</div>
+        <div class="stat-label">Questions</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" id="home-total-score">0</div>
+        <div class="stat-label">Your Score</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" id="home-streak">🔥0</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+
+    <div class="home-btns">
+      <button class="btn-primary" onclick="goTo('level-screen')">🚀 Start Game</button>
+      <button class="btn-secondary" onclick="goTo('progress-screen')">📊 My Progress</button>
+    </div>
+
+    <div class="home-author">
+      <div class="author-avatar">
+        <img src="author.jpg" alt="Mateen Yousuf" onerror="this.parentNode.innerHTML='👨‍🏫'" />
+      </div>
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Author • Business Studies Expert</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ LEVEL SELECT SCREEN ══════════ -->
+  <div id="level-screen" class="screen" style="overflow-y:auto;">
+    <div style="padding:0 24px 24px; flex:1;">
+      <div class="screen-header">
+        <div class="back-btn" onclick="goTo('home-screen')">←</div>
+        <div class="screen-title">Choose Level</div>
+      </div>
+
+      <div class="level-cards">
+        <div class="level-card basic" onclick="startGame('basic')">
+          <div class="level-tag"><span class="level-dot"></span>Level 1</div>
+          <div class="level-name">Basic Concepts</div>
+          <div class="level-desc">Production, Marketing, Trade, Supply & more</div>
+          <div class="level-meta">
+            <span class="level-count">100 Questions</span>
+            <div class="level-progress-bar">
+              <div class="level-progress-fill" id="prog-basic" style="width:0%"></div>
+            </div>
+            <span class="level-pct" id="pct-basic" style="font-size:12px;color:var(--green)">0%</span>
+          </div>
+        </div>
+
+        <div class="level-card intermediate" onclick="startGame('intermediate')">
+          <div class="level-tag"><span class="level-dot"></span>Level 2</div>
+          <div class="level-name">Intermediate</div>
+          <div class="level-desc">Entrepreneurship, Branding, Revenue & more</div>
+          <div class="level-meta">
+            <span class="level-count">80 Questions</span>
+            <div class="level-progress-bar">
+              <div class="level-progress-fill" id="prog-intermediate" style="width:0%"></div>
+            </div>
+            <span class="level-pct" id="pct-intermediate" style="font-size:12px;color:var(--gold)">0%</span>
+          </div>
+        </div>
+
+        <div class="level-card advanced" onclick="startGame('advanced')">
+          <div class="level-tag"><span class="level-dot"></span>Level 3</div>
+          <div class="level-name">Advanced</div>
+          <div class="level-desc">Monopoly, E-commerce, Globalization & more</div>
+          <div class="level-meta">
+            <span class="level-count">70 Questions</span>
+            <div class="level-progress-bar">
+              <div class="level-progress-fill" id="prog-advanced" style="width:0%"></div>
+            </div>
+            <span class="level-pct" id="pct-advanced" style="font-size:12px;color:var(--red)">0%</span>
+          </div>
+        </div>
+
+        <div class="level-card mixed" onclick="startGame('mixed')">
+          <div class="level-tag"><span class="level-dot"></span>Bonus</div>
+          <div class="level-name">Mixed Revision</div>
+          <div class="level-desc">All levels shuffled • Ultimate challenge</div>
+          <div class="level-meta">
+            <span class="level-count">All 250+</span>
+            <div class="level-progress-bar">
+              <div class="level-progress-fill" id="prog-mixed" style="width:0%"></div>
+            </div>
+            <span class="level-pct" id="pct-mixed" style="font-size:12px;color:var(--purple)">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ GAME SCREEN ══════════ -->
+  <div id="game-screen" class="screen">
+    <div class="game-topbar">
+      <div class="back-btn" onclick="goTo('level-screen')">←</div>
+      <div class="game-progress-wrap">
+        <div class="game-progress-info">
+          <span class="game-progress-label" id="level-label">Basic</span>
+          <span class="q-counter" id="q-counter">1 / 10</span>
+        </div>
+        <div class="game-progress-bar">
+          <div class="game-progress-fill" id="game-prog-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="score-badge">
+        <div class="score-num" id="live-score">0</div>
+        <div class="score-label">Score</div>
+      </div>
+    </div>
+
+    <div class="game-content" id="game-content">
+      <!-- Injected dynamically -->
+    </div>
+  </div>
+
+  <!-- ══════════ RESULT SCREEN ══════════ -->
+  <div id="result-screen" class="screen">
+    <div class="result-trophy" id="result-emoji">🏆</div>
+    <div class="result-title" id="result-title">Excellent!</div>
+    <div class="result-grade" id="result-grade">You scored 8 out of 10</div>
+
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="result-stat-num" id="res-correct" style="color:var(--green)">0</div>
+        <div class="result-stat-label">Correct</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-num" id="res-wrong" style="color:var(--red)">0</div>
+        <div class="result-stat-label">Wrong</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-num" id="res-pct" style="color:var(--gold)">0%</div>
+        <div class="result-stat-label">Accuracy</div>
+      </div>
+    </div>
+
+    <div class="result-btns">
+      <button class="btn-primary" id="play-again-btn" onclick="replayLevel()">🔄 Play Again</button>
+      <button class="btn-secondary" onclick="goTo('level-screen')">📚 Other Levels</button>
+      <button class="btn-secondary" onclick="goTo('home-screen')">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- ══════════ PROGRESS SCREEN ══════════ -->
+  <div id="progress-screen" class="screen" style="overflow-y:auto;">
+    <div style="padding:0 24px 24px; flex:1;">
+      <div class="screen-header">
+        <div class="back-btn" onclick="goTo('home-screen')">←</div>
+        <div class="screen-title">My Progress</div>
+      </div>
+
+      <div class="overall-score-card" style="margin-bottom:20px;">
+        <div class="overall-score-circle">
+          <div class="overall-score-num" id="ov-score">0</div>
+          <div class="overall-score-pct">pts</div>
+        </div>
+        <div class="overall-info">
+          <div class="overall-label">Total Score</div>
+          <div class="overall-title" id="ov-rank">Getting Started</div>
+          <div class="overall-sub" id="ov-sub">Keep playing to rank up!</div>
+        </div>
+      </div>
+
+      <div class="progress-section-title" style="margin-bottom:12px;">Level Progress</div>
+      <div class="progress-cards" id="progress-cards">
+        <!-- filled by JS -->
+      </div>
+
+      <button class="btn-secondary" style="margin-top:20px;" onclick="resetProgress()">🗑️ Reset All Progress</button>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<script>
+// ════════════════════════════════════
+//  DATASET – 250+ Business Concepts
+// ════════════════════════════════════
+const DATASET = {
+  basic: [
+    { concept: "Production", options: ["Making goods","Selling goods","Advertising goods","Transporting goods"], answer: 0 },
+    { concept: "Marketing", options: ["Promoting and selling products","Only producing goods","Only storing goods","Only buying goods"], answer: 0 },
+    { concept: "Advertising", options: ["TV promotion of a product","Buying raw materials","Hiring workers","Packaging goods"], answer: 0 },
+    { concept: "Distribution", options: ["Delivering goods to shops","Making goods","Advertising","Buying materials"], answer: 0 },
+    { concept: "Profit", options: ["Loss","Gain after expenses","Expense","Investment"], answer: 1 },
+    { concept: "Consumer", options: ["Buyer of goods","Seller","Producer","Manager"], answer: 0 },
+    { concept: "Seller", options: ["Person who sells goods","Buyer","Worker","Manager"], answer: 0 },
+    { concept: "Goods", options: ["Physical products","Services","Ideas","Plans"], answer: 0 },
+    { concept: "Services", options: ["Intangible activities","Physical goods","Machines","Raw materials"], answer: 0 },
+    { concept: "Price", options: ["Amount paid for product","Profit","Loss","Salary"], answer: 0 },
+    { concept: "Supply", options: ["Providing goods to market","Buying goods","Advertising goods","Storing goods"], answer: 0 },
+    { concept: "Demand", options: ["Desire to buy goods","Selling goods","Producing goods","Transporting goods"], answer: 0 },
+    { concept: "Trade", options: ["Buying and selling","Only producing","Only storing","Only transporting"], answer: 0 },
+    { concept: "Retail", options: ["Selling to final consumers","Selling in bulk","Producing goods","Storing goods"], answer: 0 },
+    { concept: "Wholesale", options: ["Selling in large quantities","Selling to end user","Producing goods","Advertising"], answer: 0 },
+    { concept: "Inventory", options: ["Stock of goods","Money in hand","Number of workers","Sales figures"], answer: 0 },
+    { concept: "Transport", options: ["Movement of goods","Storage of goods","Sale of goods","Production of goods"], answer: 0 },
+    { concept: "Storage", options: ["Keeping goods safely","Selling goods","Moving goods","Making goods"], answer: 0 },
+    { concept: "Packaging", options: ["Protecting goods","Selling goods","Moving goods","Financing goods"], answer: 0 },
+    { concept: "Labeling", options: ["Product information on package","Selling strategy","Ad campaign","Price policy"], answer: 0 },
+    { concept: "Import", options: ["Buying goods from other country","Selling goods abroad","Making goods locally","Storing goods"], answer: 0 },
+    { concept: "Export", options: ["Selling goods to foreign country","Buying from abroad","Producing locally","Advertising"], answer: 0 },
+    { concept: "Market", options: ["Place where goods are bought/sold","Factory","Warehouse","Office"], answer: 0 },
+    { concept: "Sales", options: ["Exchange of goods for money","Only producing","Only storing","Only advertising"], answer: 0 },
+    { concept: "Purchase", options: ["Buying goods","Selling goods","Making goods","Advertising goods"], answer: 0 },
+    { concept: "Factory", options: ["Place where goods are made","Place where goods are sold","Office building","Store"], answer: 0 },
+    { concept: "Raw Material", options: ["Input used to make product","Finished product","Final sale","Profit margin"], answer: 0 },
+    { concept: "Wages", options: ["Payment to workers","Profit for owner","Tax paid","Loan amount"], answer: 0 },
+    { concept: "Salary", options: ["Fixed monthly pay","Daily wages","Profit share","Investment return"], answer: 0 },
+    { concept: "Employer", options: ["Person who hires workers","Person who works","Customer","Supplier"], answer: 0 },
+    { concept: "Employee", options: ["Person who works for pay","Person who hires","Owner of firm","Supplier"], answer: 0 },
+    { concept: "Bank", options: ["Financial institution","Factory","Market","Government office"], answer: 0 },
+    { concept: "Loan", options: ["Money borrowed to repay later","Free money","Salary","Profit"], answer: 0 },
+    { concept: "Interest", options: ["Cost of borrowing money","Free money earned","Salary increase","Bonus"], answer: 0 },
+    { concept: "Saving", options: ["Setting aside money for future","Spending all income","Borrowing money","Investing in stocks"], answer: 0 },
+    { concept: "Insurance", options: ["Protection against financial loss","Free money","Tax payment","Salary"], answer: 0 },
+    { concept: "Tax", options: ["Compulsory payment to government","Voluntary donation","Salary","Investment"], answer: 0 },
+    { concept: "Receipt", options: ["Proof of payment","Invoice for future payment","Tax form","Salary slip"], answer: 0 },
+    { concept: "Invoice", options: ["Bill sent to buyer","Proof of payment","Salary slip","Bank statement"], answer: 0 },
+    { concept: "Cheque", options: ["Written order to pay from bank","Cash money","Credit card","Salary slip"], answer: 0 },
+    { concept: "Credit", options: ["Buying now paying later","Paying immediately","Donating money","Saving money"], answer: 0 },
+    { concept: "Debit", options: ["Immediate payment from account","Borrowing money","Getting paid","Earning interest"], answer: 0 },
+    { concept: "Cashflow", options: ["Movement of money in business","Fixed assets","Salary list","Product inventory"], answer: 0 },
+    { concept: "Turnover", options: ["Total sales of a business","Only profit","Only loss","Only expenses"], answer: 0 },
+    { concept: "Loss", options: ["Expenses greater than revenue","Revenue greater than expenses","Break-even point","Sales total"], answer: 0 },
+    { concept: "Capital", options: ["Money used to start business","Salary paid","Tax collected","Daily expenses"], answer: 0 },
+    { concept: "Asset", options: ["Something owned by business","Something owed","Salary bill","Tax paid"], answer: 0 },
+    { concept: "Liability", options: ["Something owed by business","Something owned","Profit earned","Revenue collected"], answer: 0 },
+    { concept: "Expense", options: ["Money spent by business","Money earned","Money saved","Money borrowed"], answer: 0 },
+    { concept: "Income", options: ["Money received by business","Money spent","Money borrowed","Money saved"], answer: 0 },
+    { concept: "Shareholder", options: ["Part owner of a company","Employee","Customer","Supplier"], answer: 0 },
+    { concept: "Share", options: ["Unit of ownership in company","Unit of product","Unit of currency","Type of loan"], answer: 0 },
+    { concept: "Dividend", options: ["Profit share given to shareholders","Tax payment","Salary payment","Loan repayment"], answer: 0 },
+    { concept: "Stock Exchange", options: ["Market where shares are traded","Store of goods","Office building","Government office"], answer: 0 },
+    { concept: "Inflation", options: ["Rise in general price level","Fall in prices","Constant prices","Economic growth"], answer: 0 },
+    { concept: "Deflation", options: ["Fall in general price level","Rise in prices","Constant prices","Economic growth"], answer: 0 },
+    { concept: "GDP", options: ["Total value of country's output","Total imports","Total exports","Total population"], answer: 0 },
+    { concept: "Budget", options: ["Plan of income and expenses","Only income statement","Only expense list","Tax report"], answer: 0 },
+    { concept: "Surplus", options: ["More income than expenses","More expenses than income","Equal income and expenses","No income"], answer: 0 },
+    { concept: "Deficit", options: ["More expenses than income","More income than expenses","Equal values","Zero spending"], answer: 0 },
+    { concept: "Auction", options: ["Selling to highest bidder","Selling at fixed price","Selling below cost","Free distribution"], answer: 0 },
+    { concept: "Tender", options: ["Formal bid to supply goods","Casual offer","Complaint letter","Marketing flyer"], answer: 0 },
+    { concept: "Bartering", options: ["Trading goods without money","Buying with cash","Selling on credit","Online shopping"], answer: 0 },
+    { concept: "Currency", options: ["Money used in a country","Unit of weight","Unit of measurement","Type of bond"], answer: 0 },
+    { concept: "Recession", options: ["Economic slowdown","Economic boom","Stable economy","Trade surplus"], answer: 0 },
+    { concept: "Boom", options: ["Period of economic growth","Economic slowdown","Trade deficit","Price fall"], answer: 0 },
+    { concept: "Subsidies", options: ["Government financial support to firms","Tax on imports","Ban on trade","Price ceiling"], answer: 0 },
+    { concept: "Tariff", options: ["Tax on imported goods","Subsidy on exports","Free trade policy","Government grant"], answer: 0 },
+    { concept: "Quota", options: ["Limit on quantity of imports","Tax on goods","Free trade rule","Price control"], answer: 0 },
+    { concept: "Free Trade", options: ["Trade without restrictions","Taxed trade","Banned trade","Controlled trade"], answer: 0 },
+    { concept: "Cooperation", options: ["Working together toward common goal","Competition between rivals","Individual effort","Market dominance"], answer: 0 },
+    { concept: "Negotiation", options: ["Discussion to reach agreement","Competing for customers","Producing goods","Selling goods"], answer: 0 },
+    { concept: "Contract", options: ["Legal agreement between parties","Verbal promise","Sales receipt","Tax form"], answer: 0 },
+    { concept: "Partnership", options: ["Business owned by two or more","One-owner business","Government company","Public company"], answer: 0 },
+    { concept: "Sole Trader", options: ["One-person business","Partnership","Company","Government firm"], answer: 0 },
+    { concept: "Merger", options: ["Joining of two companies","Breaking up of company","Starting new company","Closing company"], answer: 0 },
+    { concept: "Acquisition", options: ["Taking over another company","Starting own business","Closing company","Spinning off a unit"], answer: 0 },
+    { concept: "Liquidation", options: ["Closing company and selling assets","Buying more assets","Starting new branch","Merging companies"], answer: 0 },
+    { concept: "Insolvency", options: ["Unable to pay debts","Highly profitable","Debt-free","Fully liquid"], answer: 0 },
+    { concept: "Overdraft", options: ["Spending more than in bank account","Saving extra money","Earning interest","Investing surplus"], answer: 0 },
+    { concept: "Mortgage", options: ["Loan secured on property","Unsecured loan","Salary advance","Business grant"], answer: 0 },
+    { concept: "Profit Margin", options: ["Profit as % of revenue","Total revenue","Total expenses","Tax amount"], answer: 0 },
+    { concept: "Market Share", options: ["Company's % of total market sales","Total market size","Number of customers","Revenue total"], answer: 0 },
+    { concept: "Brand", options: ["Name/symbol identifying product","Product itself","Price tag","Warehouse"], answer: 0 },
+    { concept: "Trademark", options: ["Legally protected brand symbol","Factory mark","Tax stamp","Delivery label"], answer: 0 },
+    { concept: "Patent", options: ["Exclusive right to invention","Copyright for books","Design license","Trade secret"], answer: 0 },
+    { concept: "Copyright", options: ["Protection of creative work","Production right","Trade mark","Business license"], answer: 0 },
+    { concept: "Quality Control", options: ["Ensuring products meet standards","Cutting costs","Increasing output","Reducing staff"], answer: 0 },
+    { concept: "Customer Service", options: ["Support provided to buyers","Supplier management","Staff training","Product design"], answer: 0 },
+    { concept: "Warranty", options: ["Guarantee of product quality","Type of insurance","Loan agreement","Marketing plan"], answer: 0 },
+    { concept: "Refund", options: ["Money returned to customer","Bonus payment","Salary increase","Tax rebate"], answer: 0 },
+    { concept: "Discount", options: ["Reduction in price","Price increase","Added tax","Extra charge"], answer: 0 },
+    { concept: "Coupon", options: ["Voucher for discount","Type of tax","Marketing poster","Bank statement"], answer: 0 },
+    { concept: "Loyalty Program", options: ["Rewarding repeat customers","Hiring new staff","Buying raw materials","Expanding factory"], answer: 0 },
+    { concept: "E-commerce", options: ["Buying and selling online","Only physical stores","Cash-only transactions","Government trade"], answer: 0 },
+    { concept: "Online Shopping", options: ["Purchasing via internet","Shopping in store","Phone ordering","Mail catalog"], answer: 0 },
+    { concept: "Digital Marketing", options: ["Promoting via internet/social media","TV advertising only","Print ads only","Radio ads only"], answer: 0 },
+    { concept: "Social Media", options: ["Online platforms for sharing content","Traditional TV","Printed newspapers","Radio stations"], answer: 0 },
+  ],
+
+  intermediate: [
+    { concept: "Entrepreneurship", options: ["Starting a new business venture","Working as an employee","Buying goods from stores","Selling goods to shops"], answer: 0 },
+    { concept: "Investment", options: ["Spending money for future gain","Storing money in safe","Spending on food","Paying daily wages"], answer: 0 },
+    { concept: "Revenue", options: ["Income earned from sales","Total expenses","Net loss","Total investment"], answer: 0 },
+    { concept: "Cost", options: ["Money spent in business","Money earned","Money saved","Money donated"], answer: 0 },
+    { concept: "Branding", options: ["Creating a unique product identity","Making more goods","Delivering goods faster","Storing goods cheaper"], answer: 0 },
+    { concept: "Promotion", options: ["Activities to encourage sales","Reducing costs","Hiring workers","Buying machinery"], answer: 0 },
+    { concept: "Customer Satisfaction", options: ["Meeting customer needs and expectations","Maximising production","Reducing prices only","Cutting staff"], answer: 0 },
+    { concept: "Market Research", options: ["Studying market conditions and demand","Only counting customers","Producing goods first","Advertising blindly"], answer: 0 },
+    { concept: "Business Risk", options: ["Possibility of financial loss","Guaranteed profit","Certain income","Fixed salary"], answer: 0 },
+    { concept: "Labour", options: ["Human effort used in production","Machines only","Money only","Land only"], answer: 0 },
+    { concept: "Management", options: ["Planning and controlling business resources","Only selling","Only producing","Only accounting"], answer: 0 },
+    { concept: "Leadership", options: ["Guiding and motivating a team","Working alone","Only managing accounts","Only making goods"], answer: 0 },
+    { concept: "Motivation", options: ["Drive to achieve goals","Feeling of boredom","Lack of interest","Fear of failure"], answer: 0 },
+    { concept: "Delegation", options: ["Assigning tasks to others","Doing all work alone","Ignoring tasks","Reducing workforce"], answer: 0 },
+    { concept: "Communication", options: ["Sharing information effectively","Only listening","Only writing reports","Only producing"], answer: 0 },
+    { concept: "Human Resources", options: ["People employed by organisation","Machines in factory","Money in bank","Stock in warehouse"], answer: 0 },
+    { concept: "Recruitment", options: ["Hiring new employees","Firing employees","Training current staff","Paying salaries"], answer: 0 },
+    { concept: "Training", options: ["Developing employee skills","Reducing staff","Hiring staff","Firing staff"], answer: 0 },
+    { concept: "Appraisal", options: ["Evaluating employee performance","Only hiring staff","Only paying salary","Only training"], answer: 0 },
+    { concept: "Productivity", options: ["Output per unit of input","Total sales only","Number of employees","Amount of raw material"], answer: 0 },
+    { concept: "Efficiency", options: ["Getting maximum output with minimum waste","Spending more to get more","Reducing quality","Increasing errors"], answer: 0 },
+    { concept: "Economies of Scale", options: ["Lower costs from increased production","Higher costs with more output","Fixed costs regardless of output","Lower output over time"], answer: 0 },
+    { concept: "Fixed Costs", options: ["Costs that don't change with output","Costs that rise with output","Costs that fall with output","Variable daily costs"], answer: 0 },
+    { concept: "Variable Costs", options: ["Costs that change with output","Costs that stay fixed","Overhead costs","Management costs"], answer: 0 },
+    { concept: "Break-even Point", options: ["Sales where no profit or loss occurs","Maximum profit point","Minimum cost point","Tax threshold"], answer: 0 },
+    { concept: "Overhead", options: ["Indirect business costs like rent","Direct material costs","Direct labour costs","Sales commission"], answer: 0 },
+    { concept: "Depreciation", options: ["Fall in value of asset over time","Rise in asset value","Constant asset value","Sale of asset"], answer: 0 },
+    { concept: "Appreciation", options: ["Rise in value of asset","Fall in asset value","Constant value","Sale of asset"], answer: 0 },
+    { concept: "Working Capital", options: ["Money available for day-to-day operations","Long-term investment","Fixed asset value","Total revenue"], answer: 0 },
+    { concept: "Liquidity", options: ["Ability to pay short-term debts","Long-term profitability","Total assets","Revenue growth"], answer: 0 },
+    { concept: "Solvency", options: ["Ability to pay all debts long-term","Short-term payment ability","Revenue amount","Profit margin"], answer: 0 },
+    { concept: "Balance Sheet", options: ["Statement of assets and liabilities","Only income statement","Only cash report","Marketing plan"], answer: 0 },
+    { concept: "Income Statement", options: ["Report of revenue and expenses","Balance of assets","Cash position","Investment plan"], answer: 0 },
+    { concept: "Auditing", options: ["Independent examination of accounts","Preparing accounts","Selling goods","Managing staff"], answer: 0 },
+    { concept: "Market Segmentation", options: ["Dividing market into target groups","Selling to everyone equally","Ignoring customers","Reducing products"], answer: 0 },
+    { concept: "Target Market", options: ["Specific group of intended customers","All possible buyers","Only local buyers","Only online buyers"], answer: 0 },
+    { concept: "Niche Market", options: ["Small specialised market segment","Mass market","International market","Government market"], answer: 0 },
+    { concept: "Mass Market", options: ["Selling to broad general audience","Only luxury buyers","Only local buyers","Small segment only"], answer: 0 },
+    { concept: "Product Life Cycle", options: ["Stages from launch to decline","Manufacturing process","Sales technique","Distribution method"], answer: 0 },
+    { concept: "Market Penetration", options: ["Gaining more market share with existing product","Launching new product","Entering new market","Reducing prices permanently"], answer: 0 },
+    { concept: "Diversification", options: ["Expanding into new products/markets","Staying with one product","Reducing product range","Closing branches"], answer: 0 },
+    { concept: "Outsourcing", options: ["Hiring external firms for tasks","Doing all work internally","Reducing staff","Closing departments"], answer: 0 },
+    { concept: "Supply Chain", options: ["Network from raw material to customer","Only distribution","Only production","Only retail"], answer: 0 },
+    { concept: "Just-in-Time", options: ["Producing only when needed","Stockpiling goods","Mass production","Ignoring demand"], answer: 0 },
+    { concept: "Benchmarking", options: ["Comparing performance to best practice","Ignoring competitors","Setting lowest standard","Reducing targets"], answer: 0 },
+    { concept: "Innovation", options: ["Introducing new ideas/products","Copying others","Reducing costs only","Closing old branches"], answer: 0 },
+    { concept: "R&D", options: ["Research and Development of new products","Only selling","Only marketing","Only accounting"], answer: 0 },
+    { concept: "Stakeholder", options: ["Anyone with interest in business","Only shareholders","Only employees","Only customers"], answer: 0 },
+    { concept: "Corporate Social Responsibility", options: ["Business acting ethically toward society","Maximising profit only","Ignoring environment","Reducing worker pay"], answer: 0 },
+    { concept: "Ethics", options: ["Moral principles in business decisions","Profit motive only","Legal minimum only","Ignoring stakeholders"], answer: 0 },
+    { concept: "Sustainability", options: ["Meeting present needs without harming future","Using all resources now","Ignoring environment","Maximising short-term profit"], answer: 0 },
+    { concept: "Franchise", options: ["Using another firm's brand under licence","Starting completely new brand","Buying a competitor","Merging with rival"], answer: 0 },
+    { concept: "Franchise Fee", options: ["Payment for right to use franchise brand","Regular salary","Bank interest","Tax payment"], answer: 0 },
+    { concept: "Joint Venture", options: ["Two firms sharing a business project","Single-owner firm","Government firm","Non-profit charity"], answer: 0 },
+    { concept: "Strategic Alliance", options: ["Partnership between firms for mutual benefit","Hostile takeover","Market monopoly","Price fixing"], answer: 0 },
+    { concept: "Conglomerate", options: ["Company owning many different businesses","Company in one industry","Non-profit organisation","Government department"], answer: 0 },
+    { concept: "Holding Company", options: ["Company owning controlling shares in others","Subsidiary firm","Non-profit entity","Government agency"], answer: 0 },
+    { concept: "Subsidiary", options: ["Company controlled by parent company","Independent firm","Government body","Charitable organisation"], answer: 0 },
+    { concept: "Multinational", options: ["Company operating in many countries","Local firm only","National firm","Regional firm"], answer: 0 },
+    { concept: "Foreign Direct Investment", options: ["Investing in business in another country","Domestic investment","Saving in local bank","Paying local taxes"], answer: 0 },
+    { concept: "Exchange Rate", options: ["Value of one currency in another","Domestic price level","Tax rate","Interest rate"], answer: 0 },
+    { concept: "Balance of Trade", options: ["Difference between exports and imports","Total GDP","Total tax revenue","National debt"], answer: 0 },
+    { concept: "Current Account", options: ["Country's trade in goods and services","Savings account","Bank checking account","Investment fund"], answer: 0 },
+    { concept: "Protectionism", options: ["Government policy shielding domestic firms","Free trade policy","Open market policy","Privatisation policy"], answer: 0 },
+    { concept: "Privatisation", options: ["Transfer of government firm to private sector","Government taking over firm","Nationalisation","Regulation of industry"], answer: 0 },
+    { concept: "Nationalisation", options: ["Government taking over private firm","Selling government assets","Deregulation","Privatisation"], answer: 0 },
+    { concept: "Deregulation", options: ["Removing government rules from industry","Adding more regulations","Nationalising firms","Banning competition"], answer: 0 },
+    { concept: "Regulation", options: ["Government rules on business behaviour","Free from all rules","Self-regulation only","Industry code only"], answer: 0 },
+    { concept: "Cartel", options: ["Group of firms fixing prices together","Single dominant firm","Government agency","Consumer group"], answer: 0 },
+    { concept: "Price Fixing", options: ["Firms agreeing to set same price","Government setting price","Natural market price","Consumer-set price"], answer: 0 },
+    { concept: "Oligopoly", options: ["Few large firms dominating market","One firm only","Many small firms","No firms in market"], answer: 0 },
+    { concept: "Perfect Competition", options: ["Many firms selling identical product","One firm only","Few large firms","Government market"], answer: 0 },
+    { concept: "Monopolistic Competition", options: ["Many firms with differentiated products","One firm only","Pure monopoly","Cartel situation"], answer: 0 },
+    { concept: "Price Elasticity", options: ["How demand responds to price change","Fixed price relationship","Constant demand","Supply change"], answer: 0 },
+    { concept: "Elastic Demand", options: ["Demand changes significantly with price","Demand unaffected by price","Supply-driven change","Constant buying pattern"], answer: 0 },
+    { concept: "Inelastic Demand", options: ["Demand barely changes with price","Demand highly sensitive","Supply-driven","Seasonal demand"], answer: 0 },
+    { concept: "Equilibrium Price", options: ["Price where supply equals demand","Highest possible price","Lowest possible price","Government fixed price"], answer: 0 },
+    { concept: "Excess Supply", options: ["Supply greater than demand at current price","Demand greater than supply","Equal supply and demand","No goods in market"], answer: 0 },
+    { concept: "Excess Demand", options: ["Demand greater than supply at current price","Supply exceeds demand","Market balance","No buyers present"], answer: 0 },
+  ],
+
+  advanced: [
+    { concept: "Monopoly", options: ["Single seller controlling entire market","Many competing sellers","No sellers present","Only buyers present"], answer: 0 },
+    { concept: "Competition", options: ["Multiple firms competing for customers","One firm dominating","No firms active","Only one buyer"], answer: 0 },
+    { concept: "Law of Demand", options: ["Price rises → Demand falls","Price rises → Demand rises","Demand stays constant","No price-demand link"], answer: 0 },
+    { concept: "Law of Supply", options: ["Price rises → Supply rises","Price rises → Supply falls","Supply stays constant","No price-supply link"], answer: 0 },
+    { concept: "Break-even Analysis", options: ["Finding point of no profit or loss","Maximising output","Minimising costs only","Setting maximum prices"], answer: 0 },
+    { concept: "Business Ethics", options: ["Moral principles guiding business decisions","Profit maximisation only","Legal minimum compliance","Ignoring social impact"], answer: 0 },
+    { concept: "Globalization", options: ["Integration of world economies and trade","Local trade only","National protectionism","Closed-door policy"], answer: 0 },
+    { concept: "E-commerce Strategy", options: ["Business model using internet for commerce","Physical store expansion","Reducing online presence","Ignoring digital tools"], answer: 0 },
+    { concept: "Venture Capital", options: ["Funding provided to startup firms","Bank mortgage","Government grant","Stock buyback"], answer: 0 },
+    { concept: "Angel Investor", options: ["Individual investing in early-stage startup","Bank loan officer","Government regulator","Large corporation"], answer: 0 },
+    { concept: "IPO", options: ["First sale of company shares to public","Share buyback","Private funding round","Merger event"], answer: 0 },
+    { concept: "Market Capitalisation", options: ["Total value of company's shares","Annual revenue","Total profit","Total expenses"], answer: 0 },
+    { concept: "Bull Market", options: ["Rising stock market prices","Falling stock prices","Stable stock prices","Government-controlled market"], answer: 0 },
+    { concept: "Bear Market", options: ["Falling stock market prices","Rising stock prices","Stable market","Booming economy"], answer: 0 },
+    { concept: "Hedge Fund", options: ["Investment fund using complex strategies","Simple savings account","Government bond","Bank fixed deposit"], answer: 0 },
+    { concept: "Derivatives", options: ["Financial contracts based on underlying asset","Physical goods","Bank deposits","Government bonds"], answer: 0 },
+    { concept: "Fiscal Policy", options: ["Government use of spending and taxation","Central bank interest rates","Exchange rate control","Trade tariffs"], answer: 0 },
+    { concept: "Monetary Policy", options: ["Central bank control of money supply and rates","Government taxation","Trade regulations","Import quotas"], answer: 0 },
+    { concept: "Quantitative Easing", options: ["Central bank creating money to boost economy","Reducing money supply","Raising interest rates","Cutting government spending"], answer: 0 },
+    { concept: "Austerity", options: ["Government reducing spending to cut deficit","Increasing government spending","Lowering taxes for growth","Expanding public services"], answer: 0 },
+    { concept: "Public Goods", options: ["Non-excludable non-rival goods provided by state","Private luxury items","Imported goods","Exported goods"], answer: 0 },
+    { concept: "Market Failure", options: ["Market cannot allocate resources efficiently","Perfect competition","Ideal supply-demand balance","Government success"], answer: 0 },
+    { concept: "Externality", options: ["Cost or benefit to third party outside transaction","Internal company cost","Direct buyer cost","Seller profit"], answer: 0 },
+    { concept: "Positive Externality", options: ["Benefit to third party from a transaction","Harm to third party","Cost to seller","Loss for buyer"], answer: 0 },
+    { concept: "Negative Externality", options: ["Harm to third party from a transaction","Benefit to third party","Profit for seller","Gain for buyer"], answer: 0 },
+    { concept: "Public Sector", options: ["Businesses owned/run by government","Private individual ownership","Foreign-owned firms","Non-profit organisations"], answer: 0 },
+    { concept: "Private Sector", options: ["Businesses owned by private individuals","Government businesses","Charity organisations","International bodies"], answer: 0 },
+    { concept: "Mixed Economy", options: ["Economy with both public and private sectors","Fully government-controlled economy","Fully free market economy","Barter economy"], answer: 0 },
+    { concept: "Command Economy", options: ["Government makes all economic decisions","Market decides everything","Mixed economy","Consumer-driven economy"], answer: 0 },
+    { concept: "Free Market Economy", options: ["Prices determined by supply and demand freely","Government sets all prices","Planned production","No trade allowed"], answer: 0 },
+    { concept: "Comparative Advantage", options: ["Producing where opportunity cost is lowest","Making everything yourself","Avoiding all trade","Importing everything"], answer: 0 },
+    { concept: "Absolute Advantage", options: ["Producing more output than competitor","Producing less efficiently","Equal production capacity","No trade advantage"], answer: 0 },
+    { concept: "Terms of Trade", options: ["Ratio of export prices to import prices","Total trade volume","Trade ban policy","Tariff level"], answer: 0 },
+    { concept: "Trade Deficit", options: ["Imports exceed exports in value","Exports exceed imports","Equal imports and exports","No trade occurring"], answer: 0 },
+    { concept: "Trade Surplus", options: ["Exports exceed imports in value","Imports exceed exports","Equal trade flows","Trade ban imposed"], answer: 0 },
+    { concept: "Foreign Exchange", options: ["Trading different national currencies","Domestic bank transfer","Stock market trading","Property investment"], answer: 0 },
+    { concept: "Speculation", options: ["Buying assets hoping for future price rise","Long-term value investing","Guaranteed income strategy","Risk-free saving"], answer: 0 },
+    { concept: "Stagflation", options: ["High inflation combined with slow growth","Fast growth with low inflation","Deflation and recession","Stable price and growth"], answer: 0 },
+    { concept: "Hyperinflation", options: ["Extremely rapid price level increase","Mild price increases","Stable prices","Price decreases"], answer: 0 },
+    { concept: "Consumer Price Index", options: ["Measure of average price changes for consumers","Company profit index","Export value index","Import cost measure"], answer: 0 },
+    { concept: "Opportunity Cost", options: ["Value of next best alternative forgone","Total cost of production","Fixed overhead cost","Market price"], answer: 0 },
+    { concept: "Scarcity", options: ["Limited resources relative to unlimited wants","Excess supply situation","Market surplus","Overproduction problem"], answer: 0 },
+    { concept: "Utility", options: ["Satisfaction gained from consuming product","Physical weight","Manufacturing cost","Selling price"], answer: 0 },
+    { concept: "Marginal Utility", options: ["Extra satisfaction from one more unit","Total satisfaction","Average satisfaction","Zero satisfaction"], answer: 0 },
+    { concept: "Diminishing Returns", options: ["Each extra unit of input yields less output","More input always gives more output","Constant returns forever","Infinite productivity"], answer: 0 },
+    { concept: "Price Ceiling", options: ["Maximum legal price set by government","Minimum legal price","Market equilibrium price","Company-set price"], answer: 0 },
+    { concept: "Price Floor", options: ["Minimum legal price set by government","Maximum legal price","Market price","Negotiated price"], answer: 0 },
+    { concept: "Subsidy Impact", options: ["Reduces cost → shifts supply right → lower prices","Increases costs","Has no market effect","Only benefits government"], answer: 0 },
+    { concept: "Tax Impact", options: ["Raises cost → shifts supply left → higher prices","Lowers costs","Increases supply","Benefits only consumers"], answer: 0 },
+    { concept: "Crowding Out", options: ["Government borrowing raises interest rates reducing private investment","Government boosts private spending","Low interest encourages investment","Tax cuts boost economy"], answer: 0 },
+    { concept: "Multiplier Effect", options: ["Initial spending creates larger rise in national income","Spending has no secondary effects","One-to-one spending impact","Negative income effects"], answer: 0 },
+    { concept: "Accelerator Effect", options: ["Investment rises faster than output increases","Investment falls as output rises","Investment stays constant","Output and investment unrelated"], answer: 0 },
+    { concept: "National Debt", options: ["Total government borrowing accumulated","Annual government deficit only","Trade deficit only","Corporate debt total"], answer: 0 },
+    { concept: "Government Bond", options: ["Government borrowing from investors","Company shares","Bank deposit","Mortgage loan"], answer: 0 },
+    { concept: "Credit Rating", options: ["Assessment of borrower's ability to repay","Company share price","Market cap measure","Revenue forecast"], answer: 0 },
+    { concept: "Structural Unemployment", options: ["Unemployment from industry shifts","Temporary joblessness","Seasonal job loss","Frictional job switching"], answer: 0 },
+    { concept: "Cyclical Unemployment", options: ["Unemployment caused by economic recession","Industry change unemployment","Seasonal unemployment","Frictional switching"], answer: 0 },
+    { concept: "Frictional Unemployment", options: ["Short-term job searching between jobs","Long-term structural job loss","Recession-driven job loss","Permanent unemployment"], answer: 0 },
+    { concept: "Natural Rate of Unemployment", options: ["Irreducible level of unemployment in economy","Zero unemployment","Full unemployment","100% employment"], answer: 0 },
+    { concept: "Human Development Index", options: ["Measure of health, education and living standards","GDP measure only","Trade measure","Inflation measure"], answer: 0 },
+    { concept: "Poverty Trap", options: ["Where benefits disincentivise work","Where wealth prevents investment","Trade barrier issue","Currency crisis"], answer: 0 },
+    { concept: "Gini Coefficient", options: ["Measure of income inequality","Measure of GDP","Measure of inflation","Measure of trade"], answer: 0 },
+    { concept: "Wealth Distribution", options: ["How wealth is spread across population","How income is earned","How goods are made","How services are delivered"], answer: 0 },
+    { concept: "Economic Growth", options: ["Increase in real GDP over time","Rise in price levels","More unemployment","Reduced trade"], answer: 0 },
+    { concept: "Sustainable Development", options: ["Growth meeting present needs without harming future","Maximum extraction now","Short-term profit focus","Ignoring future generations"], answer: 0 },
+    { concept: "Green Economy", options: ["Economy minimising environmental impact","Economy maximising resource use","Economy ignoring pollution","Economy avoiding trade"], answer: 0 },
+    { concept: "Carbon Tax", options: ["Tax on carbon emissions to reduce pollution","Subsidy for fossil fuels","Free permit to pollute","Tax on clean energy"], answer: 0 },
+    { concept: "Corporate Governance", options: ["System of rules directing and controlling companies","Only accounting practices","Only marketing rules","Only HR policies"], answer: 0 },
+    { concept: "Mergers & Acquisitions", options: ["Companies combining or one buying another","Companies competing","Companies splitting","Companies closing"], answer: 0 },
+    { concept: "Hostile Takeover", options: ["Acquiring firm without target management agreement","Friendly merger","Voluntary joint venture","Strategic alliance"], answer: 0 },
+    { concept: "White Knight", options: ["Friendly company saving target from hostile takeover","Hostile acquirer","Regulatory body","Government regulator"], answer: 0 },
+  ]
+};
+
+// Build mixed from all
+DATASET.mixed = [...DATASET.basic, ...DATASET.intermediate, ...DATASET.advanced];
+
+// ════════════════════════════════════
+//  STATE
+// ════════════════════════════════════
+let state = {
+  currentLevel: 'basic',
+  questions: [],
+  currentQ: 0,
+  score: 0,
+  correct: 0,
+  wrong: 0,
+  streak: 0,
+  answered: false
+};
+
+// ════════════════════════════════════
+//  STORAGE
+// ════════════════════════════════════
+function saveData(key, val) {
+  try { localStorage.setItem('bizmatch_' + key, JSON.stringify(val)); } catch(e) {}
+}
+
+function loadData(key, def) {
+  try {
+    const v = localStorage.getItem('bizmatch_' + key);
+    return v !== null ? JSON.parse(v) : def;
+  } catch(e) { return def; }
+}
+
+const scores = loadData('scores', { basic: 0, intermediate: 0, advanced: 0, mixed: 0 });
+const bestStreak = loadData('bestStreak', 0);
+const played = loadData('played', { basic: 0, intermediate: 0, advanced: 0, mixed: 0 });
+
+// ════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  if (screenId === 'home-screen') updateHome();
+  if (screenId === 'level-screen') updateLevelScreen();
+  if (screenId === 'progress-screen') updateProgressScreen();
+}
+
+// ════════════════════════════════════
+//  HOME
+// ════════════════════════════════════
+function updateHome() {
+  const total = scores.basic + scores.intermediate + scores.advanced + scores.mixed;
+  document.getElementById('home-total-score').textContent = total;
+  document.getElementById('home-streak').textContent = '🔥' + loadData('bestStreak', 0);
+}
+
+// ════════════════════════════════════
+//  LEVEL SCREEN
+// ════════════════════════════════════
+function updateLevelScreen() {
+  const levels = ['basic', 'intermediate', 'advanced', 'mixed'];
+  levels.forEach(lv => {
+    const total = DATASET[lv].length;
+    const p = played[lv] || 0;
+    const pct = total > 0 ? Math.min(100, Math.round((p / total) * 100)) : 0;
+    const el = document.getElementById('prog-' + lv);
+    const pelEl = document.getElementById('pct-' + lv);
+    if (el) el.style.width = pct + '%';
+    if (pelEl) pelEl.textContent = pct + '%';
+  });
+}
+
+// ════════════════════════════════════
+//  GAME START
+// ════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame(level) {
+  state.currentLevel = level;
+  state.questions = shuffle(DATASET[level]).slice(0, Math.min(20, DATASET[level].length));
+  state.currentQ = 0;
+  state.score = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.streak = 0;
+  state.answered = false;
+
+  const labels = { basic: '🟢 Basic', intermediate: '🟡 Intermediate', advanced: '🔴 Advanced', mixed: '🎲 Mixed' };
+  document.getElementById('level-label').textContent = labels[level];
+
+  goTo('game-screen');
+  renderQuestion();
+}
+
+function replayLevel() {
+  startGame(state.currentLevel);
+}
+
+// ════════════════════════════════════
+//  RENDER QUESTION
+// ════════════════════════════════════
+function renderQuestion() {
+  const q = state.questions[state.currentQ];
+  const total = state.questions.length;
+  const pct = ((state.currentQ) / total) * 100;
+
+  document.getElementById('q-counter').textContent = `${state.currentQ + 1} / ${total}`;
+  document.getElementById('game-prog-fill').style.width = pct + '%';
+  document.getElementById('live-score').textContent = state.score;
+
+  const letters = ['A', 'B', 'C', 'D'];
+
+  const html = `
+    <div class="concept-card animate-in">
+      <div class="concept-tag">📘 Business Concept</div>
+      <div class="concept-text">${q.concept}</div>
+      <div class="concept-hint">Select the correct real-life example 👇</div>
+    </div>
+
+    <div class="options-label">Choose the correct example:</div>
+
+    <div class="options-grid" id="options-grid">
+      ${q.options.map((opt, i) => `
+        <button class="option-btn animate-in" style="animation-delay:${0.05 + i * 0.07}s" onclick="selectOption(${i})">
+          <div class="option-letter">${letters[i]}</div>
+          <div class="option-text">${opt}</div>
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="feedback-bar" id="feedback-bar">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-text"></span>
+    </div>
+
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+      ${state.currentQ + 1 < state.questions.length ? 'Next Question →' : 'See Results 🏆'}
+    </button>
+  `;
+
+  document.getElementById('game-content').innerHTML = html;
+  state.answered = false;
+}
+
+// ════════════════════════════════════
+//  SELECT OPTION
+// ════════════════════════════════════
+function selectOption(index) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.questions[state.currentQ];
+  const correct = q.answer;
+  const isCorrect = index === correct;
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === correct) btn.classList.add('correct');
+    if (i === index && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback-bar');
+  const fbIcon = document.getElementById('feedback-icon');
+  const fbText = document.getElementById('feedback-text');
+
+  if (isCorrect) {
+    state.score += 10;
+    state.correct++;
+    state.streak++;
+    fb.className = 'feedback-bar correct-fb show';
+    fbIcon.textContent = '✅';
+    fbText.textContent = state.streak > 2 ? `Correct! 🔥 ${state.streak} streak!` : 'Correct! Well done!';
+  } else {
+    state.wrong++;
+    state.streak = 0;
+    fb.className = 'feedback-bar wrong-fb show';
+    fbIcon.textContent = '❌';
+    fbText.textContent = `Incorrect. Answer: ${q.options[correct]}`;
+    document.getElementById('options-grid').classList.add('shake');
+  }
+
+  document.getElementById('live-score').textContent = state.score;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+// ════════════════════════════════════
+//  NEXT QUESTION
+// ════════════════════════════════════
+function nextQuestion() {
+  state.currentQ++;
+  if (state.currentQ >= state.questions.length) {
+    endGame();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ════════════════════════════════════
+//  END GAME
+// ════════════════════════════════════
+function endGame() {
+  const total = state.questions.length;
+  const pct = Math.round((state.correct / total) * 100);
+
+  // Save
+  const lv = state.currentLevel;
+  if (state.score > scores[lv]) {
+    scores[lv] = state.score;
+    saveData('scores', scores);
+  }
+  played[lv] = (played[lv] || 0) + total;
+  saveData('played', played);
+
+  const curBest = loadData('bestStreak', 0);
+  if (state.streak > curBest) {
+    saveData('bestStreak', state.streak);
+  }
+
+  // Result UI
+  let emoji = '😔', title = 'Keep Trying!', grade = 'Practice makes perfect.';
+  if (pct >= 90) { emoji = '🏆'; title = 'Outstanding!'; grade = 'You\'re a Business Master!'; }
+  else if (pct >= 75) { emoji = '🌟'; title = 'Excellent!'; grade = 'Great Business Knowledge!'; }
+  else if (pct >= 60) { emoji = '👍'; title = 'Good Job!'; grade = 'Solid understanding!'; }
+  else if (pct >= 40) { emoji = '📚'; title = 'Keep Learning!'; grade = 'Review the concepts and try again.'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-grade').textContent = `${state.correct} / ${total} • ${grade}`;
+  document.getElementById('res-correct').textContent = state.correct;
+  document.getElementById('res-wrong').textContent = state.wrong;
+  document.getElementById('res-pct').textContent = pct + '%';
+
+  goTo('result-screen');
+}
+
+// ════════════════════════════════════
+//  PROGRESS SCREEN
+// ════════════════════════════════════
+function updateProgressScreen() {
+  const totalScore = scores.basic + scores.intermediate + scores.advanced + scores.mixed;
+  document.getElementById('ov-score').textContent = totalScore;
+
+  let rank = 'Beginner', sub = 'Just getting started!';
+  if (totalScore >= 500) { rank = 'Business Expert'; sub = 'Outstanding performance!'; }
+  else if (totalScore >= 300) { rank = 'Business Pro'; sub = 'Strong business knowledge!'; }
+  else if (totalScore >= 150) { rank = 'Business Student'; sub = 'Good progress, keep going!'; }
+  else if (totalScore >= 50) { rank = 'Apprentice'; sub = 'Building your knowledge!'; }
+
+  document.getElementById('ov-rank').textContent = rank;
+  document.getElementById('ov-sub').textContent = sub;
+
+  const levels = [
+    { key: 'basic', name: 'Basic Concepts', icon: '🟢', color: 'var(--green)', bg: 'rgba(34,197,94,0.1)' },
+    { key: 'intermediate', name: 'Intermediate', icon: '🟡', color: 'var(--gold)', bg: 'rgba(245,166,35,0.1)' },
+    { key: 'advanced', name: 'Advanced', icon: '🔴', color: 'var(--red)', bg: 'rgba(239,68,68,0.1)' },
+    { key: 'mixed', name: 'Mixed Revision', icon: '🎲', color: 'var(--purple)', bg: 'rgba(139,92,246,0.1)' },
+  ];
+
+  const container = document.getElementById('progress-cards');
+  container.innerHTML = levels.map(lv => {
+    const p = played[lv.key] || 0;
+    const total = DATASET[lv.key].length;
+    const pct = Math.min(100, Math.round((p / total) * 100));
+    return `
+      <div class="progress-row">
+        <div class="progress-level-icon" style="background:${lv.bg};">${lv.icon}</div>
+        <div class="progress-info">
+          <div class="progress-name">${lv.name}</div>
+          <div class="progress-bar-mini">
+            <div class="progress-fill-mini" style="width:${pct}%;background:${lv.color};"></div>
+          </div>
+        </div>
+        <div class="progress-pct" style="color:${lv.color}">${pct}%</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function resetProgress() {
+  if (!confirm('Reset all your progress?')) return;
+  ['basic','intermediate','advanced','mixed'].forEach(k => {
+    scores[k] = 0; played[k] = 0;
+  });
+  saveData('scores', scores);
+  saveData('played', played);
+  saveData('bestStreak', 0);
+  updateProgressScreen();
+  updateHome();
+  alert('Progress reset!');
+}
+
+// ════════════════════════════════════
+//  PWA INSTALL
+// ════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+// ════════════════════════════════════
+//  SERVICE WORKER
+// ════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+
+// ════════════════════════════════════
+//  INIT
+// ════════════════════════════════════
+updateHome();
+</script>
+</body>
+</html>
