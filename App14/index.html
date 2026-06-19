@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0a0f1e"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Daily Spark"/>
+<title>Daily Spark – What's New Today?</title>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0f1e;
+  --surface: #131929;
+  --card: #1a2235;
+  --border: #2a3550;
+  --gold: #f5a623;
+  --gold-light: #ffc55a;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #4a90d9;
+  --purple: #9b59b6;
+  --text: #e8eaf0;
+  --muted: #7a8ba8;
+  --white: #ffffff;
+  --sci: #4a90d9;
+  --env: #27ae60;
+  --sport: #e74c3c;
+  --gen: #9b59b6;
+  --radius: 18px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background starfield */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(74,144,217,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(245,166,35,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 480px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 1; }
+
+/* ======= SPLASH ======= */
+#splash {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px;
+  transition: opacity 0.5s ease;
+}
+#splash .logo-icon {
+  font-size: 80px;
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes pulse {
+  0%,100%{transform:scale(1);} 50%{transform:scale(1.1);}
+}
+#splash h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  text-align: center;
+  line-height: 1.2;
+}
+#splash p { color: var(--muted); font-size: 0.95rem; }
+.splash-bar {
+  width: 200px; height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.splash-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 4px;
+  animation: loadbar 1.8s ease forwards;
+}
+@keyframes loadbar { from{width:0} to{width:100%} }
+
+/* ======= HEADER ======= */
+.header {
+  padding: 20px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.header-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.header-icon { font-size: 2rem; }
+
+/* ======= STATS BAR ======= */
+.stats-bar {
+  display: flex; gap: 10px;
+  margin-bottom: 18px;
+}
+.stat-chip {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.stat-num { font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+.stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* ======= CATEGORY TABS ======= */
+.cat-tabs {
+  display: flex; gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 18px;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.cat-tab.active { color: var(--bg); border-color: transparent; }
+.cat-tab[data-cat="all"].active { background: var(--gold); }
+.cat-tab[data-cat="science"].active { background: var(--sci); }
+.cat-tab[data-cat="environment"].active { background: var(--env); }
+.cat-tab[data-cat="sports"].active { background: var(--sport); }
+.cat-tab[data-cat="general"].active { background: var(--purple); }
+
+/* ======= PROGRESS ======= */
+.progress-wrap {
+  margin-bottom: 18px;
+}
+.progress-top {
+  display: flex; justify-content: space-between;
+  font-size: 0.75rem; color: var(--muted);
+  margin-bottom: 6px;
+}
+.progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 6px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ======= QUESTION CARD ======= */
+.q-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.4s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.q-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.q-card[data-cat="science"]::before { background: var(--sci); }
+.q-card[data-cat="environment"]::before { background: var(--env); }
+.q-card[data-cat="sports"]::before { background: var(--sport); }
+.q-card[data-cat="general"]::before { background: var(--purple); }
+
+.q-cat-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 50px;
+  margin-bottom: 14px;
+}
+[data-cat="science"] .q-cat-badge { background: rgba(74,144,217,0.15); color: var(--sci); }
+[data-cat="environment"] .q-cat-badge { background: rgba(39,174,96,0.15); color: var(--env); }
+[data-cat="sports"] .q-cat-badge { background: rgba(231,76,60,0.15); color: var(--sport); }
+[data-cat="general"] .q-cat-badge { background: rgba(155,89,182,0.15); color: var(--purple); }
+
+.fact-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.fact-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+.fact-text { font-size: 0.9rem; line-height: 1.5; color: var(--text); }
+
+.q-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--white);
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+/* ======= OPTIONS ======= */
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(245,166,35,0.08);
+  transform: translateX(3px);
+}
+.option-label {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.option-text { font-size: 0.9rem; color: var(--text); flex: 1; font-weight: 500; }
+
+.option-btn.correct {
+  border-color: var(--green);
+  background: rgba(46,204,113,0.12);
+  animation: pop 0.3s ease;
+}
+.option-btn.correct .option-label { background: var(--green); color: #fff; }
+.option-btn.wrong {
+  border-color: var(--red);
+  background: rgba(231,76,60,0.12);
+  animation: shake 0.3s ease;
+}
+.option-btn.wrong .option-label { background: var(--red); color: #fff; }
+.option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+@keyframes pop {
+  0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)}
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
+}
+
+/* ======= FEEDBACK ======= */
+.feedback-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: none;
+  animation: fadeIn 0.3s ease;
+  align-items: center; gap: 8px;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.feedback-box.show { display: flex; }
+.feedback-box.right { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.25); }
+.feedback-box.wrong { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.25); }
+
+/* ======= NEXT BTN ======= */
+.next-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none;
+  border-radius: var(--radius);
+  color: var(--bg);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  margin-top: 14px;
+  display: none;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.next-btn.show { display: block; }
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.35); }
+.next-btn:active { transform: translateY(0); }
+
+/* ======= SCORE SCREEN ======= */
+#score-screen {
+  display: none;
+  text-align: center;
+  padding: 30px 0 60px;
+  animation: slideUp 0.5s ease;
+}
+.score-trophy { font-size: 70px; margin-bottom: 10px; }
+.score-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.score-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 30px; }
+
+.score-circle {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--gold) var(--pct), var(--border) 0);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  position: relative;
+}
+.score-circle::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  background: var(--card);
+  border-radius: 50%;
+}
+.score-num {
+  position: relative; z-index: 1;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  font-weight: 900;
+}
+
+.score-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 28px;
+}
+.score-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+.score-stat-num { font-size: 1.5rem; font-weight: 700; }
+.score-stat-num.g { color: var(--green); }
+.score-stat-num.r { color: var(--red); }
+.score-stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+.restart-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none; border-radius: var(--radius);
+  color: var(--bg); font-size: 1rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; margin-bottom: 12px;
+  transition: all 0.2s;
+}
+.restart-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); }
+
+.share-btn {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-size: 0.9rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+}
+.share-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ======= AUTHOR CARD ======= */
+.author-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.author-avatar {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--gold);
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.author-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.author-name { font-weight: 700; font-size: 0.95rem; color: var(--white); }
+.author-role { font-size: 0.75rem; color: var(--gold); margin-top: 2px; }
+.author-desc { font-size: 0.77rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* ======= BOTTOM NAV ======= */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(13,19,38,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex; z-index: 100;
+}
+.nav-btn {
+  flex: 1; padding: 12px 4px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.2s;
+}
+.nav-btn.active { color: var(--gold); }
+.nav-icon { font-size: 1.3rem; }
+.nav-label { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* ======= VIEWS ======= */
+.view { display: none; padding-bottom: 80px; }
+.view.active { display: block; }
+
+/* ======= LEADERBOARD / HISTORY ======= */
+.history-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.history-date { font-size: 0.75rem; color: var(--muted); }
+.history-score { font-weight: 700; font-size: 1rem; color: var(--gold); }
+.history-badge {
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.7rem; font-weight: 700;
+}
+.badge-great { background: rgba(46,204,113,0.15); color: var(--green); }
+.badge-good { background: rgba(245,166,35,0.15); color: var(--gold); }
+.badge-try { background: rgba(231,76,60,0.15); color: var(--red); }
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--white);
+  margin-bottom: 14px;
+  margin-top: 10px;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+.empty-state .ei { font-size: 3rem; margin-bottom: 10px; }
+
+/* ======= INSTALL BANNER ======= */
+.install-banner {
+  background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(255,197,90,0.08));
+  border: 1px solid rgba(245,166,35,0.25);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.install-text { font-size: 0.82rem; color: var(--text); flex: 1; }
+.install-text strong { color: var(--gold); }
+.install-action { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-install {
+  padding: 8px 14px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none; border-radius: 8px;
+  font-size: 0.8rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+.btn-dismiss {
+  padding: 8px;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* ======= STREAK ======= */
+.streak-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.streak-info { display: flex; align-items: center; gap: 10px; }
+.streak-flame { font-size: 1.6rem; }
+.streak-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); }
+.streak-label { font-size: 0.72rem; color: var(--muted); }
+.streak-dots { display: flex; gap: 5px; }
+.streak-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.streak-dot.lit { background: var(--gold); }
+
+@media (min-width: 480px) {
+  .container { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo-icon">📰</div>
+  <h1>Daily Spark<br>What's New Today?</h1>
+  <p>Current Affairs Quiz for Students</p>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="installBanner" style="display:none;">
+  <div class="install-text"><strong>📱 Install App</strong><br>Add to home screen for offline access!</div>
+  <div class="install-action">
+    <button class="btn-install" id="installBtn">Install</button>
+    <button class="btn-dismiss" id="dismissInstall">✕</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" data-view="quiz">
+    <span class="nav-icon">🎮</span>
+    <span class="nav-label">Quiz</span>
+  </button>
+  <button class="nav-btn" data-view="history">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">History</span>
+  </button>
+  <button class="nav-btn" data-view="about">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Author</span>
+  </button>
+</div>
+
+<!-- ======= QUIZ VIEW ======= -->
+<div class="view active" id="view-quiz">
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="header-title">Daily Spark ⚡</div>
+        <div class="header-sub">What's New Today?</div>
+      </div>
+      <div class="header-icon">📰</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-chip">
+        <div class="stat-num" id="statScore">0</div>
+        <div class="stat-label">Score</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-num" id="statStreak">0</div>
+        <div class="stat-label">Streak 🔥</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-num" id="statBest">0</div>
+        <div class="stat-label">Best</div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="cat-tabs">
+      <button class="cat-tab active" data-cat="all">All 📚</button>
+      <button class="cat-tab" data-cat="science">Science 🔬</button>
+      <button class="cat-tab" data-cat="environment">Environ 🌿</button>
+      <button class="cat-cat" data-cat="sports" style="flex-shrink:0;padding:7px 14px;border-radius:50px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Sports ⚽</button>
+      <button class="cat-tab" data-cat="general">General 💡</button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progressText">Question 1 of 10</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Question Card -->
+    <div id="questionArea"></div>
+
+    <!-- Score screen -->
+    <div id="score-screen">
+      <div class="score-trophy" id="scoreTrophy">🏆</div>
+      <div class="score-title" id="scoreTitle">Great Job!</div>
+      <div class="score-sub" id="scoreSub">You've completed the quiz</div>
+      <div class="score-circle" id="scoreCircle">
+        <div class="score-num" id="scoreNum">0/10</div>
+      </div>
+      <div class="score-grid">
+        <div class="score-stat">
+          <div class="score-stat-num g" id="scoreCorrect">0</div>
+          <div class="score-stat-label">✅ Correct</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-num r" id="scoreWrong">0</div>
+          <div class="score-stat-label">❌ Wrong</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-num" id="scorePct" style="color:var(--gold)">0%</div>
+          <div class="score-stat-label">Accuracy</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-num" id="scoreStreak" style="color:var(--purple)">0</div>
+          <div class="score-stat-label">🔥 Best Streak</div>
+        </div>
+      </div>
+      <button class="restart-btn" id="restartBtn">🔄 Play Again</button>
+      <button class="share-btn" id="shareBtn">📤 Share Score</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= HISTORY VIEW ======= -->
+<div class="view" id="view-history">
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="header-title">My History 📊</div>
+        <div class="header-sub">Track your progress</div>
+      </div>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- ======= ABOUT VIEW ======= -->
+<div class="view" id="view-about">
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="header-title">About 👤</div>
+        <div class="header-sub">Daily Spark App</div>
+      </div>
+    </div>
+    <div class="author-card">
+      <div class="author-avatar">
+        <img src="author.jpg" alt="Mateen Yousuf" onerror="this.parentElement.innerHTML='👨‍💼'"/>
+      </div>
+      <div>
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Author & Educator</div>
+        <div class="author-desc">Dedicated to making learning engaging and accessible for every student.</div>
+      </div>
+    </div>
+
+    <div class="section-title">App Info</div>
+    <div class="history-item">
+      <span style="color:var(--muted);font-size:0.85rem">Version</span>
+      <span style="color:var(--gold);font-weight:700">1.0.0</span>
+    </div>
+    <div class="history-item">
+      <span style="color:var(--muted);font-size:0.85rem">Total Questions</span>
+      <span style="color:var(--gold);font-weight:700" id="totalQCount">200+</span>
+    </div>
+    <div class="history-item">
+      <span style="color:var(--muted);font-size:0.85rem">Categories</span>
+      <span style="color:var(--gold);font-weight:700">4</span>
+    </div>
+    <div class="history-item">
+      <span style="color:var(--muted);font-size:0.85rem">Works Offline</span>
+      <span style="color:var(--green);font-weight:700">✅ Yes</span>
+    </div>
+
+    <div class="section-title" style="margin-top:20px">Topics Covered</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+      <span style="padding:6px 14px;border-radius:50px;background:rgba(74,144,217,0.15);color:var(--sci);font-size:0.8rem;font-weight:600">🔬 Science & Tech</span>
+      <span style="padding:6px 14px;border-radius:50px;background:rgba(39,174,96,0.15);color:var(--env);font-size:0.8rem;font-weight:600">🌿 Environment</span>
+      <span style="padding:6px 14px;border-radius:50px;background:rgba(231,76,60,0.15);color:var(--sport);font-size:0.8rem;font-weight:600">⚽ Sports</span>
+      <span style="padding:6px 14px;border-radius:50px;background:rgba(155,89,182,0.15);color:var(--purple);font-size:0.8rem;font-weight:600">💡 General</span>
+    </div>
+
+    <div style="text-align:center;padding:20px 0;color:var(--muted);font-size:0.8rem">
+      Made with ❤️ for students<br>
+      <span style="color:var(--gold)">Daily Spark – What's New Today?</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======= DATASET =======
+const QUESTIONS = [
+  // SCIENCE & TECHNOLOGY
+  {cat:"science",icon:"🔬",fact:"Scientists are discovering new planets beyond our solar system.",q:"What are such planets called?",opts:["Asteroids","Exoplanets","Meteors","Comets"],ans:1},
+  {cat:"science",icon:"🤖",fact:"Artificial Intelligence is widely used in education.",q:"AI stands for?",opts:["Automatic Input","Artificial Intelligence","Advanced Internet","Auto Information"],ans:1},
+  {cat:"science",icon:"⚡",fact:"Electric vehicles reduce pollution significantly.",q:"EVs run on?",opts:["Petrol","Diesel","Electricity","Gas"],ans:2},
+  {cat:"science",icon:"☀️",fact:"Solar panels are used for clean energy worldwide.",q:"Solar energy comes from?",opts:["Moon","Earth","Sun","Wind"],ans:2},
+  {cat:"science",icon:"🚀",fact:"Space missions are exploring Mars for signs of life.",q:"Mars is called?",opts:["Blue planet","Red planet","Green planet","Yellow planet"],ans:1},
+  {cat:"science",icon:"🛰️",fact:"Satellites help in communication across the globe.",q:"Satellites orbit around?",opts:["Moon","Earth","Sun","Mars"],ans:1},
+  {cat:"science",icon:"🌐",fact:"Internet connects people globally every second.",q:"Internet is used for?",opts:["Isolation","Communication","Silence","Sleep"],ans:1},
+  {cat:"science",icon:"🦾",fact:"Robots are used in industries and hospitals.",q:"Robots help in?",opts:["Manual labor only","Automation","Sleeping","Painting only"],ans:1},
+  {cat:"science",icon:"♻️",fact:"Recycling programs are reducing waste globally.",q:"Recycling helps?",opts:["Increase waste","Reduce waste","Destroy environment","Pollute air"],ans:1},
+  {cat:"science",icon:"💉",fact:"Vaccines protect millions from deadly diseases.",q:"Vaccines improve?",opts:["Immunity","Weakness","Sleep","Hunger"],ans:0},
+  {cat:"science",icon:"🔭",fact:"Space telescopes observe distant galaxies.",q:"Telescopes help us?",opts:["Hear sounds","See faraway objects","Feel temperature","Taste chemicals"],ans:1},
+  {cat:"science",icon:"💨",fact:"Wind turbines generate clean renewable energy.",q:"Wind energy uses?",opts:["Turbines","Generators only","Panels","Batteries"],ans:0},
+  {cat:"science",icon:"💧",fact:"Hydropower plants use water to generate electricity.",q:"Hydropower uses?",opts:["Wind","Water","Sunlight","Coal"],ans:1},
+  {cat:"science",icon:"📱",fact:"Smartphones connect billions worldwide.",q:"Smartphones use?",opts:["Manual signals","Wireless technology","Cables only","Steam"],ans:1},
+  {cat:"science",icon:"☁️",fact:"Cloud storage allows data access from anywhere.",q:"Cloud storage stores?",opts:["Physical items","Digital data","Water","Air"],ans:1},
+  {cat:"science",icon:"🗺️",fact:"GPS navigation helps people travel accurately.",q:"GPS stands for?",opts:["General Positioning Signal","Global Positioning System","Geographic Place System","Ground Pressure Sensor"],ans:1},
+  {cat:"science",icon:"🧬",fact:"Biotechnology is advancing healthcare solutions.",q:"Biotechnology uses?",opts:["Only chemistry","Living organisms","Only machines","Stones"],ans:1},
+  {cat:"science",icon:"🔐",fact:"Cybersecurity protects data online.",q:"Cybersecurity protects?",opts:["Buildings","Digital information","Food","Animals"],ans:1},
+  {cat:"science",icon:"🧪",fact:"New medicines are developed through research.",q:"Medical research helps in?",opts:["Disease treatment","Farming","Construction","Transport"],ans:0},
+  {cat:"science",icon:"🌍",fact:"3D printing is revolutionizing manufacturing.",q:"3D printing creates?",opts:["Images only","3-dimensional objects","Flat paper","Music"],ans:1},
+
+  // ENVIRONMENT
+  {cat:"environment",icon:"🌳",fact:"Tree plantation drives are increasing worldwide.",q:"Trees help in?",opts:["Pollution","Oxygen production","Noise","Heat"],ans:1},
+  {cat:"environment",icon:"🐋",fact:"Plastic pollution harms ocean animals badly.",q:"Best solution for plastic?",opts:["Burn it","Recycle","Throw away","Ignore"],ans:1},
+  {cat:"environment",icon:"🌡️",fact:"Climate awareness campaigns are growing globally.",q:"Climate change affects?",opts:["Weather","Only oceans","Only animals","Nothing"],ans:0},
+  {cat:"environment",icon:"🦁",fact:"Wildlife conservation protects endangered animals.",q:"Conservation helps?",opts:["Extinction","Protection","Pollution","Damage"],ans:1},
+  {cat:"environment",icon:"💧",fact:"Water conservation is essential for future generations.",q:"Saving water means?",opts:["Waste water","Preserve water","Ignore water","Destroy water"],ans:1},
+  {cat:"environment",icon:"🌊",fact:"Global warming is raising ocean temperatures.",q:"Global warming causes?",opts:["Temperature rise","Temperature fall","More ice","Heavy snow"],ans:0},
+  {cat:"environment",icon:"🌲",fact:"Deforestation is destroying natural habitats.",q:"Deforestation means?",opts:["Planting trees","Cutting trees","Watering trees","Growing trees"],ans:1},
+  {cat:"environment",icon:"💨",fact:"Air pollution is a major health concern.",q:"Air pollution affects?",opts:["Human health","Space","Oceans only","Nothing"],ans:0},
+  {cat:"environment",icon:"🦋",fact:"Biodiversity is the variety of life on Earth.",q:"Biodiversity means?",opts:["One type of plant","Variety of living things","Only animals","Only plants"],ans:1},
+  {cat:"environment",icon:"🌱",fact:"Renewable resources are sustainable for the planet.",q:"Renewable energy is?",opts:["Finite","Unlimited/sustainable","Only solar","Harmful"],ans:1},
+  {cat:"environment",icon:"🗑️",fact:"Waste segregation helps in better recycling.",q:"Segregation means?",opts:["Mixing waste","Separating waste","Burning waste","Ignoring waste"],ans:1},
+  {cat:"environment",icon:"💡",fact:"Energy conservation reduces electricity bills.",q:"Saving energy means?",opts:["Wasting power","Using less power","More power use","Ignoring power"],ans:1},
+  {cat:"environment",icon:"🌿",fact:"Organic farming reduces harmful chemicals in food.",q:"Organic farming avoids?",opts:["Sunlight","Chemical pesticides","Water","Soil"],ans:1},
+  {cat:"environment",icon:"🐝",fact:"Bees are crucial for pollination of crops.",q:"Bees help in?",opts:["Eating crops","Pollination","Destroying flowers","Making plastic"],ans:1},
+  {cat:"environment",icon:"❄️",fact:"Arctic ice is melting due to climate change.",q:"Melting ice causes?",opts:["Sea level fall","Sea level rise","More cold","More ice"],ans:1},
+
+  // SPORTS
+  {cat:"sports",icon:"🏏",fact:"Cricket is popular across many countries.",q:"Cricket players per team?",opts:["9","10","11","12"],ans:2},
+  {cat:"sports",icon:"🏅",fact:"Olympics include many sports worldwide.",q:"Olympics held every?",opts:["2 years","3 years","4 years","5 years"],ans:2},
+  {cat:"sports",icon:"⚽",fact:"Football is the most watched sport globally.",q:"Football uses?",opts:["Bat","Ball","Stick","Racket"],ans:1},
+  {cat:"sports",icon:"🎾",fact:"Tennis is played at Wimbledon every year.",q:"Tennis is played with?",opts:["Ball & racket","Bat","Stick","Net only"],ans:0},
+  {cat:"sports",icon:"🏊",fact:"Swimming is an Olympic water sport.",q:"Swimming happens in?",opts:["Air","Water","Land","Space"],ans:1},
+  {cat:"sports",icon:"🏑",fact:"Field hockey is played with a curved stick.",q:"Hockey uses?",opts:["Racket","Bat","Stick","Hands"],ans:2},
+  {cat:"sports",icon:"🏸",fact:"Badminton is played with a shuttlecock.",q:"Badminton uses?",opts:["Ball","Shuttle/shuttlecock","Stone","Stick"],ans:1},
+  {cat:"sports",icon:"🚴",fact:"Cycling is both a sport and eco transport.",q:"Cycling uses?",opts:["Motor","Bicycle","Car","Boat"],ans:1},
+  {cat:"sports",icon:"🤸",fact:"Gymnastics tests balance and flexibility.",q:"Gymnastics focuses on?",opts:["Speed only","Balance & flexibility","Strength only","Swimming"],ans:1},
+  {cat:"sports",icon:"🥊",fact:"Boxing is a combat sport using gloves.",q:"Boxing uses?",opts:["Sticks","Gloves","Rackets","Shields"],ans:1},
+  {cat:"sports",icon:"🏀",fact:"Basketball is scored by throwing through a hoop.",q:"Basketball uses?",opts:["A bat","A hoop & ball","A net only","A stick"],ans:1},
+  {cat:"sports",icon:"🏋️",fact:"Weightlifting tests physical strength.",q:"Weightlifting tests?",opts:["Speed","Strength","Flexibility","Balance"],ans:1},
+  {cat:"sports",icon:"🤼",fact:"Wrestling is a mat-based combat sport.",q:"Wrestling takes place on?",opts:["Water","Mat","Ice","Sand only"],ans:1},
+  {cat:"sports",icon:"🏇",fact:"Horse racing is one of the oldest sports.",q:"Horse racing involves?",opts:["Dogs","Horses","Camels","Donkeys"],ans:1},
+  {cat:"sports",icon:"⛳",fact:"Golf is played on large outdoor courses.",q:"Golf uses?",opts:["Racket","Club & ball","Bat","Stick & puck"],ans:1},
+
+  // GENERAL / CURRENT AFFAIRS
+  {cat:"general",icon:"💻",fact:"Online learning platforms are growing rapidly.",q:"Online learning uses?",opts:["Chalk","Internet","Paper","Board"],ans:1},
+  {cat:"general",icon:"💳",fact:"Digital payments are replacing cash worldwide.",q:"Digital payment uses?",opts:["Coins","Online system","Paper","Cash only"],ans:1},
+  {cat:"general",icon:"🖥️",fact:"Smart classrooms use technology to teach better.",q:"Smart classrooms use?",opts:["Only books","Digital tools","Only chalk","None"],ans:1},
+  {cat:"general",icon:"📚",fact:"Skill-based learning is emphasized in modern education.",q:"Skills improve?",opts:["Knowledge","Confusion","Weakness","Silence"],ans:0},
+  {cat:"general",icon:"💡",fact:"Innovation is driving progress in every field.",q:"Innovation means?",opts:["Old ideas","New ideas","No ideas","Copying"],ans:1},
+  {cat:"general",icon:"📖",fact:"E-learning offers flexibility to students globally.",q:"E-learning provides?",opts:["Only books","Flexible learning","Offline only","Classroom only"],ans:1},
+  {cat:"general",icon:"📱",fact:"Mobile apps are popular learning tools today.",q:"Mobile apps run on?",opts:["Computers only","Smartphones","Books","TV"],ans:1},
+  {cat:"general",icon:"🎨",fact:"Creativity and innovation go hand in hand.",q:"Creativity means?",opts:["Copying others","Original thinking","Following rules only","Silence"],ans:1},
+  {cat:"general",icon:"🗣️",fact:"Communication skills are vital in today's world.",q:"Good communication involves?",opts:["Only listening","Sharing ideas clearly","Only writing","Silence"],ans:1},
+  {cat:"general",icon:"🤝",fact:"Teamwork leads to better results in any field.",q:"Teamwork means?",opts:["Working alone","Working together","Competing only","Ignoring others"],ans:1},
+  {cat:"general",icon:"🏛️",fact:"Libraries are important centers of knowledge.",q:"Libraries contain?",opts:["Only newspapers","Books and resources","Only computers","Only maps"],ans:1},
+  {cat:"general",icon:"🌍",fact:"Globalization connects economies worldwide.",q:"Globalization connects?",opts:["Only cities","Countries and economies","Only villages","Only schools"],ans:1},
+  {cat:"general",icon:"📰",fact:"Newspapers provide daily current affairs updates.",q:"Newspapers are read for?",opts:["Entertainment only","Current news","Only stories","Nothing"],ans:1},
+  {cat:"general",icon:"🎓",fact:"Higher education opens doors to better careers.",q:"Education leads to?",opts:["Less opportunity","Better opportunities","No change","Confusion"],ans:1},
+  {cat:"general",icon:"🌟",fact:"Leadership is a key skill for success.",q:"Leadership involves?",opts:["Following always","Guiding others","Hiding","Ignoring"],ans:1},
+];
+
+// ======= APP STATE =======
+let state = {
+  currentCat: 'all',
+  pool: [],
+  idx: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  correct: 0,
+  wrong: 0,
+  answered: false,
+  qPerRound: 10
+};
+
+function getStorage(key, def) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : def; } catch { return def; }
+}
+function setStorage(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+// ======= INIT =======
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.style.opacity = '0';
+    setTimeout(() => { splash.style.display = 'none'; }, 500);
+  }, 2000);
+
+  updateBestDisplay();
+  startQuiz();
+  renderHistory();
+  registerSW();
+  setupInstallPrompt();
+});
+
+// ======= QUIZ LOGIC =======
+function getPool(cat) {
+  const all = cat === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.cat === cat);
+  return shuffle([...all]).slice(0, state.qPerRound);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz() {
+  state.pool = getPool(state.currentCat);
+  state.idx = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.answered = false;
+  document.getElementById('score-screen').style.display = 'none';
+  updateStats();
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = state.pool[state.idx];
+  if (!q) { showScore(); return; }
+
+  const total = state.pool.length;
+  const pct = Math.round((state.idx / total) * 100);
+  document.getElementById('progressText').textContent = `Question ${state.idx + 1} of ${total}`;
+  document.getElementById('progressPct').textContent = `${pct}%`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  const labels = ['A', 'B', 'C', 'D'];
+  const catColors = { science: 'science', environment: 'environment', sports: 'sports', general: 'general' };
+  const catNames = { science: '🔬 Science & Tech', environment: '🌿 Environment', sports: '⚽ Sports', general: '💡 General' };
+
+  document.getElementById('questionArea').innerHTML = `
+    <div class="q-card" data-cat="${q.cat}">
+      <div class="q-cat-badge">${catNames[q.cat]}</div>
+      <div class="fact-box">
+        <div class="fact-icon">${q.icon}</div>
+        <div class="fact-text">📰 <strong>News Flash:</strong> ${q.fact}</div>
+      </div>
+      <div class="q-text">❓ ${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o, i) => `
+          <button class="option-btn" onclick="selectAnswer(${i})" id="opt${i}">
+            <div class="option-label">${labels[i]}</div>
+            <div class="option-text">${o}</div>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback-box" id="feedbackBox"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+      ${state.idx + 1 < state.pool.length ? 'Next Question →' : 'See Results 🏆'}
+    </button>
+  `;
+  state.answered = false;
+}
+
+function selectAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.pool[state.idx];
+  const isCorrect = idx === q.ans;
+  const btns = document.querySelectorAll('.option-btn');
+
+  btns.forEach(b => b.disabled = true);
+  btns[idx].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.ans].classList.add('correct');
+
+  const fb = document.getElementById('feedbackBox');
+  fb.classList.add('show');
+  if (isCorrect) {
+    state.score += 10;
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    fb.classList.add('right');
+    fb.innerHTML = '✅ Correct! Well done!';
+  } else {
+    state.streak = 0;
+    state.wrong++;
+    fb.classList.add('wrong');
+    fb.innerHTML = `❌ Wrong! Correct answer: <strong>${q.opts[q.ans]}</strong>`;
+  }
+
+  updateStats();
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion() {
+  state.idx++;
+  if (state.idx >= state.pool.length) { showScore(); return; }
+  showQuestion();
+}
+
+function showScore() {
+  document.getElementById('questionArea').innerHTML = '';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressPct').textContent = '100%';
+
+  const total = state.pool.length;
+  const pct = Math.round((state.correct / total) * 100);
+
+  let trophy = '🏆', title = 'Excellent!';
+  if (pct >= 80) { trophy = '🥇'; title = 'Outstanding!'; }
+  else if (pct >= 60) { trophy = '🥈'; title = 'Good Job!'; }
+  else if (pct >= 40) { trophy = '🥉'; title = 'Keep Trying!'; }
+  else { trophy = '📚'; title = 'Study More!'; }
+
+  document.getElementById('scoreTrophy').textContent = trophy;
+  document.getElementById('scoreTitle').textContent = title;
+  document.getElementById('scoreSub').textContent = `You scored ${state.correct} out of ${total}`;
+  document.getElementById('scoreNum').textContent = `${state.correct}/${total}`;
+  document.getElementById('scoreCorrect').textContent = state.correct;
+  document.getElementById('scoreWrong').textContent = state.wrong;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('scoreStreak').textContent = state.bestStreak;
+
+  const angle = (pct / 100) * 360;
+  document.getElementById('scoreCircle').style.setProperty('--pct', `${angle}deg`);
+
+  document.getElementById('score-screen').style.display = 'block';
+
+  // Save history
+  const best = getStorage('bestScore', 0);
+  if (state.score > best) { setStorage('bestScore', state.score); updateBestDisplay(); }
+
+  const history = getStorage('quizHistory', []);
+  history.unshift({
+    date: new Date().toLocaleDateString(),
+    score: `${state.correct}/${total}`,
+    pct,
+    cat: state.currentCat
+  });
+  if (history.length > 20) history.pop();
+  setStorage('quizHistory', history);
+  renderHistory();
+}
+
+function updateStats() {
+  document.getElementById('statScore').textContent = state.score;
+  document.getElementById('statStreak').textContent = state.streak;
+}
+
+function updateBestDisplay() {
+  const best = getStorage('bestScore', 0);
+  document.getElementById('statBest').textContent = best;
+}
+
+// ======= CATEGORY TABS =======
+document.querySelectorAll('.cat-tab, [data-cat="sports"]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab, [data-cat="sports"]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    state.currentCat = tab.dataset.cat;
+    startQuiz();
+  });
+});
+
+// ======= RESTART =======
+document.getElementById('restartBtn').addEventListener('click', startQuiz);
+
+// ======= SHARE =======
+document.getElementById('shareBtn').addEventListener('click', () => {
+  const txt = `🎮 Daily Spark Quiz\n✅ Score: ${state.correct}/${state.pool.length}\n📊 Accuracy: ${Math.round(state.correct/state.pool.length*100)}%\n🔥 Best Streak: ${state.bestStreak}\n\n📰 What's New Today? App`;
+  if (navigator.share) { navigator.share({ title: 'Daily Spark Score', text: txt }); }
+  else { navigator.clipboard.writeText(txt).then(() => alert('Score copied!')); }
+});
+
+// ======= HISTORY =======
+function renderHistory() {
+  const history = getStorage('quizHistory', []);
+  const el = document.getElementById('historyList');
+  if (!history.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">📊</div><div>No quizzes yet.<br>Start playing to see history!</div></div>';
+    return;
+  }
+  el.innerHTML = `<div class="section-title">Recent Games (${history.length})</div>` +
+    history.map(h => {
+      const badgeClass = h.pct >= 70 ? 'badge-great' : h.pct >= 50 ? 'badge-good' : 'badge-try';
+      const badge = h.pct >= 70 ? '🌟 Great' : h.pct >= 50 ? '👍 Good' : '📚 Try Again';
+      return `
+        <div class="history-item">
+          <div>
+            <div style="font-weight:600;font-size:0.9rem">${h.date}</div>
+            <div class="history-date">${h.cat === 'all' ? 'All Topics' : h.cat}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="history-score">${h.score}</div>
+            <span class="history-badge ${badgeClass}">${badge}</span>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ======= BOTTOM NAV =======
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+  });
+});
+
+// ======= SERVICE WORKER =======
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(() => console.log('SW registered'))
+      .catch(e => console.log('SW error', e));
+  }
+}
+
+// ======= INSTALL PROMPT =======
+let deferredPrompt;
+function setupInstallPrompt() {
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!getStorage('installDismissed', false)) {
+      document.getElementById('installBanner').style.display = 'flex';
+    }
+  });
+  document.getElementById('installBtn').addEventListener('click', () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
+    document.getElementById('installBanner').style.display = 'none';
+  });
+  document.getElementById('dismissInstall').addEventListener('click', () => {
+    setStorage('installDismissed', true);
+    document.getElementById('installBanner').style.display = 'none';
+  });
+}
+
+// Update total question count
+document.getElementById('totalQCount').textContent = QUESTIONS.length + '+';
+</script>
+</body>
+</html>
