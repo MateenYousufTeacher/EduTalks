@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blood Donor Finder — CARE CONNECT</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --blood:    #C0152A;
+  --blood-dk: #8B0000;
+  --blood-lt: #FF3D52;
+  --blush:    #FFF5F6;
+  --cream:    #FAFAFA;
+  --ink:      #1A0A0C;
+  --slate:    #4A3540;
+  --muted:    #9E8090;
+  --border:   #EDD8DC;
+  --green:    #15803D;
+  --green-bg: #F0FDF4;
+  --gold:     #D97706;
+  --gold-bg:  #FFFBEB;
+  --r:        14px;
+  --sh:       0 2px 16px rgba(192,21,42,0.10);
+  --sh-lg:    0 8px 40px rgba(192,21,42,0.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  min-height:100vh;
+  font-size:16px;
+}
+
+/* ─── HEADER ─── */
+header{
+  background:linear-gradient(135deg,var(--blood-dk),var(--blood));
+  color:#fff;
+  padding:0 20px;
+  height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 3px 16px rgba(0,0,0,0.25);
+}
+.hd-left{display:flex;align-items:center;gap:12px;}
+.back-btn{
+  background:rgba(255,255,255,0.15);border:none;color:#fff;
+  width:40px;height:40px;border-radius:11px;font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.back-btn:hover{background:rgba(255,255,255,0.28);}
+.hd-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:900;line-height:1.1;}
+.hd-sub{font-size:11px;opacity:.65;font-weight:600;letter-spacing:.4px;}
+.drop-badge{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.18);border-radius:20px;
+  padding:6px 14px;font-size:13px;font-weight:700;
+}
+.drop-badge .dot{
+  width:8px;height:8px;border-radius:50%;background:#FF6B7A;
+  animation:blink 1.2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* ─── HERO ─── */
+.hero{
+  background:linear-gradient(160deg,var(--blood-dk) 0%,var(--blood) 55%,#E8384A 100%);
+  color:#fff;padding:36px 24px 40px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:32px;
+  background:var(--cream);border-radius:32px 32px 0 0;
+}
+.hero-drops{
+  display:flex;justify-content:center;gap:10px;margin-bottom:14px;
+}
+.drop{
+  font-size:28px;
+  animation:drip 2s ease-in-out infinite;
+}
+.drop:nth-child(2){animation-delay:.3s;}
+.drop:nth-child(3){animation-delay:.6s;}
+@keyframes drip{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(4px) scale(0.95);}
+}
+.hero h1{
+  font-family:'Playfair Display',serif;font-size:28px;font-weight:900;
+  margin-bottom:8px;line-height:1.2;
+}
+.hero p{font-size:14px;opacity:.88;max-width:320px;margin:0 auto;line-height:1.6;}
+
+/* ─── MAIN ─── */
+main{max-width:600px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:20px;}
+
+/* ─── CARDS ─── */
+.card{
+  background:#fff;border-radius:var(--r);
+  box-shadow:var(--sh);overflow:hidden;
+  animation:up .4s ease both;
+}
+@keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.card:nth-child(2){animation-delay:.06s;}
+.card:nth-child(3){animation-delay:.12s;}
+.card:nth-child(4){animation-delay:.18s;}
+
+.card-head{
+  padding:18px 20px 0;
+  display:flex;align-items:center;gap:12px;
+}
+.ch-icon{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  flex-shrink:0;
+}
+.ch-icon.red{background:var(--blush);}
+.ch-icon.green{background:var(--green-bg);}
+.ch-icon.gold{background:var(--gold-bg);}
+.ch-icon.slate{background:#F0EEF2;}
+.ch-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--ink);}
+.ch-sub{font-size:12px;color:var(--muted);font-weight:600;}
+.card-body{padding:16px 20px 22px;}
+
+/* ─── BLOOD GROUP SELECTOR ─── */
+.bg-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  margin-bottom:18px;
+}
+.bg-btn{
+  border:2px solid var(--border);border-radius:12px;
+  padding:14px 6px;text-align:center;cursor:pointer;
+  background:#fff;transition:all .18s;
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:900;color:var(--slate);
+  position:relative;
+}
+.bg-btn:hover{border-color:var(--blood);color:var(--blood);background:var(--blush);}
+.bg-btn.active{
+  border-color:var(--blood);background:var(--blood);color:#fff;
+  box-shadow:0 4px 14px rgba(192,21,42,0.35);
+  transform:translateY(-2px);
+}
+.bg-btn .rh{font-size:11px;font-family:'Nunito',sans-serif;font-weight:700;opacity:.8;}
+
+/* ─── URGENCY SELECTOR ─── */
+.urgency-row{display:flex;gap:10px;margin-bottom:16px;}
+.urg-btn{
+  flex:1;padding:12px;border:2px solid var(--border);
+  border-radius:12px;background:#fff;cursor:pointer;
+  text-align:center;font-size:13px;font-weight:700;
+  color:var(--slate);transition:all .18s;font-family:'Nunito',sans-serif;
+}
+.urg-btn:hover{border-color:var(--blood);}
+.urg-btn.active.critical{border-color:#C0152A;background:#C0152A;color:#fff;}
+.urg-btn.active.urgent  {border-color:#D97706;background:#D97706;color:#fff;}
+.urg-btn.active.normal  {border-color:#15803D;background:#15803D;color:#fff;}
+
+/* ─── LOCATION INPUT ─── */
+.loc-wrap{display:flex;gap:8px;margin-bottom:16px;}
+.loc-wrap input{
+  flex:1;padding:13px 16px;border:2px solid var(--border);
+  border-radius:12px;font-size:15px;font-family:'Nunito',sans-serif;
+  color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.loc-wrap input:focus{border-color:var(--blood);box-shadow:0 0 0 4px rgba(192,21,42,.09);}
+.loc-gps{
+  background:var(--ink);color:#fff;border:none;
+  border-radius:12px;width:50px;font-size:20px;
+  cursor:pointer;transition:background .2s,transform .1s;
+  display:flex;align-items:center;justify-content:center;
+}
+.loc-gps:hover{background:var(--blood);transform:scale(1.05);}
+
+/* ─── SEARCH BUTTON ─── */
+.btn-search{
+  width:100%;padding:17px;
+  background:linear-gradient(135deg,var(--blood-dk),var(--blood));
+  color:#fff;border:none;border-radius:13px;
+  font-family:'Playfair Display',serif;font-size:19px;font-weight:900;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 22px rgba(192,21,42,0.38);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:.2px;
+}
+.btn-search:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(192,21,42,.45);}
+.btn-search:active{transform:scale(.98);}
+.btn-search:disabled{background:#ccc;box-shadow:none;transform:none;cursor:not-allowed;}
+
+/* ─── RESULTS ─── */
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.results-count{
+  font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--slate);
+}
+.tag{
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
+}
+.tag.red{background:var(--blush);color:var(--blood);}
+.tag.green{background:var(--green-bg);color:var(--green);}
+
+/* ─── DONOR CARD ─── */
+.donor-card{
+  background:var(--cream);border-radius:12px;
+  padding:16px;margin-bottom:10px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+  animation:up .3s ease both;
+  transition:box-shadow .2s,border-color .2s;
+}
+.donor-card:hover{box-shadow:var(--sh);border-color:var(--blood);}
+.donor-avatar{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.1);
+  font-family:'Playfair Display',serif;font-weight:900;font-size:16px;color:#fff;
+}
+.av-red   {background:linear-gradient(135deg,var(--blood-dk),var(--blood));}
+.av-maroon{background:linear-gradient(135deg,#6B0B17,#9B1528);}
+.av-dark  {background:linear-gradient(135deg,#2D1B24,#5C3040);}
+
+.donor-info{flex:1;}
+.donor-name{font-weight:800;font-size:15px;color:var(--ink);margin-bottom:3px;}
+.donor-meta{font-size:12px;color:var(--muted);line-height:1.6;}
+.donor-bg-badge{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:20px;color:var(--blood);
+  background:var(--blush);border-radius:10px;
+  padding:8px 12px;flex-shrink:0;line-height:1;text-align:center;
+  border:1.5px solid var(--border);
+}
+.donor-bg-badge .rh{font-size:10px;font-family:'Nunito',sans-serif;font-weight:700;display:block;}
+.avail-dot{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  margin-right:5px;vertical-align:middle;
+}
+.avail-dot.yes{background:var(--green);}
+.avail-dot.busy{background:var(--gold);}
+
+.contact-btn{
+  display:block;width:100%;margin-top:10px;
+  background:#fff;border:1.5px solid var(--blood);
+  color:var(--blood);border-radius:9px;padding:9px;
+  font-size:13px;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;
+  transition:background .2s,color .2s;text-decoration:none;text-align:center;
+}
+.contact-btn:hover{background:var(--blood);color:#fff;}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:36px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty p{font-size:15px;line-height:1.6;}
+
+/* ─── STATS ROW ─── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
+.stat-box{
+  background:var(--blush);border-radius:12px;padding:14px 10px;
+  text-align:center;border:1.5px solid var(--border);
+}
+.stat-num{
+  font-family:'Playfair Display',serif;font-size:26px;font-weight:900;
+  color:var(--blood);line-height:1;
+}
+.stat-label{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;}
+
+/* ─── INFO BOX ─── */
+.info-box{
+  background:var(--blush);border-radius:12px;padding:14px 16px;
+  border-left:4px solid var(--blood);font-size:13px;color:var(--slate);
+  line-height:1.6;margin-top:14px;
+}
+.info-box strong{color:var(--blood);}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border);margin:14px 0;}
+
+/* ─── COMPATIBILITY CHART ─── */
+.compat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.compat-item{
+  border-radius:10px;padding:10px 6px;text-align:center;
+  border:1.5px solid var(--border);
+}
+.compat-item .grp{
+  font-family:'Playfair Display',serif;font-weight:900;font-size:16px;
+  color:var(--ink);
+}
+.compat-item .can{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;line-height:1.4;}
+.compat-item.universal{background:var(--blush);border-color:var(--blood);}
+
+/* ─── EMERGENCY NUMBERS ─── */
+.emerg-row{display:flex;flex-direction:column;gap:10px;}
+.emerg-card{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--cream);border-radius:12px;padding:14px 16px;
+  border:1.5px solid var(--border);text-decoration:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.emerg-card:hover{border-color:var(--blood);box-shadow:var(--sh);}
+.emerg-name{font-weight:700;color:var(--ink);font-size:14px;}
+.emerg-num{
+  font-family:'Playfair Display',serif;font-size:22px;font-weight:900;
+  color:var(--blood);
+}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:#fff;
+  padding:13px 24px;border-radius:50px;font-size:14px;font-weight:700;
+  box-shadow:var(--sh-lg);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;white-space:nowrap;display:flex;align-items:center;gap:8px;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.success{background:var(--green);}
+#toast.error{background:var(--blood);}
+
+/* ─── FOOTER ─── */
+footer{
+  text-align:center;padding:20px 16px;
+  color:var(--muted);font-size:12px;line-height:1.8;
+}
+footer strong{color:var(--ink);}
+
+@media(max-width:400px){
+  .bg-grid{grid-template-columns:repeat(4,1fr);}
+  .bg-btn{font-size:15px;padding:12px 4px;}
+  .hero h1{font-size:24px;}
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hd-left">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div>
+      <div class="hd-title">Blood Donor Finder</div>
+      <div class="hd-sub">CARE CONNECT · Emergency Module</div>
+    </div>
+  </div>
+  <div class="drop-badge"><span class="dot"></span>LIVE</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-drops">
+    <span class="drop">🩸</span>
+    <span class="drop">❤️</span>
+    <span class="drop">🩸</span>
+  </div>
+  <h1>Find a Donor,<br>Save a Life</h1>
+  <p>Instantly connect with nearby blood donors during emergencies. Every second matters.</p>
+</div>
+
+<main>
+
+  <!-- STATS -->
+  <div class="card">
+    <div class="card-body" style="padding-top:20px;">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-total">24</div>
+          <div class="stat-label">Total Donors</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-avail">18</div>
+          <div class="stat-label">Available Now</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">8</div>
+          <div class="stat-label">Blood Types</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH FORM -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon red">🔍</div>
+      <div>
+        <div class="ch-title">Find a Donor</div>
+        <div class="ch-sub">Select blood group & search nearby</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- BLOOD GROUP -->
+      <label style="font-size:13px;font-weight:700;color:var(--slate);margin-bottom:10px;display:block;">
+        Select Required Blood Group <span style="color:var(--blood)">*</span>
+      </label>
+      <div class="bg-grid">
+        <button class="bg-btn" onclick="selectBG(this,'A+')" data-bg="A+">A+<div class="rh">Rh+</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'A-')" data-bg="A-">A−<div class="rh">Rh−</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'B+')" data-bg="B+">B+<div class="rh">Rh+</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'B-')" data-bg="B-">B−<div class="rh">Rh−</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'AB+')" data-bg="AB+">AB+<div class="rh">Rh+</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'AB-')" data-bg="AB-">AB−<div class="rh">Rh−</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'O+')" data-bg="O+">O+<div class="rh">Rh+</div></button>
+        <button class="bg-btn" onclick="selectBG(this,'O-')" data-bg="O-">O−<div class="rh">Rh−</div></button>
+      </div>
+
+      <!-- URGENCY -->
+      <label style="font-size:13px;font-weight:700;color:var(--slate);margin-bottom:10px;display:block;">Urgency Level</label>
+      <div class="urgency-row">
+        <button class="urg-btn critical active" onclick="selectUrg(this,'critical')">🚨 Critical</button>
+        <button class="urg-btn urgent"           onclick="selectUrg(this,'urgent')">⚡ Urgent</button>
+        <button class="urg-btn normal"           onclick="selectUrg(this,'normal')">📋 Planned</button>
+      </div>
+
+      <!-- LOCATION -->
+      <label style="font-size:13px;font-weight:700;color:var(--slate);margin-bottom:8px;display:block;">Your Location</label>
+      <div class="loc-wrap">
+        <input type="text" id="loc-input" placeholder="e.g. Lal Chowk, Srinagar" value="Srinagar, J&K"/>
+        <button class="loc-gps" onclick="getGPS()" title="Use my location">📍</button>
+      </div>
+
+      <button class="btn-search" id="search-btn" onclick="searchDonors()">
+        🩸 Search Donors Now
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card" id="results-card" style="display:none;">
+    <div class="card-head">
+      <div class="ch-icon red">🩸</div>
+      <div>
+        <div class="ch-title">Matching Donors</div>
+        <div class="ch-sub" id="results-sub">Found near your location</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="results-header">
+        <div class="results-count" id="results-count">— donors found</div>
+        <div class="tag red" id="selected-bg-tag">—</div>
+      </div>
+      <div id="donor-list"></div>
+      <div class="info-box">
+        <strong>🤝 How to proceed:</strong> Call the donor directly using the button below their name. Explain the urgency and arrange a suitable location. Always involve a verified medical facility for the donation process.
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPATIBILITY CHART -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon slate">📊</div>
+      <div>
+        <div class="ch-title">Blood Compatibility</div>
+        <div class="ch-sub">Who can donate to whom</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="compat-grid" id="compat-chart">
+        <!-- filled by JS -->
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+        <strong style="color:var(--blood);">O− is the Universal Donor</strong> — can give to anyone.<br>
+        <strong style="color:var(--blood);">AB+ is the Universal Recipient</strong> — can receive from all.
+      </div>
+    </div>
+  </div>
+
+  <!-- EMERGENCY NUMBERS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon gold">📞</div>
+      <div>
+        <div class="ch-title">Emergency Contacts</div>
+        <div class="ch-sub">Call immediately for critical situations</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="emerg-row">
+        <a href="tel:104" class="emerg-card">
+          <div class="emerg-name">🏥 Blood Bank Helpline</div>
+          <div class="emerg-num">104</div>
+        </a>
+        <a href="tel:108" class="emerg-card">
+          <div class="emerg-name">🚑 Ambulance Service</div>
+          <div class="emerg-num">108</div>
+        </a>
+        <a href="tel:100" class="emerg-card">
+          <div class="emerg-name">🚔 Police Emergency</div>
+          <div class="emerg-num">100</div>
+        </a>
+        <a href="tel:1800180192" class="emerg-card">
+          <div class="emerg-name">🩺 National Blood Helpline</div>
+          <div class="emerg-num" style="font-size:16px;">1800-180-192</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>CARE CONNECT</strong> — Elderly Support Digital Ecosystem<br>
+  Developed by Hani Burhan & Maham Mushtaq · GGHSS Khanyar, Srinagar<br>
+  <span style="color:var(--blood)">🩸</span> Every drop counts — donate &amp; save lives
+</footer>
+
+<div id="toast"></div>
+
+<script>
+// ── DONOR DATABASE (predefined — no API needed) ──
+const DONORS = [
+  { name:'Abdul Rashid Khan',   bg:'A+',  area:'Lal Chowk',      dist:'0.8 km', phone:'94010 11001', avail:true,  gender:'M', age:34 },
+  { name:'Razia Begum',         bg:'A+',  area:'Rajbagh',        dist:'1.2 km', phone:'94010 22002', avail:true,  gender:'F', age:28 },
+  { name:'Farooq Ahmad Dar',    bg:'A+',  area:'Jawahar Nagar',  dist:'2.1 km', phone:'94010 33003', avail:false, gender:'M', age:41 },
+  { name:'Nasreen Akhtar',      bg:'A-',  area:'Hyderpora',      dist:'1.5 km', phone:'94010 44004', avail:true,  gender:'F', age:26 },
+  { name:'Bilal Ahmad Shah',    bg:'B+',  area:'Bemina',         dist:'0.5 km', phone:'94010 55005', avail:true,  gender:'M', age:31 },
+  { name:'Shahida Maqbool',     bg:'B+',  area:'Batmaloo',       dist:'1.8 km', phone:'94010 66006', avail:true,  gender:'F', age:29 },
+  { name:'Mushtaq Ahmad Bhat',  bg:'B+',  area:'Soura',          dist:'3.0 km', phone:'94010 77007', avail:false, gender:'M', age:38 },
+  { name:'Aamir Hussain Lone',  bg:'B-',  area:'Nowgam',         dist:'2.4 km', phone:'94010 88008', avail:true,  gender:'M', age:33 },
+  { name:'Mehbooba Shafi',      bg:'AB+', area:'Panthachowk',    dist:'1.1 km', phone:'94010 99009', avail:true,  gender:'F', age:24 },
+  { name:'Zahoor Ahmad Wani',   bg:'AB+', area:'Karan Nagar',    dist:'1.9 km', phone:'94010 10010', avail:true,  gender:'M', age:45 },
+  { name:'Sameena Farooq',      bg:'AB-', area:'Hazratbal',      dist:'2.7 km', phone:'94010 11011', avail:true,  gender:'F', age:30 },
+  { name:'Imtiyaz Ahmad Mir',   bg:'O+',  area:'Chattabal',      dist:'0.3 km', phone:'94010 22012', avail:true,  gender:'M', age:27 },
+  { name:'Ruqaiya Sultan',      bg:'O+',  area:'Mehjoor Nagar',  dist:'0.9 km', phone:'94010 33013', avail:true,  gender:'F', age:22 },
+  { name:'Tariq Hussain Rather',bg:'O+',  area:'Parimpora',      dist:'1.6 km', phone:'94010 44014', avail:true,  gender:'M', age:36 },
+  { name:'Gulshan Akhtar',      bg:'O+',  area:'Baghi-Ali Mardan',dist:'2.2 km',phone:'94010 55015', avail:false, gender:'F', age:40 },
+  { name:'Pervez Ahmad Ganai',  bg:'O-',  area:'Barzulla',       dist:'1.4 km', phone:'94010 66016', avail:true,  gender:'M', age:29 },
+  { name:'Tanveer Ahmad Ganie', bg:'O-',  area:'Jawahar Nagar',  dist:'2.8 km', phone:'94010 77017', avail:true,  gender:'M', age:32 },
+  { name:'Haleema Mukhtar',     bg:'A+',  area:'Shivpora',       dist:'3.3 km', phone:'94010 88018', avail:true,  gender:'F', age:25 },
+  { name:'Umar Farooq Sheikh',  bg:'B+',  area:'Dalgate',        dist:'1.0 km', phone:'94010 99019', avail:true,  gender:'M', age:44 },
+  { name:'Shabnam Akhter',      bg:'AB+', area:'Khanyar',        dist:'0.7 km', phone:'94010 10020', avail:true,  gender:'F', age:23 },
+  { name:'Irshad Ahmad Najar',  bg:'O+',  area:'Alamgari Bazar', dist:'1.3 km', phone:'94010 11021', avail:false, gender:'M', age:50 },
+  { name:'Asiya Bashir',        bg:'A-',  area:'Gogji Bagh',     dist:'2.0 km', phone:'94010 22022', avail:true,  gender:'F', age:27 },
+  { name:'Sajad Ahmad Bhat',    bg:'B-',  area:'Natipora',       dist:'2.9 km', phone:'94010 33023', avail:true,  gender:'M', age:35 },
+  { name:'Fareeda Jan',         bg:'O-',  area:'Abi Guzar',      dist:'1.7 km', phone:'94010 44024', avail:true,  gender:'F', age:31 },
+];
+
+// Blood type compatibility: who can RECEIVE from whom
+const COMPATIBILITY = {
+  'A+' : ['A+','A-','O+','O-'],
+  'A-' : ['A-','O-'],
+  'B+' : ['B+','B-','O+','O-'],
+  'B-' : ['B-','O-'],
+  'AB+': ['A+','A-','B+','B-','AB+','AB-','O+','O-'],
+  'AB-': ['A-','B-','AB-','O-'],
+  'O+' : ['O+','O-'],
+  'O-' : ['O-'],
+};
+
+// What each group can donate to (for display)
+const CAN_DONATE_TO = {
+  'A+' : 'A+, AB+',
+  'A-' : 'A+, A−, AB+, AB−',
+  'B+' : 'B+, AB+',
+  'B-' : 'B+, B−, AB+, AB−',
+  'AB+': 'AB+ only',
+  'AB-': 'AB+, AB−',
+  'O+' : 'O+, A+, B+, AB+',
+  'O-' : 'All types ✦',
+};
+
+let selectedBG = null;
+let selectedUrg = 'critical';
+
+// ── SELECT BLOOD GROUP ──
+function selectBG(el, bg) {
+  document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedBG = bg;
+}
+
+// ── SELECT URGENCY ──
+function selectUrg(el, urg) {
+  document.querySelectorAll('.urg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedUrg = urg;
+}
+
+// ── GPS ──
+function getGPS() {
+  const btn = document.querySelector('.loc-gps');
+  btn.textContent = '⏳';
+  if (!navigator.geolocation) { showToast('Geolocation not supported','error'); btn.textContent='📍'; return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('loc-input').value = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+      btn.textContent = '✅';
+      setTimeout(()=>btn.textContent='📍', 2000);
+    },
+    () => {
+      document.getElementById('loc-input').value = 'Srinagar, J&K';
+      btn.textContent = '📍';
+      showToast('Using approximate location','');
+    }
+  );
+}
+
+// ── SEARCH DONORS ──
+function searchDonors() {
+  if (!selectedBG) { showToast('⚠️ Please select a blood group','error'); return; }
+
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Searching…';
+
+  setTimeout(() => {
+    const compatible = COMPATIBILITY[selectedBG];
+    // Filter donors whose blood group is in the compatible list
+    let matches = DONORS.filter(d => compatible.includes(d.bg));
+    // Sort: available first, then by distance
+    matches.sort((a,b) => {
+      if (a.avail !== b.avail) return a.avail ? -1 : 1;
+      return parseFloat(a.dist) - parseFloat(b.dist);
+    });
+
+    renderResults(matches);
+    btn.disabled = false;
+    btn.innerHTML = '🩸 Search Donors Now';
+  }, 1000);
+}
+
+function getAvatarClass(name) {
+  const classes = ['av-red','av-maroon','av-dark'];
+  return classes[name.charCodeAt(0) % 3];
+}
+function getInitials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('');
+}
+
+function renderResults(matches) {
+  const card = document.getElementById('results-card');
+  const list  = document.getElementById('donor-list');
+  const count = document.getElementById('results-count');
+  const sub   = document.getElementById('results-sub');
+  const tag   = document.getElementById('selected-bg-tag');
+
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'start' });
+
+  const avail = matches.filter(d=>d.avail).length;
+  count.textContent = `${matches.length} compatible donor${matches.length!==1?'s':''} found`;
+  sub.textContent   = `${avail} available now · sorted by distance`;
+  tag.textContent   = selectedBG + ' compatible';
+
+  if (matches.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No donors found for this blood group nearby.<br>Please call the Blood Bank Helpline: <strong style="color:var(--blood)">104</strong></p></div>`;
+    return;
+  }
+
+  list.innerHTML = matches.map((d,i) => `
+    <div class="donor-card" style="animation-delay:${i*0.05}s">
+      <div class="donor-avatar ${getAvatarClass(d.name)}">${getInitials(d.name)}</div>
+      <div class="donor-info">
+        <div class="donor-name">${d.name}</div>
+        <div class="donor-meta">
+          <span class="avail-dot ${d.avail?'yes':'busy'}"></span>
+          ${d.avail ? 'Available now' : 'Busy — try calling'} &nbsp;·&nbsp;
+          ${d.gender === 'M' ? '👨' : '👩'} ${d.age} yrs<br>
+          📍 ${d.area} &nbsp;·&nbsp; 🚗 ${d.dist}
+        </div>
+        <a class="contact-btn" href="tel:${d.phone.replace(/\s/g,'')}">
+          📞 Call: ${d.phone}
+        </a>
+      </div>
+      <div class="donor-bg-badge">${d.bg.replace('-','−').replace('+','⁺')}<span class="rh">${d.bg.includes('+') ? 'Rh+' : 'Rh−'}</span></div>
+    </div>
+  `).join('');
+
+  showToast(`🩸 ${matches.length} donor${matches.length!==1?'s':''} found!`, 'success');
+  document.getElementById('stat-avail').textContent = matches.filter(d=>d.avail).length;
+}
+
+// ── COMPATIBILITY CHART ──
+function buildCompatChart() {
+  const groups = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+  const div = document.getElementById('compat-chart');
+  div.innerHTML = groups.map(g => `
+    <div class="compat-item ${g==='O-'?'universal':''}">
+      <div class="grp">${g}</div>
+      <div class="can">→ ${CAN_DONATE_TO[g]}</div>
+    </div>
+  `).join('');
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? `show ${type}` : 'show';
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ── INIT ──
+buildCompatChart();
+</script>
+</body>
+</html>
