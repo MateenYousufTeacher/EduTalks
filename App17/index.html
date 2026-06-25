@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Help Nearby — Care Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0f1a;
+  --surface: #131928;
+  --surface2: #1c2538;
+  --border: rgba(255,255,255,0.08);
+  --red: #ff4757;
+  --orange: #ff6b35;
+  --amber: #ffa502;
+  --teal: #2ed3b7;
+  --blue: #4a9eff;
+  --purple: #a855f7;
+  --white: #f0f4ff;
+  --muted: #7a8499;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ROLE SELECTOR ── */
+#role-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+#role-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,71,87,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 90%, rgba(46,211,183,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.role-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
+}
+.role-header .badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,71,87,0.12);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 100px; padding: 5px 16px;
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--red); margin-bottom: 1.5rem;
+}
+.dot-live { width:7px; height:7px; border-radius:50%; background:var(--red); animation: blink 1.2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.role-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  font-weight: 900; line-height: 1; letter-spacing: -0.03em;
+}
+.role-header h1 span {
+  background: linear-gradient(135deg, var(--red), var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.role-header p { color: var(--muted); margin-top: 0.75rem; font-size: 1rem; }
+
+.role-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  max-width: 820px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+@media(max-width:640px){ .role-cards { grid-template-columns: 1fr; max-width: 340px; } }
+
+.role-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+.role-btn:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); background: var(--surface2); }
+.role-btn.elder:hover { border-color: rgba(255,71,87,0.4); box-shadow: 0 8px 40px rgba(255,71,87,0.15); }
+.role-btn.volunteer:hover { border-color: rgba(46,211,183,0.4); box-shadow: 0 8px 40px rgba(46,211,183,0.12); }
+.role-btn.family:hover { border-color: rgba(168,85,247,0.4); box-shadow: 0 8px 40px rgba(168,85,247,0.12); }
+
+.role-btn .emoji { font-size: 2.8rem; margin-bottom: 1rem; display: block; }
+.role-btn h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; }
+.role-btn p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+.role-chip {
+  display: inline-block; font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px;
+}
+.elder .role-chip { background: rgba(255,71,87,0.12); color: var(--red); }
+.volunteer .role-chip { background: rgba(46,211,183,0.12); color: var(--teal); }
+.family .role-chip { background: rgba(168,85,247,0.12); color: var(--purple); }
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 0.75rem; }
+.back-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1rem; transition: all 0.2s;
+}
+.back-btn:hover { background: var(--surface); border-color: rgba(255,255,255,0.15); }
+.topbar-title { font-size: 0.9rem; font-weight: 600; }
+.topbar-sub { font-size: 0.7rem; color: var(--muted); }
+.status-dot {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.7rem; font-family: 'DM Mono', monospace;
+  padding: 5px 12px; border-radius: 100px;
+  border: 1px solid;
+}
+.status-dot.online { background: rgba(46,211,183,0.1); color: var(--teal); border-color: rgba(46,211,183,0.3); }
+.status-dot.offline { background: rgba(122,132,153,0.1); color: var(--muted); border-color: rgba(122,132,153,0.2); }
+.status-dot::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; animation: blink 1.2s ease infinite; }
+
+/* ── ELDER SCREEN ── */
+#elder-screen .content { flex: 1; padding: 1.5rem; max-width: 420px; margin: 0 auto; width: 100%; }
+
+.sos-btn {
+  width: 100%; padding: 1.5rem;
+  background: linear-gradient(135deg, var(--red), var(--orange));
+  border: none; border-radius: 20px;
+  color: white; font-size: 1.3rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.04em;
+  cursor: pointer; box-shadow: 0 8px 40px rgba(255,71,87,0.45);
+  animation: sos-pulse 2.5s ease infinite;
+  transition: transform 0.15s;
+}
+.sos-btn:active { transform: scale(0.97); }
+@keyframes sos-pulse {
+  0%,100%{ box-shadow: 0 8px 40px rgba(255,71,87,0.45); }
+  50%{ box-shadow: 0 8px 60px rgba(255,71,87,0.7), 0 0 0 10px rgba(255,71,87,0.06); }
+}
+
+.section-hdr { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin: 1.5rem 0 0.75rem; }
+
+.help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.help-tile {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 1.1rem 0.8rem;
+  text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.help-tile:hover { background: var(--surface2); border-color: rgba(255,255,255,0.15); }
+.help-tile.sel { border-color: var(--teal); background: rgba(46,211,183,0.08); }
+.help-tile .ti { font-size: 1.8rem; display: block; margin-bottom: 0.35rem; }
+.help-tile span:last-child { font-size: 0.78rem; color: var(--white); }
+
+.send-btn {
+  width: 100%; padding: 1rem;
+  background: var(--teal); border: none; border-radius: 14px;
+  color: #0b0f1a; font-size: 1rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: all 0.2s; margin-top: 1rem; opacity: 0.4;
+  pointer-events: none;
+}
+.send-btn.ready { opacity: 1; pointer-events: all; }
+.send-btn.ready:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(46,211,183,0.3); }
+
+/* Request status card */
+.req-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 1.5rem;
+  margin-top: 1rem; display: none;
+}
+.req-card.show { display: block; }
+.req-status-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.req-icon { font-size: 2rem; }
+.req-status-text .req-title { font-size: 1rem; font-weight: 600; }
+.req-status-text .req-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.req-timeline { margin-top: 0.75rem; }
+.req-step {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;
+}
+.req-step:last-child { border-bottom: none; }
+.req-step .s-dot {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600;
+}
+.s-done { background: rgba(46,211,183,0.15); color: var(--teal); border: 1px solid rgba(46,211,183,0.3); }
+.s-active { background: rgba(255,165,2,0.15); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); animation: blink 1.2s ease infinite; }
+.s-pending { background: rgba(122,132,153,0.1); color: var(--muted); border: 1px solid rgba(122,132,153,0.2); }
+.req-step .s-text { flex: 1; line-height: 1.4; }
+.req-step .s-time { font-size: 0.7rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+.cancel-btn {
+  width: 100%; padding: 0.75rem; background: transparent;
+  border: 1.5px solid rgba(255,71,87,0.3); border-radius: 12px;
+  color: var(--red); font-size: 0.85rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 1rem; transition: all 0.2s;
+}
+.cancel-btn:hover { background: rgba(255,71,87,0.08); }
+
+/* ── VOLUNTEER SCREEN ── */
+#volunteer-screen .content { flex: 1; padding: 1.5rem; max-width: 480px; margin: 0 auto; width: 100%; }
+
+.requests-empty {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--muted); font-size: 0.88rem; line-height: 1.7;
+}
+.requests-empty .big { font-size: 3rem; margin-bottom: 1rem; }
+
+.req-alert {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 1.5rem;
+  margin-bottom: 1rem; transition: all 0.3s;
+  animation: slide-in 0.4s ease both;
+}
+@keyframes slide-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.req-alert.urgent { border-color: rgba(255,71,87,0.4); background: rgba(255,71,87,0.04); }
+.req-alert.normal { border-color: rgba(46,211,183,0.3); background: rgba(46,211,183,0.03); }
+
+.alert-top { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.alert-emoji { font-size: 2rem; }
+.alert-info .alert-name { font-size: 1rem; font-weight: 600; }
+.alert-info .alert-detail { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.urgency-tag {
+  margin-left: auto; font-size: 0.65rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 100px; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.urgency-tag.urgent { background: rgba(255,71,87,0.15); color: var(--red); }
+.urgency-tag.normal { background: rgba(46,211,183,0.12); color: var(--teal); }
+
+.alert-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.meta-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 10px;
+  font-size: 0.72rem; color: var(--muted);
+}
+.alert-actions { display: flex; gap: 0.7rem; }
+.accept-btn {
+  flex: 1; padding: 0.75rem;
+  background: var(--teal); border: none; border-radius: 12px;
+  color: #0b0f1a; font-size: 0.9rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+}
+.accept-btn:hover { box-shadow: 0 4px 20px rgba(46,211,183,0.35); transform: translateY(-1px); }
+.decline-btn {
+  padding: 0.75rem 1.25rem;
+  background: transparent; border: 1.5px solid var(--border);
+  border-radius: 12px; color: var(--muted); font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+}
+.decline-btn:hover { border-color: rgba(255,71,87,0.3); color: var(--red); }
+
+.active-job {
+  background: var(--surface); border: 1.5px solid rgba(46,211,183,0.3);
+  border-radius: 20px; padding: 1.5rem; display: none;
+  animation: slide-in 0.4s ease both;
+}
+.active-job.show { display: block; }
+.job-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+.job-header .j-emoji { font-size: 2.2rem; }
+.job-header .j-title { font-size: 1.1rem; font-weight: 600; }
+.job-header .j-sub { font-size: 0.78rem; color: var(--teal); margin-top: 2px; }
+.complete-btn {
+  width: 100%; padding: 1rem;
+  background: linear-gradient(135deg, var(--teal), #22b99e);
+  border: none; border-radius: 14px;
+  color: #0b0f1a; font-size: 1rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 1rem;
+}
+.complete-btn:hover { box-shadow: 0 6px 24px rgba(46,211,183,0.35); }
+
+.stats-row { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+.stat-box {
+  flex: 1; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 1rem; text-align: center;
+}
+.stat-box .s-n { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; }
+.stat-box .s-l { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+/* ── FAMILY SCREEN ── */
+#family-screen .content { flex: 1; padding: 1.5rem; max-width: 480px; margin: 0 auto; width: 100%; }
+
+.elder-profile {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.elder-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,71,87,0.12); border: 2px solid rgba(255,71,87,0.3);
+  display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;
+}
+.elder-name { font-size: 1.05rem; font-weight: 600; }
+.elder-loc { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.elder-status-tag {
+  margin-left: auto; font-size: 0.68rem; font-weight: 600;
+  padding: 5px 12px; border-radius: 100px;
+}
+.safe { background: rgba(46,211,183,0.12); color: var(--teal); }
+.alert-st { background: rgba(255,71,87,0.12); color: var(--red); }
+
+.activity-feed { }
+.feed-item {
+  display: flex; gap: 0.85rem; padding: 1rem 0;
+  border-bottom: 1px solid var(--border); align-items: flex-start;
+  animation: slide-in 0.3s ease both;
+}
+.feed-item:last-child { border-bottom: none; }
+.feed-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.fi-red { background: rgba(255,71,87,0.12); }
+.fi-teal { background: rgba(46,211,183,0.12); }
+.fi-amber { background: rgba(255,165,2,0.12); }
+.fi-purple { background: rgba(168,85,247,0.12); }
+.feed-body { flex: 1; }
+.feed-title { font-size: 0.88rem; font-weight: 600; }
+.feed-desc { font-size: 0.78rem; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.feed-time { font-size: 0.68rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 4px; }
+
+.notify-bar {
+  background: rgba(255,71,87,0.1); border: 1.5px solid rgba(255,71,87,0.25);
+  border-radius: 14px; padding: 1rem 1.25rem;
+  display: flex; gap: 0.75rem; align-items: center;
+  margin-bottom: 1.25rem; display: none;
+}
+.notify-bar.show { display: flex; animation: slide-in 0.4s ease both; }
+.notify-bar .nb-text { flex: 1; font-size: 0.85rem; line-height: 1.5; }
+.notify-bar .nb-icon { font-size: 1.4rem; flex-shrink: 0; }
+.nb-call {
+  padding: 0.5rem 1rem; background: var(--red); border: none; border-radius: 10px;
+  color: white; font-size: 0.8rem; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; white-space: nowrap;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 0.85rem 1.5rem;
+  font-size: 0.85rem; font-weight: 500;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 9999; max-width: 320px; text-align: center; white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ ROLE SCREEN ══════════════════════════════ -->
+<div id="role-screen">
+  <div class="role-header">
+    <div class="badge"><span class="dot-live"></span> Care Connect · Live</div>
+    <h1>Help<br><span>Nearby</span></h1>
+    <p>Who are you today?</p>
+  </div>
+
+  <div class="role-cards">
+    <button class="role-btn elder" onclick="enterRole('elder')">
+      <span class="emoji">👴</span>
+      <h3>I'm an Elder</h3>
+      <p>Request help from your community with one tap</p>
+      <span class="role-chip">Requests Help</span>
+    </button>
+    <button class="role-btn volunteer" onclick="enterRole('volunteer')">
+      <span class="emoji">🙋</span>
+      <h3>I'm a Volunteer</h3>
+      <p>See and respond to nearby help requests</p>
+      <span class="role-chip">Responds & Helps</span>
+    </button>
+    <button class="role-btn family" onclick="enterRole('family')">
+      <span class="emoji">👨‍👩‍👧</span>
+      <h3>I'm Family</h3>
+      <p>Monitor your loved one's activity & safety</p>
+      <span class="role-chip">Monitors & Supports</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ ELDER SCREEN ══════════════════════════════ -->
+<div id="elder-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" onclick="goBack()">←</div>
+      <div>
+        <div class="topbar-title">Help Nearby</div>
+        <div class="topbar-sub">Hello, Ramesh Ji 👋</div>
+      </div>
+    </div>
+    <div class="status-dot online">Online</div>
+  </div>
+
+  <div class="content">
+    <!-- Main SOS -->
+    <button class="sos-btn" id="sos-btn" onclick="showHelpCategories()">🆘 I NEED HELP</button>
+
+    <!-- Help Category Selection -->
+    <div id="help-categories" style="display:none">
+      <div class="section-hdr">What kind of help do you need?</div>
+      <div class="help-grid" id="help-grid">
+        <div class="help-tile" onclick="selectHelp(this,'💊','Medicine')">
+          <span class="ti">💊</span><span>Medicine</span>
+        </div>
+        <div class="help-tile" onclick="selectHelp(this,'🛒','Grocery')">
+          <span class="ti">🛒</span><span>Grocery</span>
+        </div>
+        <div class="help-tile" onclick="selectHelp(this,'🚶','Mobility')">
+          <span class="ti">🚶</span><span>Mobility</span>
+        </div>
+        <div class="help-tile" onclick="selectHelp(this,'🔧','Other Help')">
+          <span class="ti">🔧</span><span>Other Help</span>
+        </div>
+        <div class="help-tile" onclick="selectHelp(this,'🏥','Doctor')">
+          <span class="ti">🏥</span><span>Doctor Visit</span>
+        </div>
+        <div class="help-tile" onclick="selectHelp(this,'💬','Companionship')">
+          <span class="ti">💬</span><span>Companionship</span>
+        </div>
+      </div>
+      <button class="send-btn" id="send-btn" onclick="sendRequest()">Send Request to Nearby Helpers →</button>
+    </div>
+
+    <!-- Request Status -->
+    <div class="req-card" id="req-card">
+      <div class="req-status-row">
+        <span class="req-icon" id="req-icon">💊</span>
+        <div class="req-status-text">
+          <div class="req-title" id="req-title">Request Sent</div>
+          <div class="req-sub" id="req-sub">Looking for nearby helpers…</div>
+        </div>
+      </div>
+      <div class="req-timeline" id="req-timeline">
+        <div class="req-step">
+          <div class="s-dot s-done">✓</div>
+          <div class="s-text">Request broadcast to 3 nearby volunteers</div>
+          <div class="s-time" id="t1">just now</div>
+        </div>
+        <div class="req-step" id="step-accepted">
+          <div class="s-dot s-active" id="dot2">2</div>
+          <div class="s-text" id="step2-text">Waiting for volunteer to accept…</div>
+          <div class="s-time" id="t2">—</div>
+        </div>
+        <div class="req-step" id="step-otw">
+          <div class="s-dot s-pending" id="dot3">3</div>
+          <div class="s-text">Volunteer on the way</div>
+          <div class="s-time" id="t3">—</div>
+        </div>
+        <div class="req-step" id="step-done">
+          <div class="s-dot s-pending" id="dot4">✓</div>
+          <div class="s-text">Help delivered</div>
+          <div class="s-time" id="t4">—</div>
+        </div>
+      </div>
+      <button class="cancel-btn" id="cancel-btn" onclick="cancelRequest()">Cancel Request</button>
+    </div>
+
+    <!-- Nearby helpers (always visible) -->
+    <div id="nearby-section">
+      <div class="section-hdr">Nearby Helpers Right Now</div>
+      <div id="nearby-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ VOLUNTEER SCREEN ══════════════════════════════ -->
+<div id="volunteer-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" onclick="goBack()">←</div>
+      <div>
+        <div class="topbar-title">Volunteer Dashboard</div>
+        <div class="topbar-sub">Aisha K. · 0.2 km radius</div>
+      </div>
+    </div>
+    <div class="status-dot online">Active</div>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="s-n" style="color:var(--teal)" id="v-helps">12</div>
+        <div class="s-l">Helps Given</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-n" style="color:var(--amber)" id="v-rating">4.9</div>
+        <div class="s-l">Rating</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-n" style="color:var(--purple)" id="v-streak">7</div>
+        <div class="s-l">Day Streak</div>
+      </div>
+    </div>
+
+    <!-- Active job (hidden until accepted) -->
+    <div class="active-job" id="active-job">
+      <div class="job-header">
+        <div class="j-emoji" id="job-emoji">💊</div>
+        <div>
+          <div class="j-title" id="job-title">Medicine Pickup</div>
+          <div class="j-sub">● In Progress · Ramesh Ji</div>
+        </div>
+      </div>
+      <div style="font-size:0.82rem; color:var(--muted); line-height:1.6; background:var(--surface2); border-radius:12px; padding:0.85rem;">
+        📍 Sector 14, Block C, Flat 302 · <span style="color:var(--teal)">0.3 km away</span><br>
+        📞 Contact if needed: <span style="color:var(--white)">+91 98765 XXXXX</span>
+      </div>
+      <button class="complete-btn" onclick="completeJob()">✓ Mark Help as Delivered</button>
+    </div>
+
+    <!-- Requests list -->
+    <div id="v-requests-wrap">
+      <div class="section-hdr" id="v-req-hdr">Incoming Requests</div>
+      <div id="v-requests"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ FAMILY SCREEN ══════════════════════════════ -->
+<div id="family-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" onclick="goBack()">←</div>
+      <div>
+        <div class="topbar-title">Family Monitor</div>
+        <div class="topbar-sub">Watching over Ramesh Ji</div>
+      </div>
+    </div>
+    <div class="status-dot online">Live</div>
+  </div>
+
+  <div class="content">
+    <!-- Elder card -->
+    <div class="elder-profile">
+      <div class="elder-avatar">👴</div>
+      <div>
+        <div class="elder-name">Ramesh Ji</div>
+        <div class="elder-loc">📍 Sector 14, Ghaziabad</div>
+      </div>
+      <span class="elder-status-tag safe" id="family-status-tag">● Safe</span>
+    </div>
+
+    <!-- Alert bar (shown when request is active) -->
+    <div class="notify-bar" id="family-alert">
+      <div class="nb-icon">🔔</div>
+      <div class="nb-text" id="family-alert-text">Ramesh Ji sent a help request. A volunteer has been notified.</div>
+      <button class="nb-call" onclick="toast('📞 Calling Ramesh Ji…')">Call Now</button>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="section-hdr">Activity Feed</div>
+    <div id="family-feed"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const state = {
+  role: null,
+  selectedHelp: null,
+  selectedEmoji: null,
+  requestActive: false,
+  requestStep: 0,   // 0=none 1=sent 2=accepted 3=otw 4=done
+  volunteerHelps: 12,
+  pendingRequests: [],
+  activeJob: null,
+  familyFeed: [
+    { icon:'✅', cls:'fi-teal', title:'Help Delivered', desc:'Aisha K. delivered groceries for Ramesh Ji', time:'Yesterday 4:12 PM' },
+    { icon:'🔔', cls:'fi-amber', title:'Request Sent', desc:'Ramesh Ji requested mobility help', time:'Yesterday 11:30 AM' },
+    { icon:'👤', cls:'fi-purple', title:'New Volunteer Nearby', desc:'3 verified volunteers within 0.5 km', time:'2 days ago' },
+  ]
+};
+
+const volunteers = [
+  { name:'Aisha K.', dist:'0.2 km', status:'online', emoji:'😊', color:'rgba(46,211,183,0.15)' },
+  { name:'Rahul M.', dist:'0.5 km', status:'online', emoji:'👦', color:'rgba(74,158,255,0.15)' },
+  { name:'Priya S.', dist:'0.8 km', status:'busy',   emoji:'👩', color:'rgba(255,165,2,0.15)' },
+];
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function enterRole(role) {
+  state.role = role;
+  document.getElementById('role-screen').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(role + '-screen').classList.add('active');
+
+  if (role === 'elder') initElder();
+  if (role === 'volunteer') initVolunteer();
+  if (role === 'family') initFamily();
+}
+
+function goBack() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('role-screen').style.display = 'flex';
+  resetElder();
+}
+
+// ══════════════════════════════════════════════
+// ELDER LOGIC
+// ══════════════════════════════════════════════
+function initElder() {
+  renderNearby();
+}
+
+function renderNearby() {
+  const list = document.getElementById('nearby-list');
+  list.innerHTML = volunteers.map(v => `
+    <div style="display:flex;align-items:center;gap:0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0.75rem 1rem;margin-bottom:0.5rem;">
+      <div style="width:34px;height:34px;border-radius:50%;background:${v.color};display:flex;align-items:center;justify-content:center;font-size:1rem;">${v.emoji}</div>
+      <div style="flex:1">
+        <div style="font-size:0.82rem;font-weight:600;">${v.name}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">${v.dist} away</div>
+      </div>
+      <span style="font-size:0.62rem;padding:3px 9px;border-radius:100px;font-weight:600;${v.status==='online'?'background:rgba(46,211,183,0.12);color:var(--teal)':'background:rgba(255,165,2,0.12);color:var(--amber)'}">
+        ${v.status==='online'?'Online':'Busy'}
+      </span>
+    </div>
+  `).join('');
+}
+
+function showHelpCategories() {
+  document.getElementById('sos-btn').style.display = 'none';
+  document.getElementById('help-categories').style.display = 'block';
+  document.getElementById('nearby-section').style.display = 'none';
+}
+
+function selectHelp(el, emoji, label) {
+  document.querySelectorAll('.help-tile').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  state.selectedHelp = label;
+  state.selectedEmoji = emoji;
+  const btn = document.getElementById('send-btn');
+  btn.classList.add('ready');
+  btn.textContent = `Send "${label}" Request →`;
+}
+
+function sendRequest() {
+  if (!state.selectedHelp) return;
+  state.requestActive = true;
+  state.requestStep = 1;
+
+  document.getElementById('help-categories').style.display = 'none';
+  document.getElementById('nearby-section').style.display = 'none';
+
+  const card = document.getElementById('req-card');
+  card.classList.add('show');
+  document.getElementById('req-icon').textContent = state.selectedEmoji;
+  document.getElementById('req-title').textContent = state.selectedEmoji + ' ' + state.selectedHelp + ' Request Sent';
+  document.getElementById('req-sub').textContent = 'Broadcasting to 3 nearby volunteers…';
+
+  now('t1');
+  toast('📡 Request sent to 3 nearby volunteers!');
+
+  // Simulate volunteer accepting after 3s
+  setTimeout(() => {
+    if (!state.requestActive) return;
+    state.requestStep = 2;
+    document.getElementById('dot2').className = 's-dot s-done';
+    document.getElementById('dot2').textContent = '✓';
+    document.getElementById('step2-text').textContent = 'Aisha K. accepted your request ✓';
+    document.getElementById('dot3').className = 's-dot s-active';
+    document.getElementById('req-sub').textContent = 'Aisha K. is on the way · 0.2 km';
+    now('t2');
+    toast('✅ Aisha K. accepted! She\'s on her way.');
+    // Notify family
+    triggerFamilyAlert('Ramesh Ji\'s ' + state.selectedHelp + ' request was accepted by Aisha K.');
+    // Volunteer gets assignment
+    triggerVolunteerJob();
+  }, 3000);
+
+  // Simulate arrival after 8s
+  setTimeout(() => {
+    if (!state.requestActive) return;
+    state.requestStep = 3;
+    document.getElementById('dot3').className = 's-dot s-done';
+    document.getElementById('dot3').textContent = '✓';
+    document.getElementById('dot4').className = 's-dot s-active';
+    document.getElementById('req-sub').textContent = 'Aisha K. arrived · almost there!';
+    now('t3');
+    toast('📍 Aisha K. has arrived!');
+  }, 8000);
+}
+
+function completeRequestFromVolunteer() {
+  if (!state.requestActive) return;
+  state.requestActive = false;
+  state.requestStep = 4;
+  document.getElementById('dot4').className = 's-dot s-done';
+  document.getElementById('dot4').textContent = '✓';
+  document.getElementById('req-title').textContent = '🎉 Help Delivered!';
+  document.getElementById('req-sub').textContent = 'Thank you, Aisha K.! Great community spirit.';
+  document.getElementById('cancel-btn').style.display = 'none';
+  now('t4');
+  toast('🎉 Help has been delivered!');
+  // Family feed update
+  addFamilyFeed('✅', 'fi-teal', 'Help Delivered', 'Aisha K. delivered ' + state.selectedHelp + ' for Ramesh Ji', 'Just now');
+}
+
+function cancelRequest() {
+  state.requestActive = false;
+  state.requestStep = 0;
+  document.getElementById('req-card').classList.remove('show');
+  document.getElementById('sos-btn').style.display = 'block';
+  document.getElementById('help-categories').style.display = 'none';
+  document.getElementById('nearby-section').style.display = 'block';
+  document.querySelectorAll('.help-tile').forEach(t => t.classList.remove('sel'));
+  state.selectedHelp = null;
+  toast('Request cancelled.');
+}
+
+function resetElder() {
+  state.requestActive = false;
+  state.requestStep = 0;
+  state.selectedHelp = null;
+  document.getElementById('req-card').classList.remove('show');
+  document.getElementById('sos-btn').style.display = 'block';
+  document.getElementById('help-categories').style.display = 'none';
+  document.getElementById('nearby-section').style.display = 'block';
+  document.getElementById('cancel-btn').style.display = 'block';
+  document.querySelectorAll('.help-tile').forEach(t => t.classList.remove('sel'));
+  ['dot2','dot3','dot4'].forEach((id,i)=>{ const d=document.getElementById(id); d.className='s-dot s-pending'; d.textContent=i+2; });
+  document.getElementById('dot2').className = 's-dot s-active';
+  ['t2','t3','t4'].forEach(id=>document.getElementById(id).textContent='—');
+}
+
+// ══════════════════════════════════════════════
+// VOLUNTEER LOGIC
+// ══════════════════════════════════════════════
+function initVolunteer() {
+  state.pendingRequests = [
+    { id:1, name:'Ramesh Ji', emoji:'💊', label:'Medicine', urgency:'normal', dist:'0.3 km', time:'2 min ago' },
+    { id:2, name:'Sunita Devi', emoji:'🛒', label:'Grocery', urgency:'urgent', dist:'0.6 km', time:'5 min ago' },
+  ];
+  renderVolunteerRequests();
+}
+
+function renderVolunteerRequests() {
+  const wrap = document.getElementById('v-requests');
+  if (state.pendingRequests.length === 0) {
+    wrap.innerHTML = `<div class="requests-empty"><div class="big">🌟</div>No requests right now.<br>You're all caught up! Check back soon.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.pendingRequests.map(r => `
+    <div class="req-alert ${r.urgency}" id="ralert-${r.id}">
+      <div class="alert-top">
+        <div class="alert-emoji">${r.emoji}</div>
+        <div class="alert-info">
+          <div class="alert-name">${r.name} needs ${r.label}</div>
+          <div class="alert-detail">Nearby elder · Verified profile</div>
+        </div>
+        <span class="urgency-tag ${r.urgency}">${r.urgency}</span>
+      </div>
+      <div class="alert-meta">
+        <span class="meta-chip">📍 ${r.dist} away</span>
+        <span class="meta-chip">🕐 ${r.time}</span>
+        <span class="meta-chip">${r.emoji} ${r.label}</span>
+      </div>
+      <div class="alert-actions">
+        <button class="accept-btn" onclick="acceptRequest(${r.id})">Accept Request</button>
+        <button class="decline-btn" onclick="declineRequest(${r.id})">Skip</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function triggerVolunteerJob() {
+  if (!state.selectedHelp) return;
+  state.pendingRequests = state.pendingRequests.filter(r => r.id !== 1);
+  document.getElementById('job-emoji').textContent = state.selectedEmoji;
+  document.getElementById('job-title').textContent = state.selectedHelp + ' for Ramesh Ji';
+  document.getElementById('active-job').classList.add('show');
+  renderVolunteerRequests();
+}
+
+function acceptRequest(id) {
+  const r = state.pendingRequests.find(x => x.id === id);
+  if (!r) return;
+  state.pendingRequests = state.pendingRequests.filter(x => x.id !== id);
+  state.activeJob = r;
+  document.getElementById('job-emoji').textContent = r.emoji;
+  document.getElementById('job-title').textContent = r.label + ' for ' + r.name;
+  document.getElementById('active-job').classList.add('show');
+  renderVolunteerRequests();
+  toast('✅ Request accepted! Head to ' + r.name);
+  if (r.name === 'Ramesh Ji') {
+    // Sync with elder
+    setTimeout(() => {
+      if (!state.requestActive) return;
+      state.requestStep = 2;
+      document.getElementById('dot2').className = 's-dot s-done';
+      document.getElementById('dot2').textContent = '✓';
+      document.getElementById('step2-text').textContent = 'You accepted Ramesh Ji\'s request ✓';
+      document.getElementById('dot3').className = 's-dot s-active';
+      document.getElementById('req-sub').textContent = 'You are on the way · 0.2 km';
+      now('t2');
+    }, 500);
+  }
+}
+
+function declineRequest(id) {
+  state.pendingRequests = state.pendingRequests.filter(x => x.id !== id);
+  renderVolunteerRequests();
+  toast('Skipped. Request reassigned to next volunteer.');
+}
+
+function completeJob() {
+  state.volunteerHelps++;
+  document.getElementById('v-helps').textContent = state.volunteerHelps;
+  document.getElementById('active-job').classList.remove('show');
+  state.activeJob = null;
+  toast('🏆 Great work! +1 help delivered. Community thanks you!');
+  completeRequestFromVolunteer();
+  addFamilyFeed('✅','fi-teal','Help Delivered','Volunteer completed the ' + (state.selectedHelp || 'help') + ' request','Just now');
+}
+
+// ══════════════════════════════════════════════
+// FAMILY LOGIC
+// ══════════════════════════════════════════════
+function initFamily() {
+  renderFamilyFeed();
+}
+
+function renderFamilyFeed() {
+  const feed = document.getElementById('family-feed');
+  feed.innerHTML = state.familyFeed.map(f => `
+    <div class="feed-item">
+      <div class="feed-icon ${f.cls}">${f.icon}</div>
+      <div class="feed-body">
+        <div class="feed-title">${f.title}</div>
+        <div class="feed-desc">${f.desc}</div>
+        <div class="feed-time">${f.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function triggerFamilyAlert(msg) {
+  const bar = document.getElementById('family-alert');
+  document.getElementById('family-alert-text').textContent = msg;
+  bar.classList.add('show');
+  document.getElementById('family-status-tag').className = 'elder-status-tag alert-st';
+  document.getElementById('family-status-tag').textContent = '● Request Active';
+  addFamilyFeed('🔔', 'fi-red', 'Help Request Active', msg, 'Just now');
+}
+
+function addFamilyFeed(icon, cls, title, desc, time) {
+  state.familyFeed.unshift({ icon, cls, title, desc, time });
+  if (state.role === 'family') renderFamilyFeed();
+  if (title.includes('Delivered')) {
+    document.getElementById('family-status-tag').className = 'elder-status-tag safe';
+    document.getElementById('family-status-tag').textContent = '● Safe';
+  }
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function now(id) {
+  const d = new Date();
+  document.getElementById(id).textContent =
+    d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
