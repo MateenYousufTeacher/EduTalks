@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fall Detection — CARE CONNECT</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:     #0E1117;
+  --bg2:    #161B26;
+  --bg3:    #1E2535;
+  --orange: #FF6B2B;
+  --ora-dk: #C94D10;
+  --ora-lt: #FF9A6B;
+  --yellow: #F5C518;
+  --green:  #22C55E;
+  --red:    #EF4444;
+  --blue:   #3B82F6;
+  --white:  #F0F2F8;
+  --grey:   #8892A4;
+  --border: #2A3348;
+  --r: 14px;
+  --sh: 0 4px 24px rgba(0,0,0,0.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Barlow',sans-serif;
+  background:var(--bg);
+  color:var(--white);
+  min-height:100vh;
+  font-size:16px;
+}
+
+/* ─── HEADER ─── */
+header{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 20px rgba(0,0,0,0.5);
+}
+.hd-left{display:flex;align-items:center;gap:12px;}
+.back-btn{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--white);width:40px;height:40px;border-radius:10px;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;
+}
+.back-btn:hover{border-color:var(--orange);background:rgba(255,107,43,0.1);}
+.hd-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px;font-weight:900;
+  letter-spacing:.5px;color:var(--white);
+}
+.hd-sub{font-size:11px;color:var(--grey);font-weight:600;letter-spacing:.3px;}
+.status-pill{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);
+  border-radius:20px;padding:6px 14px;
+  font-size:12px;font-weight:700;color:var(--green);
+}
+.status-pill .dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  animation:pulse-g 2s infinite;
+}
+@keyframes pulse-g{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.status-pill.alert-mode{
+  background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:var(--red);
+}
+.status-pill.alert-mode .dot{background:var(--red);animation:pulse-r 0.6s infinite;}
+@keyframes pulse-r{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ─── HERO ─── */
+.hero{
+  background:linear-gradient(160deg,#0A0D14 0%,var(--bg2) 60%,#1A1025 100%);
+  padding:36px 24px 40px;text-align:center;
+  position:relative;overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 80%, rgba(255,107,43,0.08) 0%, transparent 70%);
+}
+.hero-icon-wrap{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,var(--ora-dk),var(--orange));
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;margin:0 auto 18px;
+  box-shadow:0 0 40px rgba(255,107,43,0.35);
+  position:relative;
+}
+.hero-icon-wrap::after{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid rgba(255,107,43,0.25);
+  animation:ring-pulse 2s infinite;
+}
+@keyframes ring-pulse{
+  0%{transform:scale(1);opacity:.6;}
+  100%{transform:scale(1.3);opacity:0;}
+}
+.hero h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:30px;font-weight:900;
+  letter-spacing:.5px;margin-bottom:8px;line-height:1.1;
+  text-transform:uppercase;
+}
+.hero h1 span{color:var(--orange);}
+.hero p{font-size:14px;color:var(--grey);max-width:320px;margin:0 auto;line-height:1.6;}
+
+/* ─── MAIN ─── */
+main{max-width:600px;margin:0 auto;padding:24px 16px 56px;display:flex;flex-direction:column;gap:20px;}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  animation:up .4s ease both;
+}
+@keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.card:nth-child(2){animation-delay:.06s;}
+.card:nth-child(3){animation-delay:.12s;}
+.card:nth-child(4){animation-delay:.18s;}
+.card:nth-child(5){animation-delay:.24s;}
+
+.card-head{
+  padding:18px 20px 0;display:flex;align-items:center;gap:12px;
+}
+.ch-icon{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.ch-icon.ora {background:rgba(255,107,43,0.15);border:1px solid rgba(255,107,43,0.25);}
+.ch-icon.grn {background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.2);}
+.ch-icon.yel {background:rgba(245,197,24,0.12);border:1px solid rgba(245,197,24,0.2);}
+.ch-icon.blu {background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2);}
+.ch-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:.3px;color:var(--white);}
+.ch-sub{font-size:12px;color:var(--grey);font-weight:600;}
+.card-body{padding:16px 20px 22px;}
+
+/* ─── MONITORING STATUS ─── */
+.monitor-bar{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:16px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.monitor-icon{font-size:32px;flex-shrink:0;}
+.monitor-info{flex:1;}
+.monitor-label{font-size:12px;color:var(--grey);font-weight:600;margin-bottom:2px;}
+.monitor-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--green);}
+.monitor-val.alert{color:var(--red);}
+.monitor-val.warn{color:var(--yellow);}
+
+.vitals-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.vital-box{
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:14px 10px;text-align:center;
+}
+.vital-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:24px;font-weight:900;color:var(--orange);line-height:1;
+}
+.vital-label{font-size:11px;color:var(--grey);font-weight:600;margin-top:4px;}
+
+/* ─── SIMULATE BUTTON ─── */
+.btn-simulate{
+  width:100%;padding:20px;
+  background:linear-gradient(135deg,var(--ora-dk),var(--orange));
+  color:#fff;border:none;border-radius:13px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:22px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 28px rgba(255,107,43,0.40);
+  transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden;
+}
+.btn-simulate::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+  transform:translateX(-100%);
+  transition:transform .5s;
+}
+.btn-simulate:hover::before{transform:translateX(100%);}
+.btn-simulate:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(255,107,43,0.55);}
+.btn-simulate:active{transform:scale(.98);}
+.btn-simulate:disabled{background:rgba(255,255,255,0.08);color:var(--grey);box-shadow:none;transform:none;cursor:not-allowed;}
+
+.btn-reset{
+  width:100%;padding:13px;margin-top:10px;
+  background:transparent;border:1.5px solid var(--border);
+  color:var(--grey);border-radius:11px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:'Barlow',sans-serif;
+  transition:border-color .2s,color .2s;
+}
+.btn-reset:hover{border-color:var(--green);color:var(--green);}
+
+/* ─── ALERT PANEL ─── */
+#alert-panel{display:none;}
+.alert-panel-inner{
+  background:linear-gradient(135deg,#1A0808,#2D0F0F);
+  border:2px solid var(--red);border-radius:12px;
+  padding:20px;margin-bottom:14px;
+  animation:flash-border 1s ease infinite;
+}
+@keyframes flash-border{
+  0%,100%{border-color:var(--red);box-shadow:0 0 0 0 rgba(239,68,68,0);}
+  50%{border-color:#FF8888;box-shadow:0 0 20px 4px rgba(239,68,68,0.3);}
+}
+.alert-big-icon{font-size:52px;text-align:center;margin-bottom:12px;animation:shake .4s ease infinite;}
+@keyframes shake{
+  0%,100%{transform:rotate(0deg);}
+  25%{transform:rotate(-8deg);}
+  75%{transform:rotate(8deg);}
+}
+.alert-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px;font-weight:900;color:var(--red);
+  text-align:center;letter-spacing:.5px;margin-bottom:6px;
+}
+.alert-sub{font-size:13px;color:#FF8888;text-align:center;margin-bottom:16px;line-height:1.5;}
+.alert-detail-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(239,68,68,0.1);border-radius:9px;
+  padding:10px 14px;margin-bottom:8px;
+  font-size:13px;font-weight:600;color:var(--white);
+}
+.alert-detail-row .icon{font-size:18px;flex-shrink:0;}
+
+/* ─── COUNTDOWN ─── */
+.countdown-wrap{
+  text-align:center;margin:14px 0 16px;
+}
+.countdown-label{font-size:12px;color:var(--grey);font-weight:600;margin-bottom:6px;}
+.countdown-ring{
+  width:80px;height:80px;margin:0 auto;position:relative;
+}
+.countdown-ring svg{transform:rotate(-90deg);}
+.countdown-ring circle{fill:none;stroke-width:6;}
+.ring-bg{stroke:var(--border);}
+.ring-fill{stroke:var(--orange);stroke-linecap:round;transition:stroke-dashoffset .9s linear;}
+.countdown-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--orange);
+}
+
+/* ─── RESPONSE BUTTONS ─── */
+.response-btns{display:flex;gap:10px;margin-top:4px;}
+.btn-safe{
+  flex:1;padding:15px;background:rgba(34,197,94,0.15);
+  border:1.5px solid var(--green);color:var(--green);
+  border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'Barlow',sans-serif;transition:background .2s;
+}
+.btn-safe:hover{background:var(--green);color:#fff;}
+.btn-sos{
+  flex:1;padding:15px;background:var(--red);
+  border:none;color:#fff;
+  border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'Barlow',sans-serif;
+  box-shadow:0 4px 16px rgba(239,68,68,0.4);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-sos:hover{transform:scale(1.03);box-shadow:0 6px 22px rgba(239,68,68,0.6);}
+
+/* ─── LOG ─── */
+.log-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.log-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--bg3);border-radius:10px;padding:11px 14px;
+  border-left:3px solid var(--border);font-size:13px;
+  animation:up .3s ease both;
+}
+.log-item.event-fall{border-left-color:var(--red);}
+.log-item.event-alert{border-left-color:var(--orange);}
+.log-item.event-safe{border-left-color:var(--green);}
+.log-item.event-sos {border-left-color:var(--red);}
+.log-item.event-info{border-left-color:var(--blue);}
+.log-time{font-size:11px;color:var(--grey);font-weight:600;white-space:nowrap;margin-top:1px;flex-shrink:0;}
+.log-text{color:var(--white);font-weight:500;line-height:1.4;}
+
+.log-empty{
+  text-align:center;padding:28px;color:var(--grey);
+  font-size:14px;border:1px dashed var(--border);border-radius:10px;
+}
+
+/* ─── STEP FLOW ─── */
+.flow-steps{display:flex;flex-direction:column;gap:0;}
+.step{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.step:last-child{border-bottom:none;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:900;
+  background:rgba(255,107,43,0.15);border:1.5px solid rgba(255,107,43,0.3);
+  color:var(--orange);
+}
+.step-content{}
+.step-title{font-weight:700;font-size:14px;color:var(--white);margin-bottom:3px;}
+.step-desc{font-size:12px;color:var(--grey);line-height:1.5;}
+
+/* ─── INTEGRATION CHIPS ─── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;padding:7px 13px;
+  font-size:12px;font-weight:700;color:var(--grey);
+  transition:border-color .2s,color .2s;
+}
+.chip:hover{border-color:var(--orange);color:var(--orange);}
+
+/* ─── EMERGENCY ─── */
+.emerg-grid{display:flex;flex-direction:column;gap:10px;}
+.emerg-link{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:14px 18px;text-decoration:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.emerg-link:hover{border-color:var(--orange);box-shadow:0 0 0 1px rgba(255,107,43,0.2);}
+.emerg-name{font-weight:700;color:var(--white);font-size:14px;}
+.emerg-num{
+  font-family:'Barlow Condensed',sans-serif;font-size:22px;
+  font-weight:900;color:var(--orange);
+}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  color:#fff;padding:13px 24px;border-radius:50px;
+  font-size:14px;font-weight:700;
+  box-shadow:var(--sh);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.success{background:#15803D;border-color:#22C55E;}
+#toast.error  {background:#B91C1C;border-color:var(--red);}
+#toast.warn   {background:#92400E;border-color:var(--yellow);}
+
+/* ─── FOOTER ─── */
+footer{
+  text-align:center;padding:20px 16px;
+  color:var(--grey);font-size:12px;line-height:1.8;
+  border-top:1px solid var(--border);
+}
+footer strong{color:var(--white);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hd-left">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div>
+      <div class="hd-title">⚡ Fall Detection</div>
+      <div class="hd-sub">CARE CONNECT · Safety Module</div>
+    </div>
+  </div>
+  <div class="status-pill" id="status-pill">
+    <span class="dot"></span>
+    <span id="status-text">MONITORING</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-icon-wrap">🚶</div>
+  <h1>Fall <span>Detection</span><br>&amp; SOS Alert</h1>
+  <p>Automatically detects falls and triggers emergency alerts — even when the elder cannot call for help.</p>
+</div>
+
+<main>
+
+  <!-- MONITORING STATUS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon grn">📡</div>
+      <div>
+        <div class="ch-title">Live Monitoring Status</div>
+        <div class="ch-sub">System is active and watching</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="monitor-bar">
+        <div class="monitor-icon">🧓</div>
+        <div class="monitor-info">
+          <div class="monitor-label">Elder Status</div>
+          <div class="monitor-val" id="elder-status">SAFE &amp; ACTIVE</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--grey);font-weight:600;">Last update</div>
+          <div style="font-size:13px;color:var(--green);font-weight:700;" id="last-update">Just now</div>
+        </div>
+      </div>
+      <div class="vitals-row">
+        <div class="vital-box">
+          <div class="vital-num" id="v-motion">NORMAL</div>
+          <div class="vital-label">Motion</div>
+        </div>
+        <div class="vital-box">
+          <div class="vital-num" id="v-posture">↑ UP</div>
+          <div class="vital-label">Posture</div>
+        </div>
+        <div class="vital-box">
+          <div class="vital-num" id="v-response">✓ OK</div>
+          <div class="vital-label">Response</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULATE FALL -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon ora">⚡</div>
+      <div>
+        <div class="ch-title">Fall Simulation Demo</div>
+        <div class="ch-sub">Press to trigger a simulated fall event</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <button class="btn-simulate" id="sim-btn" onclick="simulateFall()">
+        🚨 SIMULATE FALL
+      </button>
+      <button class="btn-reset" id="reset-btn" onclick="resetSystem()" style="display:none;">
+        ✅ Reset — Back to Normal Monitoring
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERT PANEL (hidden until fall) -->
+  <div id="alert-panel">
+    <div class="alert-panel-inner">
+      <div class="alert-big-icon">🆘</div>
+      <div class="alert-title">⚠️ FALL DETECTED!</div>
+      <div class="alert-sub">A fall event has been detected. Checking for response…<br>Help will be dispatched automatically if no response.</div>
+
+      <div class="alert-detail-row">
+        <span class="icon">📍</span>
+        <span id="alert-location">Detecting location…</span>
+      </div>
+      <div class="alert-detail-row">
+        <span class="icon">🕐</span>
+        <span id="alert-time">—</span>
+      </div>
+      <div class="alert-detail-row">
+        <span class="icon">⚡</span>
+        <span>Sudden impact detected — possible ground fall</span>
+      </div>
+
+      <!-- COUNTDOWN -->
+      <div class="countdown-wrap">
+        <div class="countdown-label">Auto-SOS in <span id="cd-num">10</span> seconds if no response</div>
+        <div class="countdown-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="34" />
+            <circle class="ring-fill" id="ring-fill" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6" stroke-dashoffset="0"/>
+          </svg>
+          <div class="countdown-num" id="cd-display">10</div>
+        </div>
+      </div>
+
+      <div class="response-btns">
+        <button class="btn-safe" onclick="markSafe()">✋ I Am Safe</button>
+        <button class="btn-sos"  onclick="sendSOS()">🆘 Send Help NOW</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT LOG -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon blu">📋</div>
+      <div>
+        <div class="ch-title">Event Log</div>
+        <div class="ch-sub">Real-time system activity</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ul class="log-list" id="event-log">
+        <li class="log-empty">No events yet. Run the simulation to see the system in action.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon ora">🧠</div>
+      <div>
+        <div class="ch-title">How the System Works</div>
+        <div class="ch-sub">Automatic 8-step response pipeline</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="flow-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Fall Detected</div>
+            <div class="step-desc">Sensors detect sudden downward acceleration &amp; impact — consistent with a fall event.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Inactivity Check</div>
+            <div class="step-desc">System monitors for continued movement. No movement = possible inability to get up.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">10-Second Warning</div>
+            <div class="step-desc">Elder is given 10 seconds to confirm they are safe. False alarm cancellation available.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Auto SOS Trigger</div>
+            <div class="step-desc">If no response — SOS activates automatically. System acts when the user cannot.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">Location Captured</div>
+            <div class="step-desc">Exact GPS coordinates sent with alert so helpers can navigate directly to the elder.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <div class="step-title">Alert Broadcast</div>
+            <div class="step-desc">Caregiver, family, and nearby volunteers all receive emergency notification instantly.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <div class="step-title">Help Nearby Triggered</div>
+            <div class="step-desc">Help Nearby module activates automatically — nearby community members mobilize.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">8</div>
+          <div class="step-content">
+            <div class="step-title">Elder Assisted</div>
+            <div class="step-desc">First responder arrives. Confirmation sent back. System returns to normal monitoring.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTEGRATION -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon blu">🔗</div>
+      <div>
+        <div class="ch-title">Module Integration</div>
+        <div class="ch-sub">Fall triggers these systems automatically</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chips">
+        <div class="chip">🆘 Help Nearby (auto-trigger)</div>
+        <div class="chip">🚨 Missing Person Alert</div>
+        <div class="chip">💊 Medicine Reminder</div>
+        <div class="chip">♿ Accessibility Locator</div>
+        <div class="chip">📞 Emergency Call</div>
+        <div class="chip">📍 GPS Location</div>
+      </div>
+      <div style="margin-top:14px;padding:12px 14px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--grey);line-height:1.7;">
+          <strong style="color:var(--orange);">KEY INNOVATION:</strong> This is the only module that acts <em>without user input</em>. When the elder cannot call for help — the system calls for them.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMERGENCY -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ch-icon yel">📞</div>
+      <div>
+        <div class="ch-title">Emergency Numbers</div>
+        <div class="ch-sub">Tap to call immediately</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="emerg-grid">
+        <a href="tel:108" class="emerg-link">
+          <span class="emerg-name">🚑 Ambulance</span>
+          <span class="emerg-num">108</span>
+        </a>
+        <a href="tel:100" class="emerg-link">
+          <span class="emerg-name">🚔 Police</span>
+          <span class="emerg-num">100</span>
+        </a>
+        <a href="tel:104" class="emerg-link">
+          <span class="emerg-name">🏥 Health Helpline</span>
+          <span class="emerg-num">104</span>
+        </a>
+        <a href="tel:1800180192" class="emerg-link">
+          <span class="emerg-name">👴 Senior Citizen Helpline</span>
+          <span class="emerg-num" style="font-size:16px;">14567</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>CARE CONNECT</strong> — Elderly Support Digital Ecosystem<br>
+  Developed by Hani Burhan &amp; Maham Mushtaq · GGHSS Khanyar, Srinagar<br>
+  <span style="color:var(--orange)">⚡</span> When the user cannot act — the system acts
+</footer>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+let fallActive = false;
+let countdownTimer = null;
+let logEntries = [];
+
+// ── LOG ──
+function addLog(text, type='info') {
+  const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  logEntries.unshift({ text, type, time: now });
+  renderLog();
+}
+function renderLog() {
+  const ul = document.getElementById('event-log');
+  if (logEntries.length === 0) {
+    ul.innerHTML = '<li class="log-empty">No events yet. Run the simulation to see the system in action.</li>';
+    return;
+  }
+  ul.innerHTML = logEntries.slice(0, 12).map((e,i) => `
+    <li class="log-item event-${e.type}" style="animation-delay:${i*0.04}s">
+      <span class="log-time">${e.time}</span>
+      <span class="log-text">${e.text}</span>
+    </li>
+  `).join('');
+}
+
+// ── UPDATE VITALS ──
+function setVitals(motion, posture, response, statusText, statusClass) {
+  document.getElementById('v-motion').textContent   = motion;
+  document.getElementById('v-posture').textContent  = posture;
+  document.getElementById('v-response').textContent = response;
+  document.getElementById('elder-status').textContent     = statusText;
+  document.getElementById('elder-status').className       = 'monitor-val ' + statusClass;
+  document.getElementById('last-update').textContent      = 'Just now';
+}
+
+// ── SIMULATE FALL ──
+function simulateFall() {
+  if (fallActive) return;
+  fallActive = true;
+
+  const simBtn   = document.getElementById('sim-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const panel    = document.getElementById('alert-panel');
+  const pill     = document.getElementById('status-pill');
+
+  // disable button
+  simBtn.disabled = true;
+  simBtn.innerHTML = '⏳ Detecting fall…';
+
+  // --- Phase 1: detect ---
+  addLog('📡 Motion sensors active — normal activity detected', 'info');
+
+  setTimeout(() => {
+    // FALL EVENT
+    addLog('💥 SUDDEN IMPACT DETECTED — Possible fall event!', 'fall');
+    addLog('📊 Analyzing: downward acceleration + no recovery movement', 'alert');
+
+    // update vitals
+    setVitals('⚠️ IMPACT', '↓ FALLEN', '⏳ WAIT', 'FALL DETECTED', 'alert');
+
+    // update header pill
+    pill.className = 'status-pill alert-mode';
+    document.getElementById('status-text').textContent = 'ALERT';
+
+    // set alert details
+    document.getElementById('alert-time').textContent = 'Fall detected at ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+    // get location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        p => document.getElementById('alert-location').textContent = `${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)} — GPS active`,
+        () => document.getElementById('alert-location').textContent = 'Srinagar, J&K — approximate'
+      );
+    } else {
+      document.getElementById('alert-location').textContent = 'Srinagar, J&K — approximate';
+    }
+
+    // show alert panel
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    // start countdown
+    startCountdown();
+
+    // show reset
+    simBtn.innerHTML = '🚨 FALL SIMULATED';
+    resetBtn.style.display = 'block';
+
+    showToast('⚠️ Fall detected! Countdown started.', 'warn');
+    addLog('⏱️ 10-second response window started — waiting for elder reply', 'alert');
+
+  }, 1200);
+}
+
+// ── COUNTDOWN ──
+function startCountdown() {
+  let count = 10;
+  const circumference = 213.6;
+  updateCountdown(count, circumference);
+
+  countdownTimer = setInterval(() => {
+    count--;
+    updateCountdown(count, circumference);
+
+    if (count <= 0) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      autoSOS();
+    }
+  }, 1000);
+}
+
+function updateCountdown(count, circ) {
+  document.getElementById('cd-num').textContent     = count;
+  document.getElementById('cd-display').textContent = count;
+  const offset = circ * (1 - count / 10);
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+}
+
+// ── AUTO SOS ──
+function autoSOS() {
+  addLog('🆘 NO RESPONSE — Auto-SOS triggered automatically!', 'sos');
+  addLog('📲 Alerting caregiver: +91 94010 00001', 'sos');
+  addLog('👥 Notifying nearby volunteers within 1 km radius', 'alert');
+  addLog('🔗 Help Nearby module activated automatically', 'alert');
+  addLog('📍 Location shared: Srinagar, J&K', 'sos');
+  setVitals('⚠️ NONE', '↓ DOWN', '✗ SOS', 'SOS SENT', 'alert');
+  showToast('🆘 SOS auto-sent! Help is on the way.', 'error');
+}
+
+// ── MARK SAFE ──
+function markSafe() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  fallActive = false;
+
+  document.getElementById('alert-panel').style.display = 'none';
+  setVitals('NORMAL', '↑ UP', '✓ OK', 'SAFE &amp; ACTIVE', '');
+  document.getElementById('status-pill').className = 'status-pill';
+  document.getElementById('status-text').textContent = 'MONITORING';
+
+  addLog('✅ Elder confirmed SAFE — false alarm cancelled', 'safe');
+  addLog('🔄 System returned to normal monitoring', 'info');
+
+  document.getElementById('sim-btn').disabled = false;
+  document.getElementById('sim-btn').innerHTML = '🚨 SIMULATE FALL';
+  document.getElementById('reset-btn').style.display = 'none';
+
+  showToast('✅ Confirmed safe! System reset.', 'success');
+}
+
+// ── SEND SOS (manual) ──
+function sendSOS() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  addLog('🆘 Manual SOS activated by user!', 'sos');
+  addLog('📲 Emergency alert sent to all contacts', 'sos');
+  addLog('👥 Help Nearby module triggered', 'alert');
+  addLog('📍 GPS location broadcast to helpers', 'alert');
+  setVitals('⚠️ FALL', '↓ DOWN', '✗ SOS', 'SOS SENT', 'alert');
+  showToast('🆘 SOS sent! Help is on the way.', 'error');
+  document.getElementById('cd-display').textContent = '🆘';
+
+  // disable SOS button
+  document.querySelector('.btn-sos').disabled = true;
+  document.querySelector('.btn-sos').textContent = '✓ SOS Sent';
+}
+
+// ── RESET ──
+function resetSystem() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  fallActive = false;
+  logEntries = [];
+
+  document.getElementById('alert-panel').style.display = 'none';
+  renderLog();
+  setVitals('NORMAL', '↑ UP', '✓ OK', 'SAFE &amp; ACTIVE', '');
+  document.getElementById('status-pill').className = 'status-pill';
+  document.getElementById('status-text').textContent = 'MONITORING';
+  document.getElementById('sim-btn').disabled = false;
+  document.getElementById('sim-btn').innerHTML = '🚨 SIMULATE FALL';
+  document.getElementById('reset-btn').style.display = 'none';
+
+  // re-enable SOS btn
+  const sosBtn = document.querySelector('.btn-sos');
+  if (sosBtn) { sosBtn.disabled = false; sosBtn.textContent = '🆘 Send Help NOW'; }
+
+  // reset ring
+  document.getElementById('ring-fill').style.strokeDashoffset = '0';
+  document.getElementById('cd-display').textContent = '10';
+
+  showToast('🔄 System fully reset.', 'success');
+  addLog('🔄 System reset — monitoring resumed', 'info');
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? `show ${type}` : 'show';
+  setTimeout(() => t.className = '', 3500);
+}
+
+// ── INIT ──
+addLog('✅ Fall Detection system initialized — monitoring active', 'info');
+// Simulated ongoing tick
+setInterval(() => {
+  if (!fallActive) {
+    document.getElementById('last-update').textContent = 'Just now';
+  }
+}, 5000);
+</script>
+</body>
+</html>
