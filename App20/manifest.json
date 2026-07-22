@@ -1,0 +1,27 @@
+{
+  "name": "Founder Match: Build the Empire",
+  "short_name": "Founder Match",
+  "description": "Educational business game - Match founders with their companies",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#050510",
+  "theme_color": "#00f5ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%23050510'/><text x='50%' y='55%' font-size='100' text-anchor='middle' dominant-baseline='middle'>🏆</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%23050510'/><text x='50%' y='55%' font-size='280' text-anchor='middle' dominant-baseline='middle'>🏆</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["education", "games"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "screenshots": []
+}

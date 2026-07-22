@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="description" content="Founder Match: Build the Empire - Educational Business Game">
+<link rel="manifest" href="manifest.json">
+<title>Founder Match: Build the Empire</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-gold: #ffd700;
+    --neon-pink: #ff2d78;
+    --neon-green: #39ff14;
+    --dark-bg: #050510;
+    --card-bg: #0d0d2b;
+    --card-border: #1a1a4e;
+    --text-primary: #e8e8ff;
+    --text-muted: #7070aa;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-canvas {
+    position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;
+    background: radial-gradient(ellipse at 20% 20%, #0a0a3a 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, #1a0a2e 0%, transparent 60%),
+                var(--dark-bg);
+  }
+  .bg-canvas::before {
+    content:'';
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,245,255,0.03) 40px, rgba(0,245,255,0.03) 41px),
+                      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,245,255,0.03) 40px, rgba(0,245,255,0.03) 41px);
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove { from{transform:translate(0,0)} to{transform:translate(40px,40px)} }
+
+  /* ===== PARTICLE STARS ===== */
+  .star { position:fixed; border-radius:50%; background:#fff; pointer-events:none; animation:twinkle var(--d,3s) ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:0.1;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.5)} }
+
+  /* ===== SCREENS ===== */
+  .screen { position:relative; z-index:1; min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+  .screen.active { display:flex; }
+
+  /* ===== FRONT PAGE ===== */
+  #screen-front {
+    background: transparent;
+  }
+
+  .author-banner {
+    display:flex; align-items:center; gap:20px;
+    background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(255,215,0,0.05));
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 16px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    width: 100%; max-width: 700px;
+    box-shadow: 0 0 30px rgba(0,245,255,0.15);
+    animation: slideDown 0.8s ease;
+  }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+
+  .author-photo {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 3px solid var(--neon-cyan);
+    object-fit: cover;
+    box-shadow: 0 0 20px rgba(0,245,255,0.5);
+    flex-shrink: 0;
+  }
+  .author-info h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    color: var(--neon-gold);
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+  }
+  .author-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+  .author-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--neon-pink), #ff6b35);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .game-title-wrap { text-align:center; margin-bottom:40px; }
+  .game-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-gold), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    animation: titlePulse 3s ease-in-out infinite;
+    line-height: 1.1;
+  }
+  @keyframes titlePulse { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.3)} }
+  .game-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .front-buttons { display:flex; flex-direction:column; gap:16px; width:100%; max-width:400px; }
+
+  .btn {
+    padding: 16px 32px;
+    border: none; border-radius: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::after {
+    content:''; position:absolute; inset:-2px;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  .btn:hover::after { transform:translateX(100%); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #00c9ff, #92fe9d);
+    color: #050510;
+    box-shadow: 0 0 30px rgba(0,245,255,0.4);
+    font-weight: 700;
+  }
+  .btn-primary:hover { transform:translateY(-3px); box-shadow:0 0 50px rgba(0,245,255,0.7); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--neon-gold);
+    border: 2px solid var(--neon-gold);
+    box-shadow: 0 0 20px rgba(255,215,0,0.2);
+  }
+  .btn-secondary:hover { background: rgba(255,215,0,0.1); transform:translateY(-3px); box-shadow:0 0 40px rgba(255,215,0,0.5); }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ff2d78, #ff6b35);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255,45,120,0.4);
+  }
+  .btn-danger:hover { transform:translateY(-3px); box-shadow:0 0 40px rgba(255,45,120,0.7); }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+  .btn-sm { padding:10px 20px; font-size:0.8rem; }
+
+  /* ===== LOGIN SCREEN ===== */
+  .auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 0 60px rgba(0,245,255,0.1);
+  }
+  .auth-card h2 {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-cyan);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display:block; color:var(--text-muted); font-size:0.85rem; margin-bottom:8px; letter-spacing:1px; }
+  .form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    outline: none;
+  }
+  .form-group input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,245,255,0.2); }
+  .auth-switch { text-align:center; margin-top:20px; color:var(--text-muted); font-size:0.9rem; }
+  .auth-switch a { color:var(--neon-cyan); cursor:pointer; text-decoration:none; }
+  .auth-switch a:hover { text-decoration:underline; }
+
+  /* ===== MENU SCREEN ===== */
+  .menu-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .player-info {
+    display:flex; align-items:center; gap:15px;
+    background: rgba(0,245,255,0.05);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 50px;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+  }
+  .player-avatar { font-size: 2rem; }
+  .player-name { font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--neon-gold); }
+  .player-rank { font-size:0.75rem; color:var(--text-muted); }
+
+  .menu-title { font-family:'Orbitron',sans-serif; font-size:clamp(1.5rem,5vw,3rem); font-weight:900; }
+  .menu-title span { color:var(--neon-cyan); text-shadow:0 0 20px rgba(0,245,255,0.5); }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 30px;
+  }
+  .mode-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .mode-card::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, transparent, rgba(0,245,255,0.05));
+    opacity:0; transition: opacity 0.3s;
+  }
+  .mode-card:hover::before { opacity:1; }
+  .mode-card:hover { transform:translateY(-5px); border-color:var(--neon-cyan); box-shadow:0 0 30px rgba(0,245,255,0.2); }
+
+  .mode-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .mode-title { font-family:'Orbitron',sans-serif; font-size:1rem; color:var(--neon-cyan); margin-bottom:8px; }
+  .mode-desc { color:var(--text-muted); font-size:0.85rem; line-height:1.5; }
+  .mode-badge { position:absolute; top:16px; right:16px; background:var(--neon-pink); color:#fff; font-size:0.65rem; padding:4px 10px; border-radius:20px; font-family:'Orbitron',sans-serif; }
+
+  .stats-row {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    width: 100%; max-width: 900px; margin-bottom: 20px;
+  }
+  .stat-chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50px;
+    padding: 10px 20px;
+    text-align: center;
+    flex: 1; min-width: 120px;
+  }
+  .stat-chip .sv { font-family:'Orbitron',sans-serif; font-size:1.3rem; color:var(--neon-gold); }
+  .stat-chip .sk { font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 900px; margin-bottom: 24px;
+    padding: 16px 24px;
+    background: rgba(0,245,255,0.05);
+    border: 1px solid rgba(0,245,255,0.15);
+    border-radius: 16px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .game-hud-item { text-align:center; }
+  .game-hud-item .hv { font-family:'Orbitron',sans-serif; font-size:1.4rem; color:var(--neon-cyan); }
+  .game-hud-item .hk { font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+
+  .timer-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--neon-green);
+    display: flex; align-items:center; justify-content:center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    color: var(--neon-green);
+    box-shadow: 0 0 15px rgba(57,255,20,0.4);
+    transition: all 0.5s;
+  }
+  .timer-circle.warning { border-color:var(--neon-gold); color:var(--neon-gold); box-shadow:0 0 15px rgba(255,215,0,0.5); }
+  .timer-circle.danger { border-color:var(--neon-pink); color:var(--neon-pink); box-shadow:0 0 15px rgba(255,45,120,0.5); animation:shake 0.5s ease infinite; }
+  @keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+
+  .question-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 20px;
+    padding: 36px;
+    width: 100%; max-width: 900px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 40px rgba(0,245,255,0.08);
+    animation: fadeInUp 0.4s ease;
+  }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .q-label { font-size:0.75rem; color:var(--neon-cyan); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+  .q-text { font-size: clamp(1.1rem,3vw,1.4rem); font-weight:600; color:var(--text-primary); line-height:1.5; margin-bottom:8px; }
+  .q-country { font-size:0.85rem; color:var(--text-muted); }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%; max-width: 900px;
+  }
+  @media(max-width:550px){ .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    padding: 18px 22px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s ease;
+    display: flex; align-items:center; gap:12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: rgba(0,245,255,0.08);
+    border-color: var(--neon-cyan);
+    transform: translateX(4px);
+  }
+  .option-btn.correct { background:rgba(57,255,20,0.15); border-color:var(--neon-green); color:var(--neon-green); }
+  .option-btn.wrong { background:rgba(255,45,120,0.15); border-color:var(--neon-pink); color:var(--neon-pink); }
+  .option-btn:disabled { cursor:not-allowed; }
+  .opt-letter {
+    width:32px; height:32px; border-radius:8px;
+    background: rgba(0,245,255,0.1);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Orbitron',sans-serif; font-size:0.75rem;
+    color:var(--neon-cyan); flex-shrink:0;
+  }
+
+  .feedback-box {
+    width:100%; max-width:900px;
+    padding: 20px 24px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    display: none;
+    animation: fadeInUp 0.3s ease;
+  }
+  .feedback-box.show { display:block; }
+  .feedback-box.correct { background:rgba(57,255,20,0.1); border:1px solid rgba(57,255,20,0.4); }
+  .feedback-box.wrong { background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.4); }
+  .feedback-title { font-family:'Orbitron',sans-serif; font-size:0.9rem; margin-bottom:8px; }
+  .feedback-box.correct .feedback-title { color:var(--neon-green); }
+  .feedback-box.wrong .feedback-title { color:var(--neon-pink); }
+  .feedback-explain { color:var(--text-muted); font-size:0.9rem; line-height:1.6; }
+
+  .hint-box {
+    width:100%; max-width:900px;
+    padding: 16px 20px;
+    background: rgba(255,215,0,0.05);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .hint-box.show { display:block; animation:fadeInUp 0.3s ease; }
+  .hint-label { font-size:0.75rem; color:var(--neon-gold); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+  .hint-text { color:var(--text-primary); font-size:0.9rem; }
+
+  .game-actions {
+    display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+    width:100%; max-width:900px; margin-top:8px;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar-wrap {
+    width:100%; max-width:900px; margin-bottom:20px;
+  }
+  .progress-label {
+    display:flex; justify-content:space-between;
+    font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;
+  }
+  .progress-track {
+    height:6px; background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden;
+  }
+  .progress-fill {
+    height:100%;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-gold));
+    border-radius:6px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px rgba(0,245,255,0.5);
+  }
+
+  /* ===== RESULTS SCREEN ===== */
+  .results-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width:100%; max-width:600px;
+    text-align:center;
+    box-shadow:0 0 60px rgba(0,245,255,0.1);
+    animation: fadeInUp 0.6s ease;
+  }
+  .results-emoji { font-size:4rem; margin-bottom:16px; display:block; }
+  .results-title { font-family:'Orbitron',sans-serif; font-size:1.8rem; color:var(--neon-gold); margin-bottom:8px; }
+  .results-subtitle { color:var(--text-muted); margin-bottom:32px; }
+
+  .results-stats {
+    display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;
+  }
+  .res-stat {
+    background: rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:16px;
+  }
+  .res-stat .rv { font-family:'Orbitron',sans-serif; font-size:1.8rem; color:var(--neon-cyan); }
+  .res-stat .rk { font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+
+  .badges-earned { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:24px; }
+  .badge-chip {
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,45,120,0.15));
+    border:1px solid rgba(255,215,0,0.3);
+    border-radius:50px;
+    padding:8px 16px;
+    font-size:0.85rem;
+    color:var(--neon-gold);
+    animation:popIn 0.5s ease;
+  }
+  @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+
+  /* ===== DASHBOARD ===== */
+  .dashboard-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px; width:100%; max-width:900px; margin-bottom:24px;
+  }
+  .dash-card {
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:24px;
+    text-align:center;
+    transition:all 0.3s;
+  }
+  .dash-card:hover { border-color:var(--neon-cyan); transform:translateY(-3px); }
+  .dash-icon { font-size:2rem; margin-bottom:10px; }
+  .dash-value { font-family:'Orbitron',sans-serif; font-size:1.6rem; color:var(--neon-gold); }
+  .dash-label { font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+
+  .badges-grid {
+    display:flex; flex-wrap:wrap; gap:12px; justify-content:center;
+    width:100%; max-width:900px;
+  }
+  .badge-item {
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:14px;
+    padding:16px 20px;
+    text-align:center;
+    min-width:130px;
+    transition:all 0.3s;
+  }
+  .badge-item.earned { border-color:var(--neon-gold); box-shadow:0 0 15px rgba(255,215,0,0.2); }
+  .badge-item.locked { opacity:0.4; filter:grayscale(0.8); }
+  .badge-item .bi { font-size:1.8rem; margin-bottom:6px; }
+  .badge-item .bn { font-size:0.8rem; color:var(--text-muted); }
+
+  /* ===== LEVEL SELECT ===== */
+  .level-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px; width:100%; max-width:900px; margin-bottom:24px;
+  }
+  .level-card {
+    background:var(--card-bg);
+    border:2px solid var(--card-border);
+    border-radius:16px;
+    padding:24px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.3s;
+    position:relative;
+  }
+  .level-card.available:hover { border-color:var(--neon-cyan); transform:translateY(-5px); box-shadow:0 0 25px rgba(0,245,255,0.2); }
+  .level-card.locked { opacity:0.5; cursor:not-allowed; }
+  .level-card.completed { border-color:var(--neon-green); }
+  .level-num { font-family:'Orbitron',sans-serif; font-size:2rem; color:var(--neon-cyan); }
+  .level-name { font-size:0.85rem; color:var(--text-muted); margin-top:4px; }
+  .level-lock { position:absolute; top:10px; right:10px; font-size:1rem; }
+
+  /* ===== STREAK DISPLAY ===== */
+  .streak-display {
+    position:fixed; top:20px; right:20px; z-index:100;
+    background:rgba(255,45,120,0.9);
+    border-radius:50px;
+    padding:8px 16px;
+    font-family:'Orbitron',sans-serif;
+    font-size:0.85rem;
+    display:none;
+    animation:bounceIn 0.5s ease;
+    box-shadow:0 0 20px rgba(255,45,120,0.5);
+  }
+  .streak-display.show { display:block; }
+  @keyframes bounceIn { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+  /* ===== SCORE POP ===== */
+  .score-pop {
+    position:fixed; pointer-events:none; z-index:200;
+    font-family:'Orbitron',sans-serif; font-size:1.4rem; font-weight:700;
+    animation:scoreFly 1.2s ease forwards;
+  }
+  @keyframes scoreFly { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-80px)} }
+
+  /* ===== SCREEN HEADER ===== */
+  .screen-header {
+    display:flex; align-items:center; justify-content:space-between;
+    width:100%; max-width:900px; margin-bottom:30px;
+  }
+  .screen-title { font-family:'Orbitron',sans-serif; font-size:1.5rem; color:var(--neon-cyan); }
+  .back-btn {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:10px 18px;
+    color:var(--text-muted); font-family:'Rajdhani',sans-serif;
+    cursor:pointer; transition:all 0.3s; font-size:0.9rem;
+  }
+  .back-btn:hover { background:rgba(0,245,255,0.1); border-color:var(--neon-cyan); color:var(--neon-cyan); }
+
+  /* ===== AI LOADING ===== */
+  .ai-loader {
+    display:inline-flex; gap:6px; align-items:center;
+  }
+  .ai-dot {
+    width:8px; height:8px; border-radius:50%; background:var(--neon-cyan);
+    animation:aiPulse 1.2s ease-in-out infinite;
+  }
+  .ai-dot:nth-child(2) { animation-delay:0.2s; }
+  .ai-dot:nth-child(3) { animation-delay:0.4s; }
+  @keyframes aiPulse { 0%,60%,100%{transform:scale(1);opacity:0.5} 30%{transform:scale(1.5);opacity:1} }
+
+  /* ===== FOOTER ===== */
+  .game-footer {
+    text-align:center; padding:20px; color:var(--text-muted); font-size:0.8rem;
+    position:relative; z-index:1; margin-top:auto;
+    border-top:1px solid rgba(255,255,255,0.05);
+  }
+  .game-footer strong { color:var(--neon-gold); }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:600px) {
+    .author-banner { flex-direction:column; text-align:center; }
+    .author-badge { margin:0 auto; }
+    .results-stats { grid-template-columns:1fr; }
+    .game-header { justify-content:center; }
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:var(--dark-bg); }
+  ::-webkit-scrollbar-thumb { background:var(--card-border); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--neon-cyan); }
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-canvas"></div>
+
+<!-- Streak Display -->
+<div class="streak-display" id="streakDisplay">🔥 <span id="streakCount">0</span> Streak!</div>
+
+<!-- ===== FRONT PAGE ===== -->
+<div class="screen active" id="screen-front">
+  <div class="author-banner">
+    <img class="author-photo" id="authorPhoto" src="" alt="Mateen Yousuf - Author">
+    <div class="author-info">
+      <h3>Mateen Yousuf</h3>
+      <p>Teacher, School Education Department</p>
+      <p style="color:var(--neon-cyan);font-size:0.8rem;margin-top:4px;">📚 Educational Game Designer</p>
+    </div>
+    <div class="author-badge">CREATOR<br>&amp; AUTHOR</div>
+  </div>
+
+  <div class="game-title-wrap">
+    <div class="game-title">🏆 Founder Match</div>
+    <div class="game-title" style="font-size:clamp(1.2rem,4vw,2.5rem)">Build the Empire</div>
+    <div class="game-subtitle">Match Visionaries with Their Creations</div>
+  </div>
+
+  <div class="front-buttons">
+    <button class="btn btn-primary" onclick="showScreen('screen-login')">▶ Play Now</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-login','signup')">📝 Create Account</button>
+    <button class="btn btn-ghost btn-sm" onclick="guestPlay()">Continue as Guest</button>
+  </div>
+
+  <div class="game-footer">
+    Developed by <strong>Mateen Yousuf</strong> · Teacher, School Education Department
+  </div>
+</div>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="screen" id="screen-login">
+  <div class="auth-card" id="loginCard">
+    <h2>🔐 Login</h2>
+    <div class="form-group">
+      <label>USERNAME</label>
+      <input type="text" id="loginUser" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" id="loginPass" placeholder="Enter password">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Login</button>
+    <div class="auth-switch">No account? <a onclick="toggleAuth('signup')">Sign up here</a></div>
+    <div class="auth-switch" style="margin-top:10px"><a onclick="guestPlay()">Continue as Guest →</a></div>
+  </div>
+
+  <div class="auth-card" id="signupCard" style="display:none">
+    <h2>📝 Create Account</h2>
+    <div class="form-group">
+      <label>USERNAME</label>
+      <input type="text" id="signupUser" placeholder="Choose a username">
+    </div>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" id="signupPass" placeholder="Create a password">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doSignup()">Create Account</button>
+    <div class="auth-switch">Have account? <a onclick="toggleAuth('login')">Login here</a></div>
+  </div>
+</div>
+
+<!-- ===== MAIN MENU ===== -->
+<div class="screen" id="screen-menu">
+  <div class="player-info">
+    <div class="player-avatar" id="menuAvatar">👶</div>
+    <div>
+      <div class="player-name" id="menuName">Player</div>
+      <div class="player-rank" id="menuRank">Startup Beginner</div>
+    </div>
+  </div>
+
+  <div class="menu-header">
+    <div class="menu-title">🏆 <span>Founder Match</span></div>
+    <div style="color:var(--text-muted);font-size:0.9rem;margin-top:8px">Build the Empire · Match Visionaries</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip"><div class="sv" id="statScore">0</div><div class="sk">Total Score</div></div>
+    <div class="stat-chip"><div class="sv" id="statAccuracy">0%</div><div class="sk">Accuracy</div></div>
+    <div class="stat-chip"><div class="sv" id="statStreak">0</div><div class="sk">Best Streak</div></div>
+    <div class="stat-chip"><div class="sv" id="statGames">0</div><div class="sk">Games</div></div>
+  </div>
+
+  <div class="mode-grid">
+    <div class="mode-card" onclick="startMode('quick')">
+      <div class="mode-badge">HOT</div>
+      <div class="mode-icon">⚡</div>
+      <div class="mode-title">Quick Match</div>
+      <div class="mode-desc">5 rapid-fire questions · 60 second timer · Perfect for a quick brain boost</div>
+    </div>
+    <div class="mode-card" onclick="startMode('challenge')">
+      <div class="mode-icon">🎯</div>
+      <div class="mode-title">Challenge Mode</div>
+      <div class="mode-desc">20 questions · Increasing difficulty · Test your full knowledge</div>
+    </div>
+    <div class="mode-card" onclick="startMode('career')">
+      <div class="mode-badge">NEW</div>
+      <div class="mode-icon">🚀</div>
+      <div class="mode-title">Career Builder</div>
+      <div class="mode-desc">Story-based progression · Grow from beginner to Global Tycoon</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-secondary btn-sm" onclick="showScreen('screen-levels')">🗺 Level Select</button>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-dashboard')">📊 Dashboard</button>
+    <button class="btn btn-ghost btn-sm" onclick="doLogout()">🚪 Logout</button>
+  </div>
+
+  <div class="game-footer">
+    Developed by <strong>Mateen Yousuf</strong> · Teacher, School Education Department
+  </div>
+</div>
+
+<!-- ===== LEVEL SELECT ===== -->
+<div class="screen" id="screen-levels">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Back</button>
+    <div class="screen-title">🗺 Level Select</div>
+    <div></div>
+  </div>
+
+  <div class="level-grid" id="levelGrid"></div>
+
+  <div class="game-footer">Developed by <strong>Mateen Yousuf</strong> · Teacher, School Education Department</div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="screen-game">
+  <div class="game-header">
+    <div class="game-hud-item">
+      <div class="hv" id="hudScore">0</div>
+      <div class="hk">Score</div>
+    </div>
+    <div class="game-hud-item">
+      <div class="hv" id="hudQ">1/5</div>
+      <div class="hk">Question</div>
+    </div>
+    <div class="timer-circle" id="timerCircle">60</div>
+    <div class="game-hud-item">
+      <div class="hv" id="hudStreak">0🔥</div>
+      <div class="hk">Streak</div>
+    </div>
+    <div class="game-hud-item">
+      <div class="hv" id="hudLevel">L1</div>
+      <div class="hk">Level</div>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      <span id="progressLabel">Question 1 of 5</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="question-card" id="questionCard">
+    <div class="q-label">WHO FOUNDED THIS COMPANY?</div>
+    <div class="q-text" id="qText">Loading...</div>
+    <div class="q-country" id="qCountry"></div>
+  </div>
+
+  <div class="options-grid" id="optionsGrid"></div>
+
+  <div class="hint-box" id="hintBox">
+    <div class="hint-label">💡 AI Hint</div>
+    <div class="hint-text" id="hintText"></div>
+  </div>
+
+  <div class="feedback-box" id="feedbackBox">
+    <div class="feedback-title" id="feedbackTitle"></div>
+    <div class="feedback-explain" id="feedbackExplain"></div>
+  </div>
+
+  <div class="game-actions">
+    <button class="btn btn-secondary btn-sm" id="hintBtn" onclick="getHint()">💡 AI Hint (-5pts)</button>
+    <button class="btn btn-primary btn-sm" id="nextBtn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+    <button class="btn btn-ghost btn-sm" onclick="quitGame()">✕ Quit</button>
+  </div>
+</div>
+
+<!-- ===== RESULTS ===== -->
+<div class="screen" id="screen-results">
+  <div class="results-card">
+    <span class="results-emoji" id="resultsEmoji">🏆</span>
+    <div class="results-title" id="resultsTitle">Well Done!</div>
+    <div class="results-subtitle" id="resultsSubtitle">You completed the challenge</div>
+
+    <div class="results-stats">
+      <div class="res-stat"><div class="rv" id="resScore">0</div><div class="rk">Final Score</div></div>
+      <div class="res-stat"><div class="rv" id="resAccuracy">0%</div><div class="rk">Accuracy</div></div>
+      <div class="res-stat"><div class="rv" id="resCorrect">0</div><div class="rk">Correct</div></div>
+      <div class="res-stat"><div class="rv" id="resBestStreak">0</div><div class="rk">Best Streak</div></div>
+    </div>
+
+    <div class="badges-earned" id="badgesEarned"></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button class="btn btn-primary" onclick="playAgain()">🔄 Play Again</button>
+      <button class="btn btn-secondary btn-sm" onclick="showScreen('screen-menu')">🏠 Main Menu</button>
+    </div>
+  </div>
+
+  <div class="game-footer">Developed by <strong>Mateen Yousuf</strong> · Teacher, School Education Department</div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="screen" id="screen-dashboard">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Back</button>
+    <div class="screen-title">📊 Dashboard</div>
+    <div></div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dash-card"><div class="dash-icon">🏆</div><div class="dash-value" id="dTotal">0</div><div class="dash-label">Total Score</div></div>
+    <div class="dash-card"><div class="dash-icon">🎯</div><div class="dash-value" id="dAccuracy">0%</div><div class="dash-label">Accuracy</div></div>
+    <div class="dash-card"><div class="dash-icon">🔥</div><div class="dash-value" id="dStreak">0</div><div class="dash-label">Best Streak</div></div>
+    <div class="dash-card"><div class="dash-icon">🎮</div><div class="dash-value" id="dGames">0</div><div class="dash-label">Games Played</div></div>
+    <div class="dash-card"><div class="dash-icon">✅</div><div class="dash-value" id="dCorrect">0</div><div class="dash-label">Total Correct</div></div>
+    <div class="dash-card"><div class="dash-icon">📈</div><div class="dash-value" id="dLevel">1</div><div class="dash-label">Current Level</div></div>
+  </div>
+
+  <div style="font-family:'Orbitron',sans-serif;font-size:0.9rem;color:var(--neon-gold);margin-bottom:16px">🎖 Badges & Achievements</div>
+  <div class="badges-grid" id="dashBadges"></div>
+
+  <div class="game-footer">Developed by <strong>Mateen Yousuf</strong> · Teacher, School Education Department</div>
+</div>
+
+<script>
+// ===== AUTHOR PHOTO (embedded) =====
+(function(){
+  const img = document.getElementById('authorPhoto');
+  // Set the src via JS to keep HTML clean
+  img.src = 'author.jpg';
+  img.onerror = function(){
+    // Fallback: draw a placeholder
+    this.style.background = 'linear-gradient(135deg, #1a1a4e, #0d0d2b)';
+    this.style.display = 'flex';
+    this.alt = 'MY';
+  };
+})();
+
+// ===== STARS =====
+(function(){
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const size=Math.random()*3+1;
+    s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}vw;top:${Math.random()*100}vh;--d:${Math.random()*4+2}s;animation-delay:${Math.random()*4}s`;
+    document.body.appendChild(s);
+  }
+})();
+
+// ===== DATA =====
+const FOUNDERS = [
+  // Global
+  {founder:"Elon Musk",company:"Tesla",country:"🌍 Global",hint:"He also founded SpaceX and once offered to buy Twitter. This visionary dropped out of a PhD program at Stanford after 2 days.",difficulty:"easy"},
+  {founder:"Jeff Bezos",company:"Amazon",country:"🌍 Global",hint:"He started this company in his garage in 1994 as an online bookstore that grew into the world's largest online retailer.",difficulty:"easy"},
+  {founder:"Bill Gates",company:"Microsoft",country:"🌍 Global",hint:"He dropped out of Harvard to co-found this tech giant with his childhood friend Paul Allen in 1975.",difficulty:"easy"},
+  {founder:"Mark Zuckerberg",company:"Facebook",country:"🌍 Global",hint:"He built this social network from his Harvard dorm room in 2004, originally called 'TheFacebook'.",difficulty:"easy"},
+  {founder:"Larry Page",company:"Google",country:"🌍 Global",hint:"He co-founded this search giant with his Stanford PhD colleague in a garage in Menlo Park.",difficulty:"easy"},
+  {founder:"Sergey Brin",company:"Google",country:"🌍 Global",hint:"This Russian-born co-founder met his business partner at Stanford University's computer science department.",difficulty:"easy"},
+  {founder:"Steve Jobs",company:"Apple",country:"🌍 Global",hint:"He co-founded this company in his parents' garage in 1976 and later revolutionized the smartphone industry.",difficulty:"easy"},
+  {founder:"Reed Hastings",company:"Netflix",country:"🌍 Global",hint:"He got the idea for this streaming service after paying a $40 late fee at a Blockbuster video store.",difficulty:"easy"},
+  {founder:"Travis Kalanick",company:"Uber",country:"🌍 Global",hint:"This founder disrupted the taxi industry with a ride-sharing app he launched after struggling to get a cab in Paris.",difficulty:"medium"},
+  {founder:"Brian Chesky",company:"Airbnb",country:"🌍 Global",hint:"He started his company by renting out air mattresses in his San Francisco apartment during a design conference.",difficulty:"medium"},
+  {founder:"Evan Spiegel",company:"Snapchat",country:"🌍 Global",hint:"He founded this disappearing-photo app as a Stanford class project and famously rejected a $3B offer from Facebook.",difficulty:"medium"},
+  {founder:"Daniel Ek",company:"Spotify",country:"🌍 Global",hint:"This Swedish entrepreneur built this music streaming service to combat piracy in his home country.",difficulty:"medium"},
+  {founder:"Jensen Huang",company:"NVIDIA",country:"🌍 Global",hint:"This Taiwanese-American co-founder built the world's most valuable chip company focused on GPUs and AI.",difficulty:"medium"},
+  {founder:"Howard Schultz",company:"Starbucks",country:"🌍 Global",hint:"He transformed a small Seattle coffee bean store into the world's largest coffeehouse chain after being inspired by Italian espresso bars.",difficulty:"medium"},
+  {founder:"Sam Altman",company:"OpenAI",country:"🌍 Global",hint:"He leads the organization that created ChatGPT and is considered one of the most influential figures in the AI revolution.",difficulty:"medium"},
+  {founder:"Peter Thiel",company:"PayPal",country:"🌍 Global",hint:"This Stanford classmate of Elon Musk co-founded the world's first widely used digital payment system.",difficulty:"medium"},
+  {founder:"Marc Benioff",company:"Salesforce",country:"🌍 Global",hint:"This former Oracle executive founded this cloud CRM pioneer and popularized the concept of 'Software as a Service'.",difficulty:"hard"},
+  {founder:"Jack Ma",company:"Alibaba",country:"🌍 Global",hint:"This former English teacher from Hangzhou, China, built the world's largest e-commerce platform after being rejected by 30 jobs including KFC.",difficulty:"hard"},
+  {founder:"Warren Buffett",company:"Berkshire Hathaway",country:"🌍 Global",hint:"Known as the 'Oracle of Omaha', this legendary investor turned a failing textile company into one of the world's largest conglomerates.",difficulty:"hard"},
+  {founder:"Michael Dell",company:"Dell",country:"🌍 Global",hint:"He started selling custom computers from his University of Texas dorm room at age 19, dropping out to run his billion-dollar business.",difficulty:"medium"},
+  // Indian
+  {founder:"Mukesh Ambani",company:"Reliance Industries",country:"🇮🇳 India",hint:"Asia's richest man expanded his father's textile business into a diversified conglomerate spanning petrochemicals, telecom, and retail.",difficulty:"easy"},
+  {founder:"Ratan Tata",company:"Tata Group",country:"🇮🇳 India",hint:"This iconic industrialist led India's largest conglomerate and created the world's cheapest car, the Nano.",difficulty:"easy"},
+  {founder:"N.R. Narayana Murthy",company:"Infosys",country:"🇮🇳 India",hint:"He co-founded this IT giant with 6 colleagues with a seed capital of just ₹10,000 borrowed from his wife.",difficulty:"easy"},
+  {founder:"Azim Premji",company:"Wipro",country:"🇮🇳 India",hint:"He took over his father's vegetable oil company at age 21 and pivoted it into India's second-largest IT services company.",difficulty:"easy"},
+  {founder:"Vijay Shekhar Sharma",company:"Paytm",country:"🇮🇳 India",hint:"This digital payments pioneer from Aligarh made his company India's most used mobile wallet app.",difficulty:"medium"},
+  {founder:"Bhavish Aggarwal",company:"Ola",country:"🇮🇳 India",hint:"This IIT Bombay alumnus co-founded India's largest ride-sharing company and later launched an electric scooter brand.",difficulty:"medium"},
+  {founder:"Deepinder Goyal",company:"Zomato",country:"🇮🇳 India",hint:"He started this food delivery unicorn after noticing colleagues spending time searching for restaurant menus.",difficulty:"medium"},
+  {founder:"Byju Raveendran",company:"BYJU'S",country:"🇮🇳 India",hint:"This Kerala-born teacher turned his tutoring classes into the world's most valued edtech startup.",difficulty:"medium"},
+  {founder:"Sachin Bansal",company:"Flipkart",country:"🇮🇳 India",hint:"This IIT Delhi and Amazon alumni co-founded India's largest e-commerce platform starting with online book sales.",difficulty:"medium"},
+  {founder:"Kunal Shah",company:"CRED",country:"🇮🇳 India",hint:"This serial entrepreneur built a rewards platform for credit card bill payments targeting India's premium consumers.",difficulty:"hard"},
+  {founder:"Falguni Nayar",company:"Nykaa",country:"🇮🇳 India",hint:"This former investment banker launched India's leading beauty e-commerce platform at age 49 and became a self-made billionaire.",difficulty:"medium"},
+  {founder:"Ritesh Agarwal",company:"OYO",country:"🇮🇳 India",hint:"He dropped out of college at 19 to build this budget hotel aggregator that grew into one of the world's largest hotel chains.",difficulty:"medium"},
+  {founder:"Aman Gupta",company:"boAt",country:"🇮🇳 India",hint:"This former banker co-founded India's most popular consumer electronics brand known for affordable earphones and speakers.",difficulty:"hard"},
+  {founder:"Peyush Bansal",company:"Lenskart",country:"🇮🇳 India",hint:"He built India's largest omnichannel eyewear retailer by combining online sales with physical stores and home eye tests.",difficulty:"hard"},
+  {founder:"Nithin Kamath",company:"Zerodha",country:"🇮🇳 India",hint:"This self-taught trader built India's largest stockbroker that charges zero brokerage on equity investments.",difficulty:"hard"},
+  {founder:"Sridhar Vembu",company:"Zoho",country:"🇮🇳 India",hint:"This Chennai-born engineer built a global SaaS empire from a small village in Tamil Nadu, competing with Salesforce.",difficulty:"hard"},
+  {founder:"Ghazal Alagh",company:"Mamaearth",country:"🇮🇳 India",hint:"This mother-entrepreneur co-founded India's fastest growing FMCG brand after struggling to find toxin-free products for her baby.",difficulty:"hard"},
+  {founder:"Harsh Jain",company:"Dream11",country:"🇮🇳 India",hint:"He built India's first and largest fantasy sports platform that now counts over 200 million users and is an IPL sponsor.",difficulty:"hard"},
+  {founder:"Binny Bansal",company:"Flipkart",country:"🇮🇳 India",hint:"This Amazon and IIT Delhi alumnus co-founded India's largest e-commerce platform alongside his college friend.",difficulty:"hard"},
+  {founder:"Ronnie Screwvala",company:"UTV",country:"🇮🇳 India",hint:"This Mumbai-born entrepreneur built one of India's largest media and entertainment conglomerates before selling it to Disney.",difficulty:"hard"},
+];
+
+const LEVELS = [
+  {id:1,name:"Beginner",desc:"Famous global founders",unlock:0,questions:8,time:60,filter:f=>f.country.includes('Global')&&f.difficulty==='easy'},
+  {id:2,name:"Beginner+",desc:"Famous Indian founders",unlock:50,questions:10,time:55,filter:f=>f.country.includes('India')&&f.difficulty==='easy'},
+  {id:3,name:"Intermediate",desc:"Mixed with distractors",unlock:150,questions:12,time:45,filter:f=>f.difficulty==='medium'},
+  {id:4,name:"Advanced",desc:"All regions mixed",unlock:300,questions:15,time:40,filter:f=>true},
+  {id:5,name:"Expert",desc:"AI-generated scenarios",unlock:500,questions:10,time:35,filter:f=>f.difficulty==='hard'},
+];
+
+const BADGES = [
+  {id:'first_win',name:'First Win',icon:'🥇',desc:'Complete your first game'},
+  {id:'streak10',name:'10 Streak',icon:'🔥',desc:'Get 10 answers in a row'},
+  {id:'india_expert',name:'India Expert',icon:'🇮🇳',desc:'Get 10 Indian founders correct'},
+  {id:'global_guru',name:'Global Guru',icon:'🌎',desc:'Get 10 global founders correct'},
+  {id:'startup_legend',name:'Startup Legend',icon:'🚀',desc:'Score over 500 total points'},
+  {id:'speed_demon',name:'Speed Demon',icon:'⚡',desc:'Answer 5 questions with >30s remaining'},
+  {id:'perfect',name:'Perfect Round',icon:'💯',desc:'Get 100% accuracy in a game'},
+];
+
+const RANKS = [
+  {name:'Startup Beginner',icon:'👶',min:0},
+  {name:'Hustler',icon:'🚀',min:100},
+  {name:'Visionary',icon:'🧠',min:300},
+  {name:'Unicorn Builder',icon:'🦄',min:700},
+  {name:'Global Tycoon',icon:'🌍',min:1500},
+];
+
+// ===== STATE =====
+let state = {
+  user: null,
+  score: 0,
+  totalScore: 0,
+  totalGames: 0,
+  totalCorrect: 0,
+  totalAnswered: 0,
+  bestStreak: 0,
+  currentLevel: 1,
+  badges: [],
+  levelProgress: {},
+};
+
+let game = {
+  questions: [],
+  current: 0,
+  score: 0,
+  streak: 0,
+  correct: 0,
+  timer: null,
+  timeLeft: 60,
+  answered: false,
+  mode: 'quick',
+  level: 1,
+  hintUsed: false,
+  speedBonus: 0,
+};
+
+// ===== LOCALSTORAGE =====
+function saveState(){
+  if(!state.user) return;
+  const users = JSON.parse(localStorage.getItem('fm_users')||'{}');
+  users[state.user] = state;
+  localStorage.setItem('fm_users', JSON.stringify(users));
+}
+function loadState(username){
+  const users = JSON.parse(localStorage.getItem('fm_users')||'{}');
+  if(users[username]){ state = users[username]; state.user = username; }
+}
+
+// ===== AUTH =====
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if(!u||!p){ alert('Please fill in all fields'); return; }
+  const users = JSON.parse(localStorage.getItem('fm_users')||'{}');
+  if(users[u] && users[u].pass === btoa(p)){
+    loadState(u);
+    goToMenu();
+  } else {
+    alert('Invalid username or password. New user? Click Sign Up.');
+  }
+}
+function doSignup(){
+  const u = document.getElementById('signupUser').value.trim();
+  const p = document.getElementById('signupPass').value.trim();
+  if(!u||!p){ alert('Please fill in all fields'); return; }
+  const users = JSON.parse(localStorage.getItem('fm_users')||'{}');
+  if(users[u]){ alert('Username already taken!'); return; }
+  state = {user:u,pass:btoa(p),score:0,totalScore:0,totalGames:0,totalCorrect:0,totalAnswered:0,bestStreak:0,currentLevel:1,badges:[],levelProgress:{}};
+  saveState();
+  goToMenu();
+}
+function guestPlay(){
+  state = {user:'Guest',score:0,totalScore:0,totalGames:0,totalCorrect:0,totalAnswered:0,bestStreak:0,currentLevel:1,badges:[],levelProgress:{}};
+  goToMenu();
+}
+function doLogout(){
+  saveState();
+  state.user = null;
+  showScreen('screen-front');
+}
+function toggleAuth(mode){
+  document.getElementById('loginCard').style.display = mode==='login'?'block':'none';
+  document.getElementById('signupCard').style.display = mode==='signup'?'block':'none';
+}
+
+// ===== NAVIGATION =====
+function showScreen(id, extra){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(extra) toggleAuth(extra);
+  if(id==='screen-menu') updateMenu();
+  if(id==='screen-dashboard') updateDashboard();
+  if(id==='screen-levels') renderLevels();
+}
+function goToMenu(){ showScreen('screen-menu'); }
+
+function updateMenu(){
+  const rank = getRank();
+  document.getElementById('menuAvatar').textContent = rank.icon;
+  document.getElementById('menuName').textContent = state.user || 'Guest';
+  document.getElementById('menuRank').textContent = rank.name;
+  document.getElementById('statScore').textContent = state.totalScore||0;
+  document.getElementById('statAccuracy').textContent = state.totalAnswered>0 ? Math.round((state.totalCorrect/state.totalAnswered)*100)+'%' : '0%';
+  document.getElementById('statStreak').textContent = state.bestStreak||0;
+  document.getElementById('statGames').textContent = state.totalGames||0;
+}
+
+function getRank(){
+  const s = state.totalScore||0;
+  let rank = RANKS[0];
+  for(const r of RANKS){ if(s>=r.min) rank=r; }
+  return rank;
+}
+
+// ===== LEVEL SELECT =====
+function renderLevels(){
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  LEVELS.forEach(lv=>{
+    const score = state.totalScore||0;
+    const unlocked = score >= lv.unlock;
+    const completed = state.levelProgress && state.levelProgress[lv.id];
+    const div = document.createElement('div');
+    div.className = `level-card ${unlocked?'available':'locked'} ${completed?'completed':''}`;
+    div.innerHTML = `
+      <div class="level-num">L${lv.id}</div>
+      <div class="level-name">${lv.name}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px">${lv.desc}</div>
+      ${!unlocked?`<div class="level-lock">🔒</div><div style="font-size:0.7rem;color:var(--neon-pink);margin-top:6px">Need ${lv.unlock} pts</div>`:''}
+      ${completed?'<div style="color:var(--neon-green);font-size:0.8rem;margin-top:6px">✓ Completed</div>':''}
+    `;
+    if(unlocked) div.onclick = ()=>startLevel(lv.id);
+    grid.appendChild(div);
+  });
+}
+
+function startLevel(id){
+  const lv = LEVELS.find(l=>l.id===id);
+  if(!lv) return;
+  const pool = FOUNDERS.filter(lv.filter);
+  startGameWithPool(pool, lv.questions, lv.time, id);
+}
+
+// ===== GAME MODES =====
+function startMode(mode){
+  game.mode = mode;
+  if(mode==='quick'){
+    const pool = shuffle([...FOUNDERS]).slice(0,20);
+    startGameWithPool(pool, 5, 60, state.currentLevel||1);
+  } else if(mode==='challenge'){
+    startGameWithPool(shuffle([...FOUNDERS]), 20, 45, state.currentLevel||1);
+  } else if(mode==='career'){
+    const lv = state.currentLevel||1;
+    startLevel(Math.min(lv,5));
+  }
+}
+
+function startGameWithPool(pool, numQ, time, levelId){
+  const questions = buildQuestions(pool, numQ);
+  if(questions.length===0){ alert('Not enough data for this level. Keep playing to unlock more!'); return; }
+  game = {
+    questions, current:0, score:0, streak:0, correct:0,
+    timer:null, timeLeft:time, answered:false,
+    mode:game.mode, level:levelId, hintUsed:false,
+    speedBonus:0, totalTime:time, indianCorrect:0, globalCorrect:0,
+    totalAnswered:0,
+  };
+  showScreen('screen-game');
+  renderQuestion();
+}
+
+function buildQuestions(pool, numQ){
+  const shuffled = shuffle([...pool]);
+  const selected = shuffled.slice(0, Math.min(numQ, shuffled.length));
+  return selected.map(item=>{
+    const distractors = shuffle(FOUNDERS.filter(f=>f.company!==item.company)).slice(0,3).map(f=>f.company);
+    const options = shuffle([item.company, ...distractors]);
+    return {
+      founder: item.founder,
+      company: item.company,
+      country: item.country,
+      hint: item.hint,
+      difficulty: item.difficulty,
+      options,
+    };
+  });
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// ===== RENDER QUESTION =====
+function renderQuestion(){
+  const q = game.questions[game.current];
+  const total = game.questions.length;
+
+  document.getElementById('hudScore').textContent = game.score;
+  document.getElementById('hudQ').textContent = `${game.current+1}/${total}`;
+  document.getElementById('hudStreak').textContent = `${game.streak}🔥`;
+  document.getElementById('hudLevel').textContent = `L${game.level}`;
+  document.getElementById('progressLabel').textContent = `Question ${game.current+1} of ${total}`;
+  document.getElementById('progressPct').textContent = Math.round((game.current/total)*100)+'%';
+  document.getElementById('progressFill').style.width = (game.current/total*100)+'%';
+
+  document.getElementById('qText').textContent = `Who founded ${q.company}?`;
+  document.getElementById('qCountry').textContent = q.country + ' · ' + q.difficulty.toUpperCase();
+
+  // Options
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<div class="opt-letter">${letters[i]}</div>${opt}`;
+    btn.onclick = ()=>selectAnswer(opt, q.company, btn);
+    grid.appendChild(btn);
+  });
+
+  // Reset state
+  document.getElementById('hintBox').classList.remove('show');
+  document.getElementById('feedbackBox').classList.remove('show');
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('hintBtn').disabled = false;
+  game.answered = false;
+  game.hintUsed = false;
+  game.timeLeft = game.totalTime || 60;
+
+  startTimer();
+}
+
+// ===== TIMER =====
+function startTimer(){
+  clearInterval(game.timer);
+  updateTimerDisplay();
+  game.timer = setInterval(()=>{
+    game.timeLeft--;
+    updateTimerDisplay();
+    if(game.timeLeft<=0){ clearInterval(game.timer); autoWrong(); }
+  },1000);
+}
+
+function updateTimerDisplay(){
+  const el = document.getElementById('timerCircle');
+  el.textContent = game.timeLeft;
+  el.className = 'timer-circle';
+  if(game.timeLeft<=10) el.classList.add('danger');
+  else if(game.timeLeft<=20) el.classList.add('warning');
+}
+
+function autoWrong(){
+  if(game.answered) return;
+  game.streak = 0;
+  document.getElementById('hudStreak').textContent = '0🔥';
+  const fb = document.getElementById('feedbackBox');
+  fb.className = 'feedback-box wrong show';
+  document.getElementById('feedbackTitle').textContent = '⏰ Time\'s Up!';
+  document.getElementById('feedbackExplain').textContent = `The correct answer was: ${game.questions[game.current].company}`;
+  game.answered = true;
+  game.totalAnswered++;
+  disableOptions();
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+// ===== ANSWER =====
+function selectAnswer(chosen, correct, btn){
+  if(game.answered) return;
+  game.answered = true;
+  game.totalAnswered++;
+  clearInterval(game.timer);
+
+  const isCorrect = chosen === correct;
+  const timeBonus = Math.floor(game.timeLeft/10);
+  const streakBonus = isCorrect && game.streak>=2 ? 5 : 0;
+
+  if(isCorrect){
+    const hintPenalty = game.hintUsed ? 5 : 0;
+    const pts = Math.max(5, 10 + timeBonus + streakBonus - hintPenalty);
+    game.score += pts;
+    game.streak++;
+    game.correct++;
+    game.speedBonus += (game.timeLeft>30?1:0);
+
+    // Track by country
+    const q = game.questions[game.current];
+    const f = FOUNDERS.find(f=>f.company===correct);
+    if(f && f.country.includes('India')) game.indianCorrect=(game.indianCorrect||0)+1;
+    if(f && f.country.includes('Global')) game.globalCorrect=(game.globalCorrect||0)+1;
+
+    btn.classList.add('correct');
+    showScorePop('+'+pts, btn);
+
+    const fb = document.getElementById('feedbackBox');
+    fb.className = 'feedback-box correct show';
+    document.getElementById('feedbackTitle').textContent = `✅ Correct! +${pts} pts`;
+    document.getElementById('feedbackExplain').textContent = game.questions[game.current].hint;
+
+    if(game.streak>=3){ document.getElementById('streakDisplay').classList.add('show'); document.getElementById('streakCount').textContent=game.streak; }
+    document.getElementById('hudStreak').textContent = `${game.streak}🔥`;
+    document.getElementById('hudScore').textContent = game.score;
+  } else {
+    game.score = Math.max(0, game.score-2);
+    game.streak = 0;
+    document.getElementById('streakDisplay').classList.remove('show');
+    btn.classList.add('wrong');
+    // Show correct
+    document.querySelectorAll('.option-btn').forEach(b=>{ if(b.textContent.includes(correct)) b.classList.add('correct'); });
+
+    const fb = document.getElementById('feedbackBox');
+    fb.className = 'feedback-box wrong show';
+    document.getElementById('feedbackTitle').textContent = '❌ Incorrect! -2 pts';
+    document.getElementById('feedbackExplain').textContent = `Correct answer: ${correct}. ${game.questions[game.current].hint}`;
+    document.getElementById('hudStreak').textContent = '0🔥';
+    document.getElementById('hudScore').textContent = game.score;
+  }
+
+  disableOptions();
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function disableOptions(){
+  document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+}
+
+function showScorePop(text, btn){
+  const pop = document.createElement('div');
+  pop.className = 'score-pop';
+  pop.textContent = text;
+  pop.style.cssText = `left:${50}%;top:${30}%;color:#39ff14;transform:translateX(-50%);text-shadow:0 0 10px #39ff14`;
+  document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(), 1200);
+}
+
+// ===== HINT =====
+async function getHint(){
+  if(game.hintUsed || game.answered) return;
+  game.hintUsed = true;
+  const btn = document.getElementById('hintBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="ai-loader"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div> Getting AI hint...';
+
+  const q = game.questions[game.current];
+  const hintBox = document.getElementById('hintBox');
+  const hintText = document.getElementById('hintText');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:`Give a short, engaging 1-sentence hint about who founded ${q.company} without revealing the answer directly. Make it a fun clue that sparks curiosity. Just give the hint, no preamble.`}]
+      })
+    });
+    const data = await res.json();
+    const hint = data.content?.[0]?.text || q.hint;
+    hintText.textContent = hint;
+  } catch(e){
+    hintText.textContent = q.hint;
+  }
+
+  hintBox.classList.add('show');
+  btn.textContent = '💡 Hint Used';
+}
+
+// ===== NEXT QUESTION =====
+function nextQuestion(){
+  game.current++;
+  if(game.current >= game.questions.length){
+    endGame();
+  } else {
+    renderQuestion();
+  }
+}
+
+function quitGame(){
+  clearInterval(game.timer);
+  showScreen('screen-menu');
+}
+
+// ===== END GAME =====
+function endGame(){
+  clearInterval(game.timer);
+  document.getElementById('streakDisplay').classList.remove('show');
+
+  // Update global stats
+  state.totalScore = (state.totalScore||0) + game.score;
+  state.totalGames = (state.totalGames||0) + 1;
+  state.totalCorrect = (state.totalCorrect||0) + game.correct;
+  state.totalAnswered = (state.totalAnswered||0) + game.totalAnswered;
+  state.bestStreak = Math.max(state.bestStreak||0, game.streak);
+
+  // Level progress
+  if(!state.levelProgress) state.levelProgress={};
+  const accuracy = game.totalAnswered>0 ? Math.round((game.correct/game.totalAnswered)*100) : 0;
+  if(accuracy>=70) state.levelProgress[game.level] = true;
+  if(game.level === (state.currentLevel||1) && accuracy>=60 && state.currentLevel<5) state.currentLevel++;
+
+  // Check badges
+  const newBadges = [];
+  const checkBadge = (id,cond)=>{ if(cond && !state.badges.includes(id)){ state.badges.push(id); newBadges.push(id); } };
+  checkBadge('first_win', true);
+  checkBadge('streak10', game.streak>=10 || state.bestStreak>=10);
+  checkBadge('india_expert', (game.indianCorrect||0)>=5);
+  checkBadge('global_guru', (game.globalCorrect||0)>=5);
+  checkBadge('startup_legend', state.totalScore>=500);
+  checkBadge('speed_demon', (game.speedBonus||0)>=5);
+  checkBadge('perfect', accuracy===100);
+
+  saveState();
+
+  // Show results
+  const emoji = accuracy>=90?'🏆':accuracy>=70?'🎯':accuracy>=50?'👍':'💪';
+  const title = accuracy>=90?'Legendary!':accuracy>=70?'Excellent!':accuracy>=50?'Good Job!':'Keep Practicing!';
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsSubtitle').textContent = `${accuracy}% accuracy · Level ${game.level}`;
+  document.getElementById('resScore').textContent = game.score;
+  document.getElementById('resAccuracy').textContent = accuracy+'%';
+  document.getElementById('resCorrect').textContent = `${game.correct}/${game.totalAnswered}`;
+  document.getElementById('resBestStreak').textContent = game.streak;
+
+  // Badges earned this round
+  const badgesEl = document.getElementById('badgesEarned');
+  badgesEl.innerHTML = '';
+  newBadges.forEach(id=>{
+    const b = BADGES.find(x=>x.id===id);
+    if(b){
+      const chip = document.createElement('div');
+      chip.className = 'badge-chip';
+      chip.textContent = `${b.icon} ${b.name}`;
+      badgesEl.appendChild(chip);
+    }
+  });
+
+  showScreen('screen-results');
+}
+
+function playAgain(){
+  startMode(game.mode||'quick');
+}
+
+// ===== DASHBOARD =====
+function updateDashboard(){
+  document.getElementById('dTotal').textContent = state.totalScore||0;
+  document.getElementById('dAccuracy').textContent = state.totalAnswered>0?Math.round((state.totalCorrect/state.totalAnswered)*100)+'%':'0%';
+  document.getElementById('dStreak').textContent = state.bestStreak||0;
+  document.getElementById('dGames').textContent = state.totalGames||0;
+  document.getElementById('dCorrect').textContent = state.totalCorrect||0;
+  document.getElementById('dLevel').textContent = state.currentLevel||1;
+
+  const grid = document.getElementById('dashBadges');
+  grid.innerHTML = '';
+  BADGES.forEach(b=>{
+    const earned = (state.badges||[]).includes(b.id);
+    const div = document.createElement('div');
+    div.className = `badge-item ${earned?'earned':'locked'}`;
+    div.innerHTML = `<div class="bi">${b.icon}</div><div class="bn">${b.name}</div><div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">${b.desc}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ===== PWA INSTALL =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; });
+
+// ===== REGISTER SERVICE WORKER =====
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
