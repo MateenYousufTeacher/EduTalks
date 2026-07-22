@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="description" content="Quick Brain – Smart Quiz Sprint. Fast-paced MCQ quiz game for learning.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QuizSprint">
+<link rel="manifest" href="manifest.json">
+<title>Quick Brain – Smart Quiz Sprint</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;800&display=swap');
+
+  :root {
+    --bg: #04040f;
+    --surface: #0d0d2b;
+    --surface2: #13133a;
+    --accent: #00f5ff;
+    --accent2: #ff2d78;
+    --accent3: #ffe600;
+    --accent4: #00ff88;
+    --text: #e8eaf6;
+    --text-dim: #8890b0;
+    --correct: #00ff88;
+    --wrong: #ff2d78;
+    --glow: 0 0 20px rgba(0,245,255,0.4);
+    --glow2: 0 0 20px rgba(255,45,120,0.4);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height:100%; width:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ========== SPLASH SCREEN ========== */
+  #splash {
+    position:fixed; inset:0; z-index:999;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse at center, #0a0a2e 0%, #04040f 70%);
+    transition: opacity 0.6s ease;
+  }
+  #splash.hide { opacity:0; pointer-events:none; }
+
+  .splash-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2rem, 8vw, 4rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align:center;
+    animation: pulse-glow 2s ease-in-out infinite;
+    letter-spacing: 2px;
+  }
+  .splash-sub {
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    color: var(--text-dim);
+    margin-top: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .splash-brain {
+    font-size: clamp(4rem, 15vw, 8rem);
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  .splash-bar {
+    width: 200px; height: 3px;
+    background: var(--surface2);
+    border-radius: 3px;
+    margin-top: 40px;
+    overflow: hidden;
+  }
+  .splash-bar-fill {
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 1.8s ease;
+  }
+  .splash-author {
+    display:flex; align-items:center; gap:12px;
+    margin-top:30px; color:var(--text-dim); font-size:0.85rem;
+  }
+  .splash-author img {
+    width:40px; height:40px; border-radius:50%;
+    border:2px solid var(--accent);
+    object-fit:cover;
+  }
+
+  /* ========== APP SHELL ========== */
+  #app {
+    height:100%; display:flex; flex-direction:column;
+    background: radial-gradient(ellipse at 20% 20%, #0e0e35 0%, #04040f 60%);
+    position:relative; overflow:hidden;
+  }
+
+  /* Grid BG */
+  #app::before {
+    content:''; position:absolute; inset:0; z-index:0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+  }
+
+  /* ========== HEADER ========== */
+  .hdr {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 20px; z-index:10;
+    border-bottom: 1px solid rgba(0,245,255,0.1);
+    background: rgba(13,13,43,0.8);
+    backdrop-filter: blur(10px);
+    flex-shrink:0;
+  }
+  .hdr-logo {
+    font-family:'Orbitron',monospace; font-size:1rem; font-weight:900;
+    background: linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    letter-spacing:1px;
+  }
+  .hdr-score {
+    display:flex; gap:16px; align-items:center;
+  }
+  .score-pill {
+    background:var(--surface2); border:1px solid rgba(0,245,255,0.2);
+    padding:4px 12px; border-radius:20px;
+    font-size:0.8rem; color:var(--accent); font-weight:600;
+    font-family:'Orbitron',monospace;
+  }
+  .streak-pill {
+    background:var(--surface2); border:1px solid rgba(255,230,0,0.3);
+    padding:4px 12px; border-radius:20px;
+    font-size:0.8rem; color:var(--accent3); font-weight:600;
+  }
+
+  /* ========== MAIN CONTENT ========== */
+  .content { flex:1; overflow-y:auto; overflow-x:hidden; z-index:5; position:relative; }
+  .content::-webkit-scrollbar { width:4px; }
+  .content::-webkit-scrollbar-track { background:transparent; }
+  .content::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.2); border-radius:2px; }
+
+  /* ========== HOME SCREEN ========== */
+  #home {
+    display:flex; flex-direction:column; align-items:center;
+    padding:30px 20px 40px; min-height:100%;
+  }
+  .home-title {
+    font-family:'Orbitron',monospace; font-size:clamp(1.4rem,5vw,2.2rem);
+    font-weight:900; text-align:center;
+    background:linear-gradient(135deg,var(--accent),#7c4dff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:6px;
+  }
+  .home-sub { color:var(--text-dim); font-size:0.85rem; margin-bottom:30px; letter-spacing:2px; text-transform:uppercase; }
+
+  .author-card {
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface2); border:1px solid rgba(0,245,255,0.15);
+    padding:14px 20px; border-radius:16px; width:100%; max-width:400px;
+    margin-bottom:28px;
+  }
+  .author-card img { width:52px; height:52px; border-radius:50%; border:2px solid var(--accent); object-fit:cover; flex-shrink:0; }
+  .author-info { flex:1; }
+  .author-name { font-weight:800; font-size:1rem; }
+  .author-tag { color:var(--accent); font-size:0.75rem; letter-spacing:1px; }
+
+  .modes-title {
+    font-family:'Orbitron',monospace; font-size:0.75rem;
+    color:var(--text-dim); letter-spacing:3px; text-transform:uppercase;
+    margin-bottom:14px; align-self:flex-start; max-width:400px; width:100%;
+  }
+  .modes-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:12px; width:100%; max-width:400px; margin-bottom:24px;
+  }
+  .mode-card {
+    background:var(--surface2); border-radius:16px;
+    padding:18px 14px; cursor:pointer; position:relative; overflow:hidden;
+    border: 1px solid transparent;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .mode-card:active { transform:scale(0.96); }
+  .mode-card.mode-1 { border-color:rgba(0,255,136,0.3); }
+  .mode-card.mode-2 { border-color:rgba(255,230,0,0.3); }
+  .mode-card.mode-3 { border-color:rgba(255,45,120,0.3); }
+  .mode-card.mode-4 { border-color:rgba(124,77,255,0.3); }
+  .mode-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,0.5); }
+  .mode-icon { font-size:1.8rem; }
+  .mode-name { font-weight:800; font-size:0.9rem; }
+  .mode-desc { font-size:0.72rem; color:var(--text-dim); line-height:1.4; }
+  .mode-badge {
+    position:absolute; top:10px; right:10px;
+    font-size:0.62rem; padding:2px 8px; border-radius:10px;
+    font-weight:700; letter-spacing:1px;
+  }
+  .mode-1 .mode-badge { background:rgba(0,255,136,0.2); color:var(--correct); }
+  .mode-2 .mode-badge { background:rgba(255,230,0,0.2); color:var(--accent3); }
+  .mode-3 .mode-badge { background:rgba(255,45,120,0.2); color:var(--wrong); }
+  .mode-4 .mode-badge { background:rgba(124,77,255,0.2); color:#a78bfa; }
+
+  .stats-row {
+    display:flex; gap:12px; width:100%; max-width:400px; margin-bottom:24px;
+  }
+  .stat-box {
+    flex:1; background:var(--surface2); border:1px solid rgba(0,245,255,0.1);
+    border-radius:12px; padding:12px; text-align:center;
+  }
+  .stat-val { font-family:'Orbitron',monospace; font-size:1.3rem; font-weight:900; color:var(--accent); }
+  .stat-lbl { font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+
+  /* ========== LEVEL SELECT ========== */
+  #level-select {
+    display:none; flex-direction:column; align-items:center;
+    padding:30px 20px 40px;
+  }
+  .back-btn {
+    align-self:flex-start; background:none; border:1px solid rgba(0,245,255,0.2);
+    color:var(--accent); padding:8px 16px; border-radius:20px; cursor:pointer;
+    font-size:0.8rem; font-family:'Exo 2',sans-serif; margin-bottom:20px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .back-btn:active { opacity:0.7; }
+  .screen-title {
+    font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900;
+    color:var(--accent); margin-bottom:6px; text-align:center;
+  }
+  .screen-sub { color:var(--text-dim); font-size:0.8rem; margin-bottom:24px; text-align:center; }
+
+  .levels-list { width:100%; max-width:400px; display:flex; flex-direction:column; gap:10px; }
+  .level-item {
+    background:var(--surface2); border-radius:14px; padding:16px 20px;
+    display:flex; align-items:center; gap:14px; cursor:pointer;
+    border:1px solid rgba(255,255,255,0.06);
+    transition:transform 0.2s, border-color 0.2s;
+  }
+  .level-item:active { transform:scale(0.97); }
+  .level-item:hover { border-color:rgba(0,245,255,0.25); }
+  .level-icon { font-size:2rem; flex-shrink:0; }
+  .level-info { flex:1; }
+  .level-name { font-weight:800; font-size:0.95rem; }
+  .level-detail { color:var(--text-dim); font-size:0.75rem; margin-top:3px; }
+  .level-stars { color:var(--accent3); font-size:0.8rem; }
+  .level-locked { opacity:0.4; pointer-events:none; }
+
+  /* ========== QUIZ SCREEN ========== */
+  #quiz { display:none; flex-direction:column; padding:16px 20px; gap:16px; min-height:100%; }
+
+  /* Timer bar */
+  .timer-wrap { position:relative; }
+  .timer-track {
+    height:6px; background:var(--surface2); border-radius:3px; overflow:hidden;
+  }
+  .timer-fill {
+    height:100%; width:100%; border-radius:3px;
+    background:linear-gradient(90deg,var(--accent4),var(--accent));
+    transition:width 0.25s linear, background 0.5s;
+  }
+  .timer-fill.danger { background:linear-gradient(90deg,var(--wrong),#ff8a00); }
+  .quiz-meta {
+    display:flex; justify-content:space-between; align-items:center; margin-top:6px;
+  }
+  .q-counter { font-size:0.78rem; color:var(--text-dim); }
+  .timer-num {
+    font-family:'Orbitron',monospace; font-size:1rem; font-weight:700;
+    color:var(--accent);
+  }
+  .timer-num.danger { color:var(--wrong); animation:blink 0.5s infinite; }
+
+  /* Question card */
+  .q-card {
+    background:var(--surface); border:1px solid rgba(0,245,255,0.12);
+    border-radius:20px; padding:22px 20px; position:relative; overflow:hidden;
+  }
+  .q-card::before {
+    content:''; position:absolute; top:-40px; right:-40px;
+    width:120px; height:120px; border-radius:50%;
+    background:radial-gradient(circle,rgba(0,245,255,0.08),transparent 70%);
+    pointer-events:none;
+  }
+  .q-level-tag {
+    display:inline-block; font-size:0.65rem; font-weight:700;
+    padding:3px 10px; border-radius:10px; margin-bottom:12px;
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .q-text {
+    font-size:clamp(1rem,4vw,1.25rem); font-weight:700; line-height:1.5;
+    color:var(--text);
+  }
+
+  /* Options */
+  .options { display:flex; flex-direction:column; gap:10px; }
+  .opt-btn {
+    background:var(--surface2); border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:14px 18px;
+    display:flex; align-items:center; gap:14px; cursor:pointer;
+    transition:transform 0.15s, border-color 0.15s, background 0.2s;
+    text-align:left; width:100%; color:var(--text);
+    font-family:'Exo 2',sans-serif; font-size:0.9rem; font-weight:600;
+  }
+  .opt-btn:active { transform:scale(0.97); }
+  .opt-btn:hover:not(:disabled) { border-color:rgba(0,245,255,0.3); background:#1a1a4a; }
+  .opt-btn:disabled { cursor:default; }
+  .opt-letter {
+    width:30px; height:30px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:0.8rem;
+    background:rgba(0,245,255,0.08); color:var(--accent);
+    border:1px solid rgba(0,245,255,0.2);
+  }
+  .opt-btn.correct { background:rgba(0,255,136,0.12); border-color:var(--correct); box-shadow:0 0 20px rgba(0,255,136,0.2); }
+  .opt-btn.correct .opt-letter { background:var(--correct); color:#000; border-color:var(--correct); }
+  .opt-btn.wrong { background:rgba(255,45,120,0.12); border-color:var(--wrong); box-shadow:0 0 20px rgba(255,45,120,0.2); }
+  .opt-btn.wrong .opt-letter { background:var(--wrong); color:#fff; border-color:var(--wrong); }
+
+  /* Feedback */
+  .feedback-pop {
+    text-align:center; padding:10px;
+    font-size:1rem; font-weight:800;
+    opacity:0; transform:translateY(10px);
+    transition:opacity 0.3s, transform 0.3s;
+  }
+  .feedback-pop.show { opacity:1; transform:translateY(0); }
+  .feedback-pop.correct-fb { color:var(--correct); }
+  .feedback-pop.wrong-fb { color:var(--wrong); }
+
+  /* Next btn */
+  .next-btn {
+    background:linear-gradient(135deg,var(--accent),#7c4dff);
+    border:none; border-radius:14px; padding:14px;
+    font-family:'Orbitron',monospace; font-size:0.9rem; font-weight:700;
+    color:#000; cursor:pointer; width:100%;
+    opacity:0; transform:translateY(10px);
+    transition:opacity 0.3s, transform 0.3s, box-shadow 0.2s;
+    pointer-events:none;
+  }
+  .next-btn.show { opacity:1; transform:translateY(0); pointer-events:all; }
+  .next-btn:active { box-shadow:0 0 30px rgba(0,245,255,0.5); }
+
+  /* ========== RESULT SCREEN ========== */
+  #result { display:none; flex-direction:column; align-items:center; padding:30px 20px 40px; }
+  .result-emoji { font-size:5rem; margin-bottom:10px; animation:bounce 0.6s ease; }
+  .result-title {
+    font-family:'Orbitron',monospace; font-size:1.5rem; font-weight:900;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    text-align:center; margin-bottom:6px;
+  }
+  .result-score {
+    font-family:'Orbitron',monospace; font-size:3rem; font-weight:900;
+    color:var(--accent); margin:10px 0;
+    text-shadow:0 0 30px rgba(0,245,255,0.5);
+  }
+  .result-breakdown {
+    width:100%; max-width:360px; background:var(--surface2);
+    border-radius:16px; padding:20px; margin:16px 0;
+    border:1px solid rgba(0,245,255,0.12);
+  }
+  .rb-row {
+    display:flex; justify-content:space-between; padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.9rem;
+  }
+  .rb-row:last-child { border:none; }
+  .rb-lbl { color:var(--text-dim); }
+  .rb-val { font-weight:700; color:var(--text); }
+  .rb-val.green { color:var(--correct); }
+  .rb-val.red { color:var(--wrong); }
+  .rb-val.yellow { color:var(--accent3); }
+
+  .result-btns { display:flex; flex-direction:column; gap:10px; width:100%; max-width:360px; margin-top:8px; }
+  .r-btn-primary {
+    background:linear-gradient(135deg,var(--accent),#7c4dff);
+    border:none; border-radius:14px; padding:14px;
+    font-family:'Orbitron',monospace; font-size:0.9rem; font-weight:700;
+    color:#000; cursor:pointer; width:100%;
+    transition:box-shadow 0.2s;
+  }
+  .r-btn-primary:active { box-shadow:0 0 30px rgba(0,245,255,0.5); }
+  .r-btn-secondary {
+    background:transparent; border:1px solid rgba(0,245,255,0.3);
+    border-radius:14px; padding:13px;
+    font-size:0.9rem; font-weight:700; color:var(--accent);
+    cursor:pointer; width:100%; font-family:'Exo 2',sans-serif;
+  }
+  .r-btn-secondary:active { background:rgba(0,245,255,0.05); }
+
+  /* ========== LEADERBOARD ========== */
+  #leaderboard { display:none; flex-direction:column; align-items:center; padding:24px 20px 40px; }
+  .lb-list { width:100%; max-width:400px; }
+  .lb-item {
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface2); border-radius:12px; padding:12px 16px;
+    margin-bottom:8px; border:1px solid rgba(255,255,255,0.05);
+  }
+  .lb-rank { font-family:'Orbitron',monospace; font-weight:900; font-size:1rem; width:30px; text-align:center; }
+  .lb-rank.gold { color:var(--accent3); }
+  .lb-rank.silver { color:#aaa; }
+  .lb-rank.bronze { color:#cd7f32; }
+  .lb-name { flex:1; font-weight:600; }
+  .lb-score { font-family:'Orbitron',monospace; font-weight:700; color:var(--accent); }
+
+  /* ========== NAV ========== */
+  .nav {
+    display:flex; justify-content:space-around;
+    padding:10px 0 max(10px, env(safe-area-inset-bottom));
+    background:rgba(13,13,43,0.95); backdrop-filter:blur(10px);
+    border-top:1px solid rgba(0,245,255,0.1);
+    z-index:10; flex-shrink:0;
+  }
+  .nav-btn {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; color:var(--text-dim);
+    font-size:0.65rem; font-family:'Exo 2',sans-serif;
+    cursor:pointer; padding:6px 16px; border-radius:12px;
+    transition:color 0.2s, background 0.2s;
+  }
+  .nav-btn.active { color:var(--accent); background:rgba(0,245,255,0.08); }
+  .nav-btn .icon { font-size:1.4rem; }
+
+  /* ========== ANIMATIONS ========== */
+  @keyframes pulse-glow {
+    0%,100% { filter:drop-shadow(0 0 10px rgba(0,245,255,0.5)); }
+    50% { filter:drop-shadow(0 0 25px rgba(255,45,120,0.6)); }
+  }
+  @keyframes float {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-12px); }
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; } 50% { opacity:0.3; }
+  }
+  @keyframes bounce {
+    0% { transform:scale(0); } 60% { transform:scale(1.2); } 100% { transform:scale(1); }
+  }
+  @keyframes slideIn {
+    from { transform:translateX(60px); opacity:0; }
+    to { transform:translateX(0); opacity:1; }
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20% { transform:translateX(-8px); }
+    40% { transform:translateX(8px); }
+    60% { transform:translateX(-5px); }
+    80% { transform:translateX(5px); }
+  }
+
+  /* screen transitions */
+  .screen { animation:slideIn 0.35s ease; }
+
+  /* score popup */
+  .score-popup {
+    position:fixed; top:70px; right:20px; z-index:100;
+    font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900;
+    color:var(--correct); pointer-events:none;
+    animation:scoreFloat 1s ease forwards;
+  }
+  @keyframes scoreFloat {
+    0% { opacity:1; transform:translateY(0) scale(1); }
+    100% { opacity:0; transform:translateY(-60px) scale(1.5); }
+  }
+
+  /* Sudden death overlay */
+  .sd-overlay {
+    position:fixed; inset:0; z-index:200;
+    background:rgba(255,45,120,0.15); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:16px;
+    animation:fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .sd-text {
+    font-family:'Orbitron',monospace; font-size:2rem; font-weight:900;
+    color:var(--wrong); text-align:center; text-shadow:0 0 30px rgba(255,45,120,0.8);
+  }
+
+  /* Install prompt */
+  .install-banner {
+    position:fixed; bottom:80px; left:16px; right:16px; z-index:50;
+    background:linear-gradient(135deg,#0d0d2b,#1a0a3a);
+    border:1px solid rgba(0,245,255,0.3); border-radius:16px;
+    padding:14px 18px; display:none; align-items:center; gap:12px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6);
+  }
+  .install-banner.show { display:flex; }
+  .install-banner-text { flex:1; font-size:0.82rem; }
+  .install-banner-text strong { color:var(--accent); display:block; margin-bottom:2px; }
+  .install-btn {
+    background:linear-gradient(135deg,var(--accent),#7c4dff);
+    border:none; border-radius:10px; padding:8px 16px;
+    font-weight:700; color:#000; cursor:pointer; font-size:0.8rem;
+    white-space:nowrap;
+  }
+  .install-close {
+    background:none; border:none; color:var(--text-dim);
+    font-size:1.2rem; cursor:pointer; padding:4px;
+  }
+
+  /* Sudden death counter ring */
+  .sd-counter {
+    width:80px; height:80px; position:relative;
+  }
+  .sd-ring { transform:rotate(-90deg); }
+  .sd-ring circle:last-child {
+    stroke:var(--correct); stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;
+  }
+  .sd-number {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Orbitron',monospace; font-size:1.6rem; font-weight:900;
+    color:var(--accent);
+  }
+
+  /* Endless mode scrolling bg */
+  .endless-indicator {
+    position:fixed; top:60px; left:50%; transform:translateX(-50%);
+    font-size:0.65rem; color:rgba(124,77,255,0.6); letter-spacing:2px;
+    text-transform:uppercase; z-index:5;
+  }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-brain">🧠</div>
+  <div class="splash-logo">Quick Brain</div>
+  <div class="splash-sub">Smart Quiz Sprint</div>
+  <div class="splash-bar"><div class="splash-bar-fill" id="splashFill"></div></div>
+  <div class="splash-author">
+    <img src="author.jpg" alt="Mateen Yousuf" onerror="this.style.display='none'">
+    <span>By <strong>Mateen Yousuf</strong></span>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="installBanner">
+  <span>📱</span>
+  <div class="install-banner-text">
+    <strong>Install App</strong>
+    Add to home screen for offline use
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-close" id="installClose">✕</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="hdr">
+    <div class="hdr-logo">⚡ QuizSprint</div>
+    <div class="hdr-score">
+      <div class="streak-pill" id="hdrStreak">🔥 0</div>
+      <div class="score-pill" id="hdrScore">0 pts</div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- HOME -->
+    <div id="home" class="screen">
+      <div class="home-title">Smart Quiz Sprint</div>
+      <div class="home-sub">⚡ Speed · Accuracy · Recall</div>
+
+      <div class="author-card">
+        <img src="author.jpg" alt="Mateen Yousuf" onerror="this.style.background='var(--surface2)'">
+        <div class="author-info">
+          <div class="author-name">Mateen Yousuf</div>
+          <div class="author-tag">✍️ Quiz Designer & Author</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val" id="statBest">0</div>
+          <div class="stat-lbl">Best Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statPlayed">0</div>
+          <div class="stat-lbl">Games</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statStreak">0</div>
+          <div class="stat-lbl">Best Streak</div>
+        </div>
+      </div>
+
+      <div class="modes-title">Choose Your Mode</div>
+      <div class="modes-grid">
+        <div class="mode-card mode-1" onclick="selectMode('solo')">
+          <div class="mode-icon">🟢</div>
+          <div class="mode-name">Solo Sprint</div>
+          <div class="mode-desc">10 questions, timer-based</div>
+          <div class="mode-badge">CLASSIC</div>
+        </div>
+        <div class="mode-card mode-2" onclick="selectMode('classroom')">
+          <div class="mode-icon">🟡</div>
+          <div class="mode-name">Classroom Battle</div>
+          <div class="mode-desc">Compete with teams</div>
+          <div class="mode-badge">TEAM</div>
+        </div>
+        <div class="mode-card mode-3" onclick="selectMode('sudden')">
+          <div class="mode-icon">🔴</div>
+          <div class="mode-name">Sudden Death</div>
+          <div class="mode-desc">One wrong = out!</div>
+          <div class="mode-badge">HARDCORE</div>
+        </div>
+        <div class="mode-card mode-4" onclick="selectMode('endless')">
+          <div class="mode-icon">🟣</div>
+          <div class="mode-name">Endless Mode</div>
+          <div class="mode-desc">Keep going till mistake</div>
+          <div class="mode-badge">∞</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL SELECT -->
+    <div id="level-select" class="screen" style="display:none;flex-direction:column;align-items:center;padding:20px;">
+      <button class="back-btn" onclick="showScreen('home')">← Back</button>
+      <div class="screen-title">Select Level</div>
+      <div class="screen-sub" id="modeLabel">Solo Sprint • 10 Questions</div>
+      <div class="levels-list">
+        <div class="level-item" onclick="startQuiz(0)">
+          <div class="level-icon">🟢</div>
+          <div class="level-info">
+            <div class="level-name">Level 1 – General Knowledge</div>
+            <div class="level-detail">Capital cities, animals, basic science</div>
+            <div class="level-stars">★★☆☆</div>
+          </div>
+        </div>
+        <div class="level-item" onclick="startQuiz(1)">
+          <div class="level-icon">🟡</div>
+          <div class="level-info">
+            <div class="level-name">Level 2 – Science & Geography</div>
+            <div class="level-detail">Oceans, mountains, human body</div>
+            <div class="level-stars">★★★☆</div>
+          </div>
+        </div>
+        <div class="level-item" onclick="startQuiz(2)">
+          <div class="level-icon">🔴</div>
+          <div class="level-info">
+            <div class="level-name">Level 3 – History & Polity</div>
+            <div class="level-detail">Independence, revolutions, world events</div>
+            <div class="level-stars">★★★★</div>
+          </div>
+        </div>
+        <div class="level-item" onclick="startQuiz(3)">
+          <div class="level-icon">🟣</div>
+          <div class="level-info">
+            <div class="level-name">Level 4 – Mixed Advanced</div>
+            <div class="level-detail">Physics, biology, world trivia</div>
+            <div class="level-stars">★★★★★</div>
+          </div>
+        </div>
+        <div class="level-item" onclick="startQuiz(4)">
+          <div class="level-icon">🔥</div>
+          <div class="level-info">
+            <div class="level-name">Bonus Round – Rapid Fire</div>
+            <div class="level-detail">All levels mixed, maximum speed</div>
+            <div class="level-stars">★★★★★+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="screen" style="display:none;flex-direction:column;padding:16px 20px;gap:14px;">
+      <div class="timer-wrap">
+        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="quiz-meta">
+          <div class="q-counter" id="qCounter">Q 1 / 10</div>
+          <div class="timer-num" id="timerNum">15</div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-level-tag" id="qLevelTag">Level 1</div>
+        <div class="q-text" id="qText">Question loads here...</div>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div class="feedback-pop" id="feedbackPop"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">NEXT →</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="screen" style="display:none;flex-direction:column;align-items:center;padding:30px 20px 40px;">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <div class="result-title" id="resultTitle">Amazing!</div>
+      <div class="result-score" id="resultScore">0</div>
+      <div style="color:var(--text-dim);font-size:0.8rem;margin-bottom:8px;">points earned</div>
+
+      <div class="result-breakdown">
+        <div class="rb-row"><span class="rb-lbl">✅ Correct</span><span class="rb-val green" id="rbCorrect">0</span></div>
+        <div class="rb-row"><span class="rb-lbl">❌ Wrong</span><span class="rb-val red" id="rbWrong">0</span></div>
+        <div class="rb-row"><span class="rb-lbl">🔥 Best Streak</span><span class="rb-val yellow" id="rbStreak">0</span></div>
+        <div class="rb-row"><span class="rb-lbl">⚡ Avg Speed</span><span class="rb-val" id="rbSpeed">--</span></div>
+        <div class="rb-row"><span class="rb-lbl">🏅 New Best?</span><span class="rb-val yellow" id="rbBest">No</span></div>
+      </div>
+
+      <div class="result-btns">
+        <button class="r-btn-primary" onclick="restartSame()">🔄 Play Again</button>
+        <button class="r-btn-secondary" onclick="showScreen('home')">🏠 Home</button>
+        <button class="r-btn-secondary" onclick="showLeaderboard()">🏆 Leaderboard</button>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="leaderboard" class="screen" style="display:none;flex-direction:column;align-items:center;padding:24px 20px 40px;">
+      <button class="back-btn" onclick="showScreen('home')">← Back</button>
+      <div class="screen-title">🏆 Leaderboard</div>
+      <div class="screen-sub">Your all-time top scores</div>
+      <div class="lb-list" id="lbList"></div>
+    </div>
+
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" id="nav-home" onclick="navTo('home')">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-btn" id="nav-leaderboard" onclick="showLeaderboard()">
+      <span class="icon">🏆</span>Ranks
+    </button>
+    <button class="nav-btn" id="nav-stats" onclick="navTo('stats-view')">
+      <span class="icon">📊</span>Stats
+    </button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const ALL_QUESTIONS = [
+  // Level 1 - General Knowledge
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Capital of India?", opts:["Mumbai","Chennai","New Delhi","Kolkata"], ans:2 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Largest planet in our solar system?", opts:["Earth","Mars","Jupiter","Venus"], ans:2 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"National animal of India?", opts:["Lion","Tiger","Elephant","Horse"], ans:1 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Water freezes at?", opts:["0°C","10°C","100°C","50°C"], ans:0 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"The Sun is a ___?", opts:["Planet","Star","Satellite","Comet"], ans:1 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"How many continents are on Earth?", opts:["5","6","7","8"], ans:2 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Capital of France?", opts:["London","Berlin","Rome","Paris"], ans:3 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Which gas do plants absorb?", opts:["Oxygen","Nitrogen","CO₂","Hydrogen"], ans:2 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"How many days in a leap year?", opts:["365","366","364","367"], ans:1 },
+  { level:1, levelLabel:'🟢 Level 1', levelColor:'rgba(0,255,136,0.2)', text:"Fastest land animal?", opts:["Lion","Horse","Cheetah","Leopard"], ans:2 },
+  // Level 2 - Science & Geography
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Largest ocean on Earth?", opts:["Atlantic","Indian","Pacific","Arctic"], ans:2 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"The human heart pumps ___?", opts:["Air","Water","Blood","Oxygen"], ans:2 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Highest mountain in the world?", opts:["K2","Mount Everest","Alps","Andes"], ans:1 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Earth revolves around the ___?", opts:["Moon","Sun","Mars","Jupiter"], ans:1 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Which gas do we breathe in?", opts:["CO₂","Oxygen","Nitrogen","Hydrogen"], ans:1 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Largest country by area?", opts:["China","USA","Canada","Russia"], ans:3 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Chemical symbol for Gold?", opts:["Go","Gd","Au","Ag"], ans:2 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"How many bones in the human body?", opts:["196","206","216","226"], ans:1 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Longest river in the world?", opts:["Amazon","Congo","Nile","Yangtze"], ans:2 },
+  { level:2, levelLabel:'🟡 Level 2', levelColor:'rgba(255,230,0,0.2)', text:"Boiling point of water?", opts:["90°C","95°C","100°C","110°C"], ans:2 },
+  // Level 3 - History & Polity
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"First Prime Minister of India?", opts:["Gandhi","Jawaharlal Nehru","Patel","Bose"], ans:1 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Year India gained independence?", opts:["1945","1947","1950","1930"], ans:1 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Who built the Taj Mahal?", opts:["Akbar","Babur","Shah Jahan","Aurangzeb"], ans:2 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Year of the French Revolution?", opts:["1789","1776","1800","1815"], ans:0 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"United Nations was formed in?", opts:["1940","1945","1950","1939"], ans:1 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"First President of India?", opts:["Nehru","Patel","Rajendra Prasad","Radhakrishnan"], ans:2 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"World War II ended in?", opts:["1943","1944","1945","1946"], ans:2 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Who wrote the Indian National Anthem?", opts:["Bankim Chandra","Rabindranath Tagore","Subhas Bose","Gandhi"], ans:1 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Indian Constitution came into effect?", opts:["1947","1948","1950","1952"], ans:2 },
+  { level:3, levelLabel:'🔴 Level 3', levelColor:'rgba(255,45,120,0.2)', text:"Battle of Plassey was in?", opts:["1757","1764","1857","1600"], ans:0 },
+  // Level 4 - Mixed Advanced
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Smallest continent?", opts:["Europe","Asia","Australia","Africa"], ans:2 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Speed of light (approx)?", opts:["3×10⁸ m/s","3×10⁶ m/s","3×10⁵ m/s","3×10⁷ m/s"], ans:0 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Founder of Buddhism?", opts:["Mahavira","Gautama Buddha","Ashoka","Gandhi"], ans:1 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Largest desert in the world?", opts:["Thar","Sahara","Gobi","Antarctic"], ans:1 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"DNA full form?", opts:["Dynamic Acid","Deoxyribonucleic Acid","Double Acid","None"], ans:1 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Currency of Japan?", opts:["Yuan","Won","Yen","Ringgit"], ans:2 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Number of planets in our solar system?", opts:["7","8","9","10"], ans:1 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Powerhouse of the cell?", opts:["Nucleus","Ribosome","Mitochondria","Vacuole"], ans:2 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Capital of Australia?", opts:["Sydney","Melbourne","Canberra","Brisbane"], ans:2 },
+  { level:4, levelLabel:'🟣 Level 4', levelColor:'rgba(124,77,255,0.2)', text:"Who invented the telephone?", opts:["Edison","Bell","Tesla","Marconi"], ans:1 },
+];
+
+const LEVEL_RANGES = [
+  { start:0,  end:10, name:"General Knowledge" },
+  { start:10, end:20, name:"Science & Geography" },
+  { start:20, end:30, name:"History & Polity" },
+  { start:30, end:40, name:"Mixed Advanced" },
+  { start:0,  end:40, name:"Bonus Round" },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  mode: 'solo',
+  levelIdx: 0,
+  questions: [],
+  qIdx: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  correct: 0,
+  wrong: 0,
+  timers: [],
+  timerVal: 15,
+  timerMax: 15,
+  answered: false,
+  startTime: 0,
+  speedTimes: [],
+};
+
+let storage = {};
+function loadStorage() {
+  try { storage = JSON.parse(localStorage.getItem('qb_data') || '{}'); } catch(e) { storage = {}; }
+}
+function saveStorage() {
+  try { localStorage.setItem('qb_data', JSON.stringify(storage)); } catch(e) {}
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+const SCREENS = ['home','level-select','quiz','result','leaderboard'];
+
+function showScreen(id) {
+  SCREENS.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) { el.style.display = 'none'; }
+  });
+  const target = document.getElementById(id);
+  if (target) {
+    target.style.display = 'flex';
+    target.classList.remove('screen');
+    void target.offsetWidth;
+    target.classList.add('screen');
+  }
+  // Update nav
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 'home') document.getElementById('nav-home').classList.add('active');
+  if (id === 'leaderboard') document.getElementById('nav-leaderboard').classList.add('active');
+}
+
+function navTo(id) {
+  if (id === 'stats-view') {
+    showLeaderboard();
+    return;
+  }
+  showScreen(id);
+  if (id === 'home') updateHomeStats();
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function updateHomeStats() {
+  loadStorage();
+  document.getElementById('statBest').textContent = storage.bestScore || 0;
+  document.getElementById('statPlayed').textContent = storage.gamesPlayed || 0;
+  document.getElementById('statStreak').textContent = storage.bestStreak || 0;
+}
+
+function selectMode(mode) {
+  state.mode = mode;
+  const labels = {
+    solo: 'Solo Sprint • 10 Questions',
+    classroom: 'Classroom Battle • All vs All',
+    sudden: 'Sudden Death • One Wrong = Out',
+    endless: 'Endless Mode • Until Mistake',
+  };
+  document.getElementById('modeLabel').textContent = labels[mode];
+  showScreen('level-select');
+}
+
+// ============================================================
+// QUIZ LOGIC
+// ============================================================
+function buildQuestions(levelIdx) {
+  const r = LEVEL_RANGES[levelIdx];
+  let pool = ALL_QUESTIONS.slice(r.start, r.end);
+  // Shuffle
+  pool = pool.sort(() => Math.random() - 0.5);
+  if (state.mode === 'solo') pool = pool.slice(0, 10);
+  // For endless/sudden, use all
+  return pool;
+}
+
+function startQuiz(levelIdx) {
+  clearAllTimers();
+  state.levelIdx = levelIdx;
+  state.questions = buildQuestions(levelIdx);
+  state.qIdx = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.speedTimes = [];
+  updateScoreDisplay();
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.qIdx];
+  if (!q) { endQuiz(); return; }
+
+  state.answered = false;
+  state.startTime = Date.now();
+
+  // Counter
+  const total = state.mode === 'endless' || state.mode === 'sudden'
+    ? '∞' : state.questions.length;
+  document.getElementById('qCounter').textContent = `Q ${state.qIdx+1} / ${total}`;
+
+  // Level tag
+  const tag = document.getElementById('qLevelTag');
+  tag.textContent = q.levelLabel;
+  tag.style.background = q.levelColor;
+  tag.style.color = q.level === 2 ? '#b8a000' : q.level === 3 ? 'var(--wrong)' : q.level === 4 ? '#a78bfa' : 'var(--correct)';
+  tag.style.border = `1px solid ${q.levelColor.replace('0.2','0.5')}`;
+
+  // Question
+  document.getElementById('qText').textContent = q.text;
+
+  // Options
+  const letters = ['A','B','C','D'];
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => answer(i, q.ans, btn);
+    opts.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedbackPop');
+  fb.className = 'feedback-pop'; fb.textContent = '';
+
+  // Next btn
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'next-btn';
+  nb.textContent = state.qIdx === state.questions.length - 1 ? 'FINISH 🏁' : 'NEXT →';
+
+  // Timer
+  startTimer();
+}
+
+function startTimer() {
+  clearAllTimers();
+  state.timerVal = state.mode === 'endless' ? 10 : 15;
+  state.timerMax = state.timerVal;
+  updateTimerUI();
+
+  const interval = setInterval(() => {
+    state.timerVal--;
+    updateTimerUI();
+    if (state.timerVal <= 0) {
+      clearInterval(interval);
+      if (!state.answered) timeUp();
+    }
+  }, 1000);
+  state.timers.push(interval);
+}
+
+function updateTimerUI() {
+  const pct = (state.timerVal / state.timerMax) * 100;
+  const fill = document.getElementById('timerFill');
+  const num = document.getElementById('timerNum');
+  fill.style.width = pct + '%';
+  const danger = state.timerVal <= 5;
+  fill.className = 'timer-fill' + (danger ? ' danger' : '');
+  num.className = 'timer-num' + (danger ? ' danger' : '');
+  num.textContent = state.timerVal;
+}
+
+function answer(idx, correct, btn) {
+  if (state.answered) return;
+  state.answered = true;
+  clearAllTimers();
+
+  const elapsed = (Date.now() - state.startTime) / 1000;
+  state.speedTimes.push(elapsed);
+
+  const allBtns = document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  const isCorrect = idx === correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  allBtns[correct].classList.add('correct');
+
+  const fb = document.getElementById('feedbackPop');
+
+  if (isCorrect) {
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+    let pts = 10;
+    if (elapsed < 5) pts += 5; // fast bonus
+    if (state.streak >= 5) pts += 20; // streak bonus
+    state.score += pts;
+
+    fb.textContent = elapsed < 5 ? `⚡ FAST! +${pts} pts` : `✅ Correct! +${pts} pts`;
+    fb.className = 'feedback-pop show correct-fb';
+    showScorePopup(`+${pts}`);
+
+    // Sudden death: continue
+    updateScoreDisplay();
+    document.getElementById('nextBtn').classList.add('show');
+
+    if (state.mode === 'endless') {
+      // auto next in 1.2s
+      const t = setTimeout(() => nextQuestion(), 1200);
+      state.timers.push(t);
+    }
+  } else {
+    state.wrong++;
+    state.streak = 0;
+    fb.textContent = `❌ Wrong! Correct: ${state.questions[state.qIdx].opts[correct]}`;
+    fb.className = 'feedback-pop show wrong-fb';
+
+    // Shake the wrong button
+    btn.style.animation = 'shake 0.4s ease';
+    btn.addEventListener('animationend', () => btn.style.animation = '');
+
+    if (state.mode === 'sudden' || state.mode === 'endless') {
+      const t = setTimeout(() => endQuiz(), 1500);
+      state.timers.push(t);
+    } else {
+      updateScoreDisplay();
+      document.getElementById('nextBtn').classList.add('show');
+    }
+  }
+}
+
+function timeUp() {
+  state.answered = true;
+  state.wrong++;
+  state.streak = 0;
+  const fb = document.getElementById('feedbackPop');
+  fb.textContent = '⏱️ Time up!';
+  fb.className = 'feedback-pop show wrong-fb';
+
+  const allBtns = document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+  const q = state.questions[state.qIdx];
+  allBtns[q.ans].classList.add('correct');
+
+  if (state.mode === 'sudden' || state.mode === 'endless') {
+    const t = setTimeout(() => endQuiz(), 1500);
+    state.timers.push(t);
+  } else {
+    document.getElementById('nextBtn').classList.add('show');
+  }
+  updateScoreDisplay();
+}
+
+function nextQuestion() {
+  state.qIdx++;
+  if (state.qIdx >= state.questions.length && state.mode !== 'endless') {
+    endQuiz();
+  } else if (state.mode === 'endless' && !state.answered) {
+    // safety
+    renderQuestion();
+  } else {
+    renderQuestion();
+  }
+}
+
+function updateScoreDisplay() {
+  document.getElementById('hdrScore').textContent = state.score + ' pts';
+  document.getElementById('hdrStreak').textContent = '🔥 ' + state.streak;
+}
+
+function clearAllTimers() {
+  state.timers.forEach(t => { clearInterval(t); clearTimeout(t); });
+  state.timers = [];
+}
+
+// ============================================================
+// END QUIZ
+// ============================================================
+function endQuiz() {
+  clearAllTimers();
+  loadStorage();
+
+  const prevBest = storage.bestScore || 0;
+  const isNewBest = state.score > prevBest;
+  if (isNewBest) storage.bestScore = state.score;
+  storage.gamesPlayed = (storage.gamesPlayed || 0) + 1;
+  if (state.bestStreak > (storage.bestStreak || 0)) storage.bestStreak = state.bestStreak;
+
+  // Save to leaderboard
+  if (!storage.leaderboard) storage.leaderboard = [];
+  storage.leaderboard.push({
+    score: state.score,
+    mode: state.mode,
+    date: new Date().toLocaleDateString(),
+  });
+  storage.leaderboard.sort((a,b) => b.score - a.score);
+  storage.leaderboard = storage.leaderboard.slice(0, 10);
+
+  saveStorage();
+
+  // Result display
+  const pct = state.correct / Math.max(state.correct + state.wrong, 1);
+  let emoji, title;
+  if (pct >= 0.9) { emoji = '🏆'; title = 'LEGENDARY!'; }
+  else if (pct >= 0.7) { emoji = '⭐'; title = 'Great Work!'; }
+  else if (pct >= 0.5) { emoji = '👍'; title = 'Good Try!'; }
+  else { emoji = '💪'; title = 'Keep Going!'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = state.score;
+  document.getElementById('rbCorrect').textContent = state.correct;
+  document.getElementById('rbWrong').textContent = state.wrong;
+  document.getElementById('rbStreak').textContent = state.bestStreak;
+  const avgSpeed = state.speedTimes.length
+    ? (state.speedTimes.reduce((a,b)=>a+b,0)/state.speedTimes.length).toFixed(1) + 's'
+    : '--';
+  document.getElementById('rbSpeed').textContent = avgSpeed;
+  document.getElementById('rbBest').textContent = isNewBest ? '🎉 YES!' : 'No';
+
+  showScreen('result');
+}
+
+function restartSame() {
+  startQuiz(state.levelIdx);
+}
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+function showLeaderboard() {
+  loadStorage();
+  const lb = storage.leaderboard || [];
+  const list = document.getElementById('lbList');
+  if (lb.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px 0;">No games played yet!<br>Start playing to see your scores here.</div>';
+  } else {
+    const rankClass = ['gold','silver','bronze'];
+    list.innerHTML = lb.map((item, i) => `
+      <div class="lb-item">
+        <div class="lb-rank ${rankClass[i] || ''}">${i+1 <= 3 ? ['🥇','🥈','🥉'][i] : '#'+(i+1)}</div>
+        <div class="lb-name">${item.mode.toUpperCase()} • ${item.date}</div>
+        <div class="lb-score">${item.score}</div>
+      </div>
+    `).join('');
+  }
+  showScreen('leaderboard');
+  document.getElementById('nav-leaderboard').classList.add('active');
+  document.getElementById('nav-home').classList.remove('active');
+}
+
+// ============================================================
+// SCORE POPUP
+// ============================================================
+function showScorePopup(text) {
+  const el = document.createElement('div');
+  el.className = 'score-popup';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ============================================================
+// SPLASH & INIT
+// ============================================================
+window.addEventListener('load', () => {
+  loadStorage();
+
+  // Splash animation
+  setTimeout(() => {
+    document.getElementById('splashFill').style.width = '100%';
+  }, 100);
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    document.getElementById('app').style.display = 'flex';
+    updateHomeStats();
+  }, 2200);
+});
+
+// ============================================================
+// PWA INSTALL
+// ============================================================
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+
+document.getElementById('installBtn').addEventListener('click', () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+  }
+});
+
+document.getElementById('installClose').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').catch(() => {});
+}
+</script>
+</body>
+</html>
