@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="description" content="Science Sparks - Cause & Effect Quest for Class 9 Science">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Science Sparks">
+<link rel="manifest" href="manifest.json">
+<title>Science Sparks ⚡ Cause & Effect Quest</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #050510;
+    --bg2: #0a0a20;
+    --card: #0f0f2a;
+    --border: rgba(100,200,255,0.15);
+    --green: #00ff88;
+    --yellow: #ffd700;
+    --red: #ff4466;
+    --purple: #cc44ff;
+    --blue: #00aaff;
+    --white: #e8f0ff;
+    --dim: rgba(232,240,255,0.5);
+    --glow-g: 0 0 20px rgba(0,255,136,0.4);
+    --glow-b: 0 0 20px rgba(0,170,255,0.4);
+    --glow-r: 0 0 20px rgba(255,68,102,0.4);
+    --glow-y: 0 0 20px rgba(255,215,0,0.4);
+    --glow-p: 0 0 20px rgba(204,68,255,0.4);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* === STARFIELD === */
+  #stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,50,100,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(50,0,80,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(0,80,60,0.2) 0%, transparent 50%);
+  }
+  .star {
+    position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite;
+    opacity: var(--o, 0.5);
+  }
+  @keyframes twinkle { 0%,100%{opacity:var(--o);transform:scale(1)} 50%{opacity:0.1;transform:scale(0.5)} }
+
+  /* === SCREENS === */
+  .screen { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  .screen.hidden { display: none; }
+
+  /* === SPLASH === */
+  #splash {
+    background: radial-gradient(ellipse at center, rgba(0,100,200,0.2) 0%, var(--bg) 70%);
+    text-align: center;
+    gap: 16px;
+  }
+  .splash-atom {
+    width: 120px; height: 120px; position: relative; margin: 0 auto 10px;
+  }
+  .atom-nucleus {
+    position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width: 30px; height: 30px; background: radial-gradient(circle, #fff 0%, var(--blue) 60%);
+    border-radius: 50%; box-shadow: 0 0 30px var(--blue), 0 0 60px rgba(0,170,255,0.3);
+    animation: pulse-nucleus 2s ease-in-out infinite;
+  }
+  @keyframes pulse-nucleus { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.3)} }
+  .atom-orbit {
+    position: absolute; top:50%; left:50%; border: 1.5px solid rgba(0,170,255,0.4); border-radius:50%;
+    transform-origin: center center; transform: translate(-50%,-50%) rotate(0deg);
+  }
+  .atom-orbit:nth-child(2) { width:80px; height:30px; animation: orbit1 2s linear infinite; }
+  .atom-orbit:nth-child(3) { width:80px; height:30px; animation: orbit2 2.5s linear infinite; transform: translate(-50%,-50%) rotate(60deg); }
+  .atom-orbit:nth-child(4) { width:80px; height:30px; animation: orbit3 3s linear infinite; transform: translate(-50%,-50%) rotate(120deg); }
+  .atom-electron {
+    position: absolute; top:-4px; left:50%; transform:translateX(-50%);
+    width:8px; height:8px; background:var(--blue); border-radius:50%;
+    box-shadow: var(--glow-b);
+  }
+  @keyframes orbit1 { to{transform:translate(-50%,-50%) rotateY(360deg)} }
+  @keyframes orbit2 { to{transform:translate(-50%,-50%) rotate(60deg) rotateY(360deg)} }
+  @keyframes orbit3 { to{transform:translate(-50%,-50%) rotate(120deg) rotateY(360deg)} }
+
+  .splash-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 6vw, 3rem); font-weight: 900;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--green) 50%, var(--yellow) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 2px; line-height: 1.1;
+    filter: drop-shadow(0 0 20px rgba(0,170,255,0.5));
+    animation: title-glow 3s ease-in-out infinite;
+  }
+  @keyframes title-glow {
+    0%,100%{filter:drop-shadow(0 0 20px rgba(0,170,255,0.5))}
+    50%{filter:drop-shadow(0 0 40px rgba(0,255,136,0.8))}
+  }
+  .splash-sub {
+    font-size: 1rem; color: var(--dim); letter-spacing: 4px; text-transform: uppercase;
+    animation: fadeInUp 1s ease 0.5s both;
+  }
+  .splash-author {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 50px; padding: 10px 20px;
+    animation: fadeInUp 1s ease 0.8s both;
+  }
+  .author-img {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--blue); object-fit: cover;
+    box-shadow: var(--glow-b);
+  }
+  .author-name { font-size: 0.85rem; font-weight: 600; color: var(--blue); }
+  .author-role { font-size: 0.75rem; color: var(--dim); }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 36px; border: none; border-radius: 50px; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: var(--bg); position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 30px rgba(0,170,255,0.4);
+    animation: fadeInUp 1s ease 1.1s both;
+  }
+  .btn-primary:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 40px rgba(0,170,255,0.6); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+    transform: translateX(-100%); transition: transform 0.5s;
+  }
+  .btn-primary:hover::before { transform: translateX(100%); }
+
+  .score-display {
+    display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    animation: fadeInUp 1s ease 0.6s both;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 30px; padding: 8px 16px; font-size: 0.85rem;
+  }
+  .stat-pill .stat-val { font-family:'Orbitron',sans-serif; font-weight:700; }
+
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* === MODE SELECT === */
+  #mode-select { gap: 16px; padding: 20px; }
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 500px; }
+  .mode-card {
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 20px 16px; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .mode-card::before {
+    content:''; position:absolute; inset:0; opacity:0;
+    transition: opacity 0.3s;
+  }
+  .mode-card:hover { transform: translateY(-4px) scale(1.02); }
+  .mode-card:active { transform: scale(0.97); }
+  .mode-card[data-mode="predict"] { border-color: rgba(0,255,136,0.3); }
+  .mode-card[data-mode="predict"]:hover { box-shadow: var(--glow-g); border-color: var(--green); }
+  .mode-card[data-mode="match"] { border-color: rgba(255,215,0,0.3); }
+  .mode-card[data-mode="match"]:hover { box-shadow: var(--glow-y); border-color: var(--yellow); }
+  .mode-card[data-mode="rapid"] { border-color: rgba(255,68,102,0.3); }
+  .mode-card[data-mode="rapid"]:hover { box-shadow: var(--glow-r); border-color: var(--red); }
+  .mode-card[data-mode="reverse"] { border-color: rgba(204,68,255,0.3); }
+  .mode-card[data-mode="reverse"]:hover { box-shadow: var(--glow-p); border-color: var(--purple); }
+  .mode-emoji { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+  .mode-name { font-family:'Orbitron',sans-serif; font-size: 0.8rem; font-weight:700; letter-spacing:1px; }
+  .mode-desc { font-size: 0.72rem; color: var(--dim); margin-top: 6px; line-height: 1.4; }
+  .mode-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; margin-top: 8px; display: inline-block; font-weight:600; }
+  .badge-green { background:rgba(0,255,136,0.15); color:var(--green); }
+  .badge-yellow { background:rgba(255,215,0,0.15); color:var(--yellow); }
+  .badge-red { background:rgba(255,68,102,0.15); color:var(--red); }
+  .badge-purple { background:rgba(204,68,255,0.15); color:var(--purple); }
+
+  .level-selector { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
+  .level-btn {
+    padding: 10px 20px; border-radius: 30px; border: 1.5px solid var(--border);
+    background: var(--card); cursor: pointer; font-size: 0.85rem; font-weight: 600;
+    transition: all 0.2s; color: var(--white);
+  }
+  .level-btn.active, .level-btn:hover { background: rgba(0,170,255,0.2); border-color: var(--blue); color: var(--blue); box-shadow: var(--glow-b); }
+
+  .section-title { font-family:'Orbitron',sans-serif; font-size: 0.85rem; letter-spacing: 3px; color: var(--dim); text-transform:uppercase; }
+
+  /* === GAME SCREEN === */
+  #game-screen { gap: 0; padding: 0; justify-content: flex-start; }
+  .game-header {
+    width: 100%; padding: 16px 20px 12px;
+    background: rgba(5,5,20,0.95); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .game-header .back-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05); cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; color: var(--white); flex-shrink: 0;
+  }
+  .game-header .back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
+  .game-info { flex: 1; min-width: 0; }
+  .game-mode-tag { font-size: 0.7rem; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
+  .game-progress-text { font-family:'Orbitron',sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .game-stats { display: flex; gap: 12px; margin-left: auto; }
+  .game-stat { text-align: center; }
+  .game-stat-val { font-family:'Orbitron',sans-serif; font-size: 1rem; font-weight: 900; }
+  .game-stat-lbl { font-size: 0.6rem; color: var(--dim); letter-spacing: 1px; }
+  .score-green { color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+  .score-red { color: var(--red); }
+
+  .progress-bar-wrap { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow:hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; background: linear-gradient(90deg, var(--blue), var(--green)); }
+
+  .game-body { padding: 20px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 100px; }
+
+  /* Timer */
+  .timer-ring-wrap { display:flex; align-items:center; justify-content:center; position:relative; width:64px; height:64px; flex-shrink:0; }
+  .timer-svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+  .timer-track { fill:none; stroke:rgba(255,255,255,0.1); stroke-width:3; }
+  .timer-fill { fill:none; stroke:var(--blue); stroke-width:3; stroke-dasharray:170; stroke-dashoffset:0; stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke 0.3s; }
+  .timer-num { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; position:relative; z-index:1; }
+
+  /* Question card */
+  .question-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 24px; position: relative; overflow: hidden;
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(30px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .question-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+  }
+  .question-label { font-size: 0.7rem; letter-spacing: 3px; color: var(--dim); text-transform:uppercase; margin-bottom: 12px; }
+  .question-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(0,170,255,0.5)); }
+  .question-text { font-size: clamp(1rem, 3.5vw, 1.3rem); font-weight: 600; line-height: 1.5; }
+  .question-arrow { font-size: 1.5rem; margin: 12px 0; color: var(--blue); animation: arrowBounce 1s ease infinite; }
+  @keyframes arrowBounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+
+  /* Options */
+  .options-grid { display: flex; flex-direction: column; gap: 12px; }
+  .option-btn {
+    width:100%; padding: 16px 20px; background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1); border-radius: 14px;
+    cursor: pointer; text-align: left; font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem; color: var(--white); transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+    position: relative; overflow: hidden;
+  }
+  .option-btn:hover { background: rgba(0,170,255,0.1); border-color: rgba(0,170,255,0.4); transform: translateX(4px); }
+  .option-btn.correct { background: rgba(0,255,136,0.15); border-color: var(--green); color: var(--green); box-shadow: var(--glow-g); animation: correctPulse 0.5s ease; }
+  .option-btn.wrong { background: rgba(255,68,102,0.15); border-color: var(--red); color: var(--red); box-shadow: var(--glow-r); animation: shake 0.4s ease; }
+  .option-btn.reveal { background: rgba(0,255,136,0.1); border-color: rgba(0,255,136,0.3); opacity: 0.7; }
+  .option-btn:disabled { cursor: default; transform: none; }
+  @keyframes correctPulse { 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .option-letter { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; }
+  .option-btn.correct .option-letter { background:rgba(0,255,136,0.3); }
+  .option-btn.wrong .option-letter { background:rgba(255,68,102,0.3); }
+
+  /* Feedback */
+  .feedback-card {
+    border-radius: 16px; padding: 16px 20px;
+    animation: fadeInUp 0.3s ease;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .feedback-card.correct { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); }
+  .feedback-card.wrong { background: rgba(255,68,102,0.1); border: 1px solid rgba(255,68,102,0.3); }
+  .feedback-icon { font-size: 1.8rem; flex-shrink:0; }
+  .feedback-title { font-weight: 700; font-size: 1rem; }
+  .feedback-text { font-size: 0.85rem; color: var(--dim); margin-top: 4px; line-height: 1.5; }
+  .correct .feedback-title { color: var(--green); }
+  .wrong .feedback-title { color: var(--red); }
+  .points-earned { font-family:'Orbitron',sans-serif; font-size: 0.85rem; font-weight: 700; margin-top: 6px; }
+  .points-pos { color: var(--green); }
+  .points-neg { color: var(--red); }
+
+  .next-btn {
+    width: 100%; padding: 16px; border: none; border-radius: 14px; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 2px;
+    background: linear-gradient(135deg, rgba(0,170,255,0.3), rgba(0,255,136,0.3));
+    border: 1.5px solid rgba(0,170,255,0.4); color: var(--white);
+    transition: all 0.2s; animation: fadeInUp 0.3s ease 0.2s both;
+  }
+  .next-btn:hover { background: linear-gradient(135deg, rgba(0,170,255,0.5), rgba(0,255,136,0.5)); transform: translateY(-2px); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Rapid Fire header bar */
+  .rapid-header { display:flex; align-items:center; gap: 14px; }
+  .rapid-timer-bar { flex:1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow:hidden; }
+  .rapid-timer-fill { height:100%; background: linear-gradient(90deg, var(--green), var(--yellow), var(--red)); transition: width 1s linear; }
+
+  /* Match Mode */
+  .match-board { display:flex; gap: 14px; }
+  .match-col { flex:1; display:flex; flex-direction:column; gap: 10px; }
+  .match-col-title { font-size:0.7rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; text-align:center; margin-bottom:4px; }
+  .match-item {
+    padding: 12px 14px; background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer;
+    font-size: 0.85rem; text-align:center; transition: all 0.2s; min-height: 60px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .match-item:hover { border-color: var(--blue); background: rgba(0,170,255,0.1); }
+  .match-item.selected { border-color: var(--yellow); background: rgba(255,215,0,0.15); box-shadow: var(--glow-y); color: var(--yellow); }
+  .match-item.matched { border-color: var(--green); background: rgba(0,255,136,0.1); color: var(--green); opacity:0.6; pointer-events:none; }
+  .match-item.wrong-match { border-color: var(--red); background: rgba(255,68,102,0.1); animation: shake 0.4s ease; }
+
+  /* Results Screen */
+  #results-screen { gap: 20px; text-align:center; }
+  .results-circle {
+    width: 160px; height: 160px; border-radius: 50%; position: relative;
+    display: flex; flex-direction:column; align-items:center; justify-content:center;
+    background: conic-gradient(var(--green) 0% var(--pct, 70%), rgba(255,255,255,0.1) var(--pct,70%) 100%);
+    box-shadow: 0 0 40px rgba(0,255,136,0.3);
+  }
+  .results-circle::before {
+    content:''; position:absolute; inset:8px; border-radius:50%; background: var(--bg2);
+  }
+  .results-score { font-family:'Orbitron',sans-serif; font-size:2.2rem; font-weight:900; color:var(--green); position:relative; z-index:1; }
+  .results-pts { font-size:0.75rem; color:var(--dim); position:relative; z-index:1; letter-spacing:2px; }
+  .results-title { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; }
+  .results-subtitle { color:var(--dim); font-size:0.9rem; }
+  .results-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; width:100%; max-width:400px; }
+  .res-stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .res-stat-val { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; }
+  .res-stat-lbl { font-size:0.7rem; color:var(--dim); margin-top:4px; }
+  .results-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .btn-secondary {
+    padding: 12px 24px; border-radius: 30px; cursor: pointer;
+    background: rgba(255,255,255,0.07); border: 1.5px solid var(--border);
+    color: var(--white); font-family:'Exo 2',sans-serif; font-size:0.9rem; font-weight:600;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+
+  /* Particles */
+  .particle { position:fixed; pointer-events:none; z-index:100; font-size:1.2rem; animation: particleFly 1.2s ease forwards; }
+  @keyframes particleFly {
+    0%{opacity:1;transform:translateY(0) scale(1)}
+    100%{opacity:0;transform:translateY(-80px) scale(0.5)}
+  }
+
+  /* Score popup */
+  .score-popup {
+    position:fixed; z-index:200; font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900;
+    pointer-events:none; animation: scoreFloat 1.5s ease forwards;
+  }
+  @keyframes scoreFloat {
+    0%{opacity:1;transform:translateY(0) scale(1)}
+    100%{opacity:0;transform:translateY(-60px) scale(1.5)}
+  }
+
+  /* Level badge */
+  .level-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700;
+  }
+  .lv1 { background:rgba(0,255,136,0.15); color:var(--green); border:1px solid rgba(0,255,136,0.3); }
+  .lv2 { background:rgba(255,215,0,0.15); color:var(--yellow); border:1px solid rgba(255,215,0,0.3); }
+  .lv3 { background:rgba(255,68,102,0.15); color:var(--red); border:1px solid rgba(255,68,102,0.3); }
+  .lv4 { background:rgba(204,68,255,0.15); color:var(--purple); border:1px solid rgba(204,68,255,0.3); }
+
+  /* Combo */
+  .combo-display {
+    position:fixed; top:80px; right:16px; z-index:50;
+    font-family:'Orbitron',sans-serif; font-size:0.8rem; font-weight:900;
+    background:rgba(255,215,0,0.15); border:1.5px solid var(--yellow);
+    color:var(--yellow); padding:6px 14px; border-radius:30px;
+    animation:comboAppear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display:none;
+  }
+  .combo-display.show { display:block; }
+  @keyframes comboAppear { from{transform:scale(0.5) rotate(-10deg)} to{transform:scale(1) rotate(0deg)} }
+
+  /* Leaderboard on results */
+  .leaderboard { width:100%; max-width:400px; background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .lb-header { padding:12px 16px; background:rgba(255,255,255,0.05); font-size:0.75rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; }
+  .lb-row { padding:12px 16px; display:flex; align-items:center; gap:12px; border-top:1px solid rgba(255,255,255,0.05); }
+  .lb-rank { font-family:'Orbitron',sans-serif; font-size:0.9rem; font-weight:900; width:24px; }
+  .lb-name { flex:1; font-size:0.9rem; font-weight:600; }
+  .lb-score { font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:700; color:var(--green); }
+  .lb-row.current-user { background:rgba(0,170,255,0.1); }
+  .rank-1 { color:var(--yellow); }
+  .rank-2 { color:rgba(200,200,200,0.8); }
+  .rank-3 { color:rgba(200,120,60,0.9); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(0,170,255,0.3); border-radius:4px; }
+
+  /* Achievement toast */
+  .achievement-toast {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    z-index:300; background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,100,0,0.2));
+    border:1.5px solid var(--yellow); border-radius:50px; padding:12px 24px;
+    display:flex; align-items:center; gap:10px;
+    animation:toastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space:nowrap;
+  }
+  @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(40px) scale(0.8)} to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }
+  .achievement-toast.fade-out { animation:toastOut 0.4s ease forwards; }
+  @keyframes toastOut { to{opacity:0;transform:translateX(-50%) translateY(20px)} }
+
+  /* Input for name */
+  .name-input {
+    width:100%; padding:14px 20px; background:rgba(255,255,255,0.05);
+    border:1.5px solid var(--border); border-radius:12px; color:var(--white);
+    font-family:'Exo 2',sans-serif; font-size:1rem; text-align:center;
+    outline:none; transition:border-color 0.2s;
+  }
+  .name-input:focus { border-color:var(--blue); box-shadow:var(--glow-b); }
+  .name-input::placeholder { color:var(--dim); }
+
+  /* Rapid Fire overlay */
+  .countdown-overlay {
+    position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  }
+  .countdown-num {
+    font-family:'Orbitron',sans-serif; font-size:8rem; font-weight:900;
+    background:linear-gradient(135deg,var(--blue),var(--green));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    animation:countScale 1s ease infinite;
+  }
+  @keyframes countScale { 0%{transform:scale(0.5);opacity:0} 50%{transform:scale(1.2);opacity:1} 100%{transform:scale(1);opacity:0.8} }
+
+  /* PWA install banner */
+  .install-banner {
+    position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+    background:var(--card); border:1px solid var(--border); border-radius:50px;
+    padding:12px 20px; display:flex; align-items:center; gap:12px;
+    z-index:400; max-width:360px; width:calc(100% - 32px);
+    box-shadow:0 8px 40px rgba(0,0,0,0.5); animation:slideUpBanner 0.5s ease;
+  }
+  @keyframes slideUpBanner { from{opacity:0;transform:translateX(-50%) translateY(40px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+  .install-banner.hidden { display:none; }
+  .install-text { flex:1; font-size:0.8rem; }
+  .install-text strong { color:var(--blue); display:block; }
+  .install-btn { padding:8px 16px; background:linear-gradient(135deg,var(--blue),var(--green)); border:none; border-radius:20px; color:var(--bg); font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap; }
+  .install-close { background:none; border:none; color:var(--dim); cursor:pointer; font-size:1.2rem; padding:4px; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div class="combo-display" id="comboDisplay">🔥 COMBO x<span id="comboNum">2</span></div>
+
+<!-- SPLASH SCREEN -->
+<div class="screen" id="splash">
+  <div class="splash-atom">
+    <div class="atom-orbit"><div class="atom-electron"></div></div>
+    <div class="atom-orbit"><div class="atom-electron"></div></div>
+    <div class="atom-orbit"><div class="atom-electron"></div></div>
+    <div class="atom-nucleus"></div>
+  </div>
+  <div class="splash-title">SCIENCE<br>SPARKS ⚡</div>
+  <div class="splash-sub">Cause &amp; Effect Quest</div>
+  <div class="score-display" id="splashStats" style="display:none">
+    <div class="stat-pill"><span>🏆</span><span class="stat-val score-green" id="statBestScore">0</span><span style="color:var(--dim);font-size:0.75rem">Best</span></div>
+    <div class="stat-pill"><span>⚡</span><span class="stat-val" style="color:var(--yellow)" id="statTotalGames">0</span><span style="color:var(--dim);font-size:0.75rem">Games</span></div>
+    <div class="stat-pill"><span>🎯</span><span class="stat-val" style="color:var(--purple)" id="statAccuracy">0%</span><span style="color:var(--dim);font-size:0.75rem">Accuracy</span></div>
+  </div>
+  <div class="splash-author">
+    <img src="author.jpg" alt="Mateen Yousuf" class="author-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div style="display:none;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));align-items:center;justify-content:center;font-size:1.2rem;border:2px solid var(--blue);">👨‍🏫</div>
+    <div>
+      <div class="author-name">Mateen Yousuf</div>
+      <div class="author-role">Author • JKBOSE Class 9 Science</div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="showScreen('mode-select')">⚡ START QUEST</button>
+  <div style="font-size:0.75rem;color:var(--dim);margin-top:8px;" id="questionCountLabel">Questions • 4 Game Modes</div>
+</div>
+
+<!-- MODE SELECT -->
+<div class="screen hidden" id="mode-select">
+  <div style="text-align:center;margin-bottom:16px;animation:fadeInUp 0.5s ease both">
+    <div class="section-title" style="margin-bottom:8px">Choose Mode</div>
+    <div style="font-size:1.5rem;font-family:'Orbitron',sans-serif;font-weight:900">GAME MODES</div>
+  </div>
+  <div class="mode-grid" style="animation:fadeInUp 0.5s ease 0.1s both">
+    <div class="mode-card" data-mode="predict" onclick="startGame('predict')">
+      <span class="mode-emoji">🔮</span>
+      <div class="mode-name">PREDICT IT</div>
+      <div class="mode-desc">Cause is given. Find the correct Effect!</div>
+      <div class="mode-badge badge-green">CLASSIC</div>
+    </div>
+    <div class="mode-card" data-mode="match" onclick="startGame('match')">
+      <span class="mode-emoji">🧩</span>
+      <div class="mode-name">MATCH IT</div>
+      <div class="mode-desc">Connect causes with their effects!</div>
+      <div class="mode-badge badge-yellow">MATCHING</div>
+    </div>
+    <div class="mode-card" data-mode="rapid" onclick="startGame('rapid')">
+      <span class="mode-emoji">⚡</span>
+      <div class="mode-name">RAPID FIRE</div>
+      <div class="mode-desc">10 questions in 60 seconds!</div>
+      <div class="mode-badge badge-red">SPEED</div>
+    </div>
+    <div class="mode-card" data-mode="reverse" onclick="startGame('reverse')">
+      <span class="mode-emoji">🔁</span>
+      <div class="mode-name">REVERSE</div>
+      <div class="mode-desc">Given Effect → Find the Cause!</div>
+      <div class="mode-badge badge-purple">ADVANCED</div>
+    </div>
+  </div>
+
+  <div style="width:100%;max-width:500px;margin-top:16px;animation:fadeInUp 0.5s ease 0.2s both">
+    <div class="section-title" style="text-align:center;margin-bottom:12px">Select Level</div>
+    <div class="level-selector" style="justify-content:center">
+      <button class="level-btn active" onclick="selectLevel(0,this)">🌟 All Levels</button>
+      <button class="level-btn" onclick="selectLevel(1,this)">🟢 Level 1</button>
+      <button class="level-btn" onclick="selectLevel(2,this)">🟡 Level 2</button>
+      <button class="level-btn" onclick="selectLevel(3,this)">🔴 Level 3</button>
+      <button class="level-btn" onclick="selectLevel(4,this)">🟣 Bonus</button>
+    </div>
+  </div>
+  <button class="btn-secondary" onclick="showScreen('splash')" style="margin-top:16px;animation:fadeInUp 0.5s ease 0.3s both">← Back</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen hidden" id="game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="confirmExit()">←</button>
+    <div class="game-info">
+      <div class="game-mode-tag" id="gameModeTag">PREDICT IT</div>
+      <div class="game-progress-text" id="gameProgressText">Q 1 / 10</div>
+    </div>
+    <div class="game-stats">
+      <div class="game-stat">
+        <div class="game-stat-val score-green" id="gameScore">0</div>
+        <div class="game-stat-lbl">SCORE</div>
+      </div>
+      <div class="game-stat">
+        <div class="game-stat-val" style="color:var(--green)" id="gameCorrect">0</div>
+        <div class="game-stat-lbl">✓ RIGHT</div>
+      </div>
+      <div class="game-stat">
+        <div class="game-stat-val score-red" id="gameWrong">0</div>
+        <div class="game-stat-lbl">✗ WRONG</div>
+      </div>
+    </div>
+  </div>
+  <div style="width:100%;padding:0 0 0 0">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="game-body" id="gameBody">
+    <!-- Content injected by JS -->
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="screen hidden" id="results-screen">
+  <div style="text-align:center">
+    <div class="section-title" style="margin-bottom:8px">QUEST COMPLETE</div>
+    <div class="results-title" id="resultsTitle">Amazing!</div>
+    <div class="results-subtitle" id="resultsSubtitle">Great performance!</div>
+  </div>
+  <div class="results-circle" id="resultsCircle">
+    <div class="results-score" id="finalScore">0</div>
+    <div class="results-pts">POINTS</div>
+  </div>
+  <div class="results-grid">
+    <div class="res-stat">
+      <div class="res-stat-val score-green" id="resCorrect">0</div>
+      <div class="res-stat-lbl">✓ Correct</div>
+    </div>
+    <div class="res-stat">
+      <div class="res-stat-val score-red" id="resWrong">0</div>
+      <div class="res-stat-lbl">✗ Wrong</div>
+    </div>
+    <div class="res-stat">
+      <div class="res-stat-val" style="color:var(--yellow)" id="resAccuracy">0%</div>
+      <div class="res-stat-lbl">Accuracy</div>
+    </div>
+  </div>
+  <div class="leaderboard" id="leaderboardEl">
+    <div class="lb-header">🏆 Leaderboard</div>
+    <div id="lbRows"></div>
+  </div>
+  <div class="results-actions">
+    <button class="btn-primary" onclick="playAgain()">🔄 Play Again</button>
+    <button class="btn-secondary" onclick="showScreen('mode-select')">🎮 Modes</button>
+    <button class="btn-secondary" onclick="showScreen('splash')">🏠 Home</button>
+  </div>
+</div>
+
+<!-- Install Banner -->
+<div class="install-banner hidden" id="installBanner">
+  <div>📱</div>
+  <div class="install-text">
+    <strong>Install App</strong>
+    <span>Play offline anytime!</span>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-close" onclick="document.getElementById('installBanner').classList.add('hidden')">✕</button>
+</div>
+
+<script>
+// ===== STARFIELD =====
+const starsContainer = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--o:${0.2+Math.random()*0.8};animation-delay:${Math.random()*4}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;
+  starsContainer.appendChild(s);
+}
+
+// ===== DATASET =====
+// Each question has:
+//   distractors  -> wrong EFFECTS, used in Predict/Rapid/Match modes
+//   wrongCauses  -> wrong CAUSES, used in Reverse mode (asks for the cause)
+const allQuestions = [
+  // Level 1
+  {l:1,cause:"Ice is heated",effect:"It melts into water",icon:"🧊",distractors:["It freezes solid","It evaporates instantly","Nothing happens"],wrongCauses:["Ice is left in the freezer","Ice is cooled further","Ice is crushed into pieces"]},
+  {l:1,cause:"Water is cooled",effect:"It freezes into ice",icon:"💧",distractors:["It boils","It disappears","It turns to steam"],wrongCauses:["Water is heated","Water is boiled","Water is left in the sun"]},
+  {l:1,cause:"Water is heated",effect:"It becomes hot",icon:"🔥",distractors:["It freezes","It becomes solid","It changes color"],wrongCauses:["Water is cooled","Water is frozen","Water is left untouched"]},
+  {l:1,cause:"Fire is applied to paper",effect:"Paper burns",icon:"📄",distractors:["Paper becomes wet","Paper gets cold","Paper floats"],wrongCauses:["Water is poured on paper","Paper is folded neatly","Paper is left in a drawer"]},
+  {l:1,cause:"Sun rises",effect:"Day begins",icon:"☀️",distractors:["Night begins","Stars appear","Temperature drops"],wrongCauses:["Sun sets","Moon rises","Clouds gather"]},
+  {l:1,cause:"Sun sets",effect:"Night begins",icon:"🌅",distractors:["Day begins","Plants grow faster","Temperature rises"],wrongCauses:["Sun rises","Rain starts falling","Wind begins to blow"]},
+  {l:1,cause:"Rain falls",effect:"Ground becomes wet",icon:"🌧️",distractors:["Ground becomes dry","Ground freezes","Nothing changes"],wrongCauses:["Sun shines brightly","Strong wind blows","Snow stays frozen"]},
+  {l:1,cause:"Wind blows",effect:"Leaves move",icon:"🌬️",distractors:["Leaves stay still","Leaves fall all at once","Trees uproot immediately"],wrongCauses:["Rain falls gently","Sun sets slowly","Ground shakes"]},
+  {l:1,cause:"You push a ball",effect:"It moves",icon:"⚽",distractors:["It stays in place","It shrinks","It disappears"],wrongCauses:["You look at the ball","You stop pushing the ball","You paint the ball"]},
+  {l:1,cause:"You stop pushing",effect:"Object stops (due to friction)",icon:"🛑",distractors:["Object speeds up","Object jumps","Object shrinks"],wrongCauses:["You push harder","You lift the object","You throw the object"]},
+  {l:1,cause:"Plants get sunlight",effect:"They grow",icon:"🌱",distractors:["They dry immediately","They produce more roots only","They turn brown"],wrongCauses:["Plants are kept in the dark","Plants are cut short","Plants are watered with salt water"]},
+  {l:1,cause:"Plants get water",effect:"They stay alive",icon:"🌿",distractors:["They die","They grow faster than sunlight","They freeze"],wrongCauses:["Plants get no water at all","Plants are moved indoors","Plants get too much direct sunlight"]},
+  {l:1,cause:"No water for plant",effect:"Plant dries",icon:"🥀",distractors:["Plant grows faster","Plant turns blue","Plant produces more oxygen"],wrongCauses:["Plant gets plenty of water","Plant gets regular sunlight","Plant is repotted"]},
+  {l:1,cause:"Eating food",effect:"Energy is gained",icon:"🍎",distractors:["Energy is lost","Temperature drops","You become tired"],wrongCauses:["Skipping meals","Drinking only water","Sleeping all day"]},
+  {l:1,cause:"Drinking water",effect:"Thirst is removed",icon:"💧",distractors:["Hunger increases","Body temperature rises","You feel cold instantly"],wrongCauses:["Eating salty food","Exercising hard in the sun","Standing near a fire"]},
+  {l:1,cause:"Running fast",effect:"Heart rate increases",icon:"🏃",distractors:["Heart rate decreases","Body cools down","Muscles relax"],wrongCauses:["Sitting still","Sleeping peacefully","Reading a book quietly"]},
+  {l:1,cause:"Exercising daily",effect:"Body becomes fit",icon:"💪",distractors:["Body becomes weaker","Bones shrink","Energy decreases"],wrongCauses:["Skipping exercise","Eating junk food daily","Sitting all day"]},
+  {l:1,cause:"Sleeping well",effect:"Body feels fresh",icon:"😴",distractors:["Body feels tired","Metabolism stops","Eyes hurt more"],wrongCauses:["Staying up all night","Skipping meals","Working non-stop"]},
+  {l:1,cause:"Touching fire",effect:"You feel heat",icon:"🔥",distractors:["You feel cold","You feel nothing","You feel wet"],wrongCauses:["Touching ice","Touching cool water","Touching a soft cushion"]},
+  {l:1,cause:"Cold weather",effect:"You shiver",icon:"🥶",distractors:["You sweat","You feel energized","You sleep better"],wrongCauses:["Hot weather","Rainy warm weather","A sunny afternoon"]},
+  {l:1,cause:"Hot weather",effect:"You sweat",icon:"🌡️",distractors:["You shiver","You feel cold","Your pulse slows"],wrongCauses:["Cold weather","Snowy weather","Cloudy cool weather"]},
+  {l:1,cause:"Light is switched on",effect:"Room becomes bright",icon:"💡",distractors:["Room gets darker","Temperature rises sharply","Shadows disappear completely"],wrongCauses:["Light is switched off","Curtains are closed at night","Window is opened at night"]},
+  {l:1,cause:"Heavy rain",effect:"Flooding occurs",icon:"🌊",distractors:["Desert forms","Drought occurs","Nothing happens"],wrongCauses:["A light drizzle","A dry, sunny spell","A cool breeze"]},
+  {l:1,cause:"Thunder",effect:"Loud sound is heard",icon:"⛈️",distractors:["Bright flash is seen","Ground shakes","Trees grow faster"],wrongCauses:["Clear sky appears","Wind completely stops","Rain stops suddenly"]},
+  {l:1,cause:"Lightning",effect:"Bright flash is seen",icon:"⚡",distractors:["Loud sound only","Rain stops","Clouds disappear"],wrongCauses:["Thunder rumbles alone","Clouds clear up","Sun comes out"]},
+
+  // Level 2
+  {l:2,cause:"Water is boiled",effect:"It turns into steam",icon:"♨️",distractors:["It becomes ice","It becomes salty","It disappears forever"],wrongCauses:["Water is frozen","Water is filtered","Water is stirred gently"]},
+  {l:2,cause:"Steam cools down",effect:"It becomes water (condensation)",icon:"💨",distractors:["It becomes ice directly","It becomes gas again","It disappears"],wrongCauses:["Steam is heated further","Steam is compressed tightly","Steam is released outdoors"]},
+  {l:2,cause:"Friction increases",effect:"Heat is produced",icon:"🔴",distractors:["Cold is produced","Objects become lighter","Speed increases"],wrongCauses:["Friction decreases","Surfaces are lubricated","Objects are cooled down"]},
+  {l:2,cause:"Surface is rough",effect:"More friction occurs",icon:"🪨",distractors:["Less friction","No friction at all","Objects float"],wrongCauses:["Surface is polished smooth","Surface is oiled","Surface is wet and slippery"]},
+  {l:2,cause:"Air is pumped into balloon",effect:"Balloon expands",icon:"🎈",distractors:["Balloon shrinks","Balloon gets heavier","Balloon pops immediately"],wrongCauses:["Air is let out of balloon","Balloon is placed in a freezer","Balloon is squeezed hard"]},
+  {l:2,cause:"Object falls from height",effect:"Gravity pulls it down",icon:"🍎",distractors:["It floats in air","It moves sideways","It spins in place"],wrongCauses:["Object is thrown upward","Object floats in water","Object rests on a table"]},
+  {l:2,cause:"Force is applied to object",effect:"Object accelerates",icon:"➡️",distractors:["Object stays still","Object decelerates always","Object disappears"],wrongCauses:["No force is applied","Object is held firmly in place","Object is placed on a shelf"]},
+  {l:2,cause:"Heating metal",effect:"It expands",icon:"🔩",distractors:["It contracts","It becomes liquid instantly","It becomes magnetic"],wrongCauses:["Cooling metal","Painting metal","Polishing metal"]},
+  {l:2,cause:"Cooling metal",effect:"It contracts",icon:"❄️",distractors:["It expands","It melts","It becomes gas"],wrongCauses:["Heating metal","Melting metal","Magnetizing metal"]},
+  {l:2,cause:"Light hits mirror",effect:"Reflection occurs",icon:"🪞",distractors:["Refraction occurs","Light disappears","Shadow forms on mirror"],wrongCauses:["Light hits a black cloth","Light passes through a lens","Light is blocked completely"]},
+  {l:2,cause:"Light passes through glass",effect:"Refraction occurs",icon:"🔍",distractors:["Reflection only","Light stops","Color disappears"],wrongCauses:["Light hits a mirror","Light hits a wall","Light is absorbed completely"]},
+  {l:2,cause:"Electric circuit is complete",effect:"Current flows",icon:"🔌",distractors:["Current stops","Voltage drops to zero","Resistance disappears"],wrongCauses:["Circuit is broken","Switch is turned off","Wires are removed"]},
+  {l:2,cause:"Circuit breaks",effect:"Current stops flowing",icon:"⚡",distractors:["Current increases","Light becomes brighter","Power doubles"],wrongCauses:["Circuit is completed","Switch is turned on","Battery is fully charged"]},
+  {l:2,cause:"Magnet placed near iron",effect:"Attraction occurs",icon:"🧲",distractors:["Repulsion occurs","Nothing happens","Iron melts"],wrongCauses:["Magnet placed near wood","Magnet placed near plastic","Magnet placed near paper"]},
+  {l:2,cause:"Same charges brought together",effect:"Repulsion occurs",icon:"⊕",distractors:["Attraction occurs","Charges cancel to zero","Current flows"],wrongCauses:["Opposite charges brought together","Neutral objects touch","Charges are removed"]},
+  {l:2,cause:"Evaporation increases",effect:"Cooling occurs",icon:"💧",distractors:["Heating occurs","Pressure drops","Condensation stops"],wrongCauses:["Condensation increases","Temperature drops on its own","Pressure increases"]},
+  {l:2,cause:"Lack of oxygen near fire",effect:"Fire extinguishes",icon:"🔥",distractors:["Fire grows larger","Fire changes color","Fire spreads faster"],wrongCauses:["More oxygen is supplied to fire","More fuel is added to fire","Wind fans the flames"]},
+  {l:2,cause:"Plants do photosynthesis",effect:"Oxygen is released",icon:"🌿",distractors:["CO₂ is released","Glucose is consumed","Water is released as rain"],wrongCauses:["Plants respire in the dark","Plants absorb oxygen only","Plants shed their leaves"]},
+  {l:2,cause:"Earth rotates on its axis",effect:"Day and night occur",icon:"🌍",distractors:["Seasons change","Tides occur","Eclipses happen daily"],wrongCauses:["Earth revolves around the Sun","Moon orbits the Earth","Sun moves around the Earth"]},
+  {l:2,cause:"Earth revolves around Sun",effect:"Seasons change",icon:"🌏",distractors:["Day and night occur","Moon phases appear","Earthquakes happen"],wrongCauses:["Earth rotates on its axis","Moon changes its phases","Clouds cover the sky"]},
+  {l:2,cause:"Moon's gravity acts on Earth",effect:"Tides occur",icon:"🌕",distractors:["Earthquakes occur","Seasons change","Day length increases"],wrongCauses:["Sun's heat warms the ocean","Wind blows over the sea","Earth rotates faster"]},
+  {l:2,cause:"Temperature increases",effect:"Reactions become faster",icon:"🌡️",distractors:["Reactions slow down","Reactions stop","Products become larger"],wrongCauses:["Temperature decreases","Pressure decreases","Catalyst is removed"]},
+  {l:2,cause:"Sound waves travel",effect:"Vibrations reach ears",icon:"🔊",distractors:["Light is produced","Silence spreads","Waves stop immediately"],wrongCauses:["Light waves travel","Sound is fully absorbed","Air becomes completely still"]},
+  {l:2,cause:"Chemical reaction occurs",effect:"New substance forms",icon:"⚗️",distractors:["Original substance unchanged","Energy is destroyed","Atoms disappear"],wrongCauses:["Substances are only mixed physically","Substance is only heated","Substance is only cooled"]},
+  {l:2,cause:"Pressure increases on gas",effect:"Volume decreases",icon:"💨",distractors:["Volume increases","Temperature drops to zero","Gas escapes completely"],wrongCauses:["Pressure decreases on gas","Temperature decreases sharply","Gas is released into open air"]},
+
+  // Level 3
+  {l:3,cause:"Force increases (same mass)",effect:"Acceleration increases (F=ma)",icon:"📐",distractors:["Acceleration decreases","Velocity stays constant","Mass increases"],wrongCauses:["Mass increases (same force)","Force decreases (same mass)","Friction alone increases"]},
+  {l:3,cause:"Mass increases (same force)",effect:"Inertia increases",icon:"⚖️",distractors:["Inertia decreases","Speed increases","Force multiplies"],wrongCauses:["Force increases (same mass)","Mass decreases (same force)","Velocity increases"]},
+  {l:3,cause:"Electrical resistance increases",effect:"Current decreases (Ohm's law)",icon:"🔋",distractors:["Current increases","Voltage drops to zero","Power triples"],wrongCauses:["Voltage increases (same resistance)","Resistance decreases","Circuit is switched off"]},
+  {l:3,cause:"Voltage increases",effect:"Current increases",icon:"⚡",distractors:["Current decreases","Resistance increases","Circuit breaks"],wrongCauses:["Resistance increases","Voltage decreases","Circuit breaks open"]},
+  {l:3,cause:"Convex lens is used",effect:"Light converges (focuses)",icon:"🔎",distractors:["Light diverges","Light is absorbed","No change in path"],wrongCauses:["Concave lens is used","Plane mirror is used","No lens is used at all"]},
+  {l:3,cause:"Concave lens is used",effect:"Light diverges (spreads)",icon:"🔍",distractors:["Light converges","Light stops","Reflection occurs instead"],wrongCauses:["Convex lens is used","Plane mirror is used","A prism is used"]},
+  {l:3,cause:"Sound frequency increases",effect:"Pitch increases (higher sound)",icon:"🎵",distractors:["Pitch decreases","Sound disappears","Volume increases only"],wrongCauses:["Sound amplitude increases","Sound frequency decreases","Sound source moves further away"]},
+  {l:3,cause:"Sound amplitude increases",effect:"Loudness increases",icon:"📢",distractors:["Pitch increases","Sound slows down","Frequency doubles"],wrongCauses:["Sound frequency increases","Sound amplitude decreases","Distance from source increases"]},
+  {l:3,cause:"DNA mutation occurs",effect:"Genetic variation occurs",icon:"🧬",distractors:["DNA repairs perfectly","Organism becomes stronger","Evolution stops"],wrongCauses:["DNA replicates perfectly","Cell stops dividing","Chromosome number halves normally"]},
+  {l:3,cause:"Natural selection acts over time",effect:"Evolution occurs",icon:"🦎",distractors:["Species become identical","Mutations stop","Populations shrink always"],wrongCauses:["Environment stays exactly the same","All individuals are identical","Mutation rate is zero"]},
+  {l:3,cause:"Greenhouse gases increase",effect:"Global warming occurs",icon:"🌡️",distractors:["Global cooling occurs","Ozone layer repairs","Sea levels drop"],wrongCauses:["Greenhouse gases decrease","Ozone layer thickens","Forest cover increases"]},
+  {l:3,cause:"Deforestation increases",effect:"Soil erosion occurs",icon:"🌳",distractors:["Soil becomes richer","Floods decrease","Climate improves"],wrongCauses:["Afforestation increases","Rainfall stops completely","Soil is irrigated properly"]},
+  {l:3,cause:"Industrial waste enters water",effect:"Water pollution occurs",icon:"🏭",distractors:["Water purifies itself","Fish population grows","Oxygen in water increases"],wrongCauses:["Rainwater enters the river","Water is filtered before release","Waste is treated before disposal"]},
+  {l:3,cause:"Ozone layer depletes",effect:"UV radiation increases at surface",icon:"☀️",distractors:["Temperature drops","UV radiation decreases","Greenhouse effect stops"],wrongCauses:["Ozone layer thickens","Cloud cover increases","Greenhouse gases decrease"]},
+  {l:3,cause:"Earthquake occurs",effect:"Ground shakes violently",icon:"🌍",distractors:["Tides change","Hurricanes form","Weather clears up"],wrongCauses:["Volcano remains dormant","Tide rises normally","Wind speed increases"]},
+  {l:3,cause:"Series circuit is used",effect:"Total resistance increases",icon:"🔌",distractors:["Total resistance decreases","Voltage multiplies","Current doubles"],wrongCauses:["Parallel circuit is used","Resistors are removed","Voltage source is removed"]},
+  {l:3,cause:"Parallel circuit is used",effect:"Total resistance decreases",icon:"⚡",distractors:["Total resistance increases","Each component gets less current","Voltage drops"],wrongCauses:["Series circuit is used","More resistors added in series","Circuit is left open"]},
+  {l:3,cause:"Enzyme activity increases",effect:"Reaction speed increases",icon:"🧪",distractors:["Reaction slows down","Products become toxic","Substrate disappears"],wrongCauses:["Enzyme is denatured by heat","Substrate is removed","Temperature drops to freezing"]},
+  {l:3,cause:"High altitude reached",effect:"Less oxygen available",icon:"⛰️",distractors:["More oxygen available","Pressure increases","Temperature rises"],wrongCauses:["Sea level is reached","Air pressure increases","Temperature rises sharply"]},
+  {l:3,cause:"Infection enters body",effect:"Fever occurs",icon:"🦠",distractors:["Body temperature drops","Immunity decreases immediately","Muscles relax"],wrongCauses:["Body temperature is regulated normally","Vaccination is given in advance","Body gets plenty of rest"]},
+
+  // Bonus / Reverse
+  {l:4,cause:"Heat is applied to liquid",effect:"Water evaporates",icon:"💧",distractors:["Ice forms","Liquid freezes","Pressure drops"],wrongCauses:["Liquid is cooled","Liquid is frozen solid","Pressure is increased on the liquid"]},
+  {l:4,cause:"No sunlight reaches plant",effect:"Plant dies",icon:"🌱",distractors:["Plant grows faster","Plant produces more fruit","Plant turns green"],wrongCauses:["Plant gets full sunlight","Plant is watered regularly","Plant is fertilized well"]},
+  {l:4,cause:"Electric current flows through bulb",effect:"Bulb glows",icon:"💡",distractors:["Bulb breaks","Bulb gets cold","Nothing happens"],wrongCauses:["Switch is turned off","Bulb is removed from its socket","Wire is disconnected"]},
+  {l:4,cause:"Cloud condensation occurs",effect:"Rain falls",icon:"☁️",distractors:["Snow always forms","Drought begins","Clouds disappear"],wrongCauses:["Sky remains completely clear","Humidity drops to zero","Sun shines directly overhead"]},
+  {l:4,cause:"Gravity acts on object",effect:"Object falls to ground",icon:"🍎",distractors:["Object floats upward","Object spins in orbit","Nothing happens"],wrongCauses:["Object is placed in orbit","Object floats in space","A magnet repels the object"]},
+  {l:4,cause:"Oxygen + water react with iron",effect:"Rust forms",icon:"🔩",distractors:["Iron becomes stronger","Iron melts","Iron becomes magnetic"],wrongCauses:["Iron is painted and sealed","Iron is kept dry and oiled","Iron is heated in a vacuum"]},
+  {l:4,cause:"Oxygen is present and ignition occurs",effect:"Fire burns",icon:"🔥",distractors:["Fire needs no oxygen","Fire appears from nothing","Water forms instead"],wrongCauses:["Oxygen is completely removed","Fuel is soaked in water","Ignition source is removed"]},
+  {l:4,cause:"Enzymes break down food",effect:"Food is digested",icon:"🍎",distractors:["Food becomes toxic","Digestion stops","Acid neutralizes"],wrongCauses:["Food is only chewed","Food is stored without digestion","Stomach acid is fully neutralized"]},
+  {l:4,cause:"Refraction of sunlight through droplets",effect:"Rainbow forms",icon:"🌈",distractors:["Reflection only causes rainbows","Sound causes rainbows","Gravity bends light"],wrongCauses:["Sunlight is blocked by clouds","Moonlight reflects off droplets","Wind scatters the droplets"]},
+  {l:4,cause:"Moon comes directly between Sun and Earth",effect:"Solar eclipse occurs",icon:"🌑",distractors:["Lunar eclipse occurs","A full moon appears","A meteor shower occurs"],wrongCauses:["Earth comes between the Sun and Moon","Moon is at its farthest point from Earth","Sun moves behind the Earth"]},
+  {l:4,cause:"Earth comes directly between Sun and Moon",effect:"Lunar eclipse occurs",icon:"🌕",distractors:["Solar eclipse occurs","A new moon appears","A comet appears"],wrongCauses:["Moon comes between the Sun and Earth","Earth is at its farthest point from the Sun","Moon moves behind the Sun"]},
+  {l:4,cause:"Fossil fuels are burned",effect:"CO₂ levels increase",icon:"🏭",distractors:["CO₂ levels decrease","O₂ levels increase","Nothing changes in atmosphere"],wrongCauses:["Trees are planted extensively","Renewable energy is used instead","Fuel combustion stops entirely"]},
+  {l:4,cause:"Germs enter the body",effect:"Disease occurs",icon:"🦠",distractors:["Immunity disappears instantly","Body heals faster","Temperature drops"],wrongCauses:["Body is vaccinated in advance","Hands are washed regularly","Immune system is strengthened"]},
+  {l:4,cause:"Waste is dumped in environment",effect:"Pollution increases",icon:"🗑️",distractors:["Environment purifies itself","Biodiversity increases","Air quality improves"],wrongCauses:["Waste is properly recycled","Waste is reduced at the source","Waste is composted safely"]},
+  {l:4,cause:"Ice caps melt due to warming",effect:"Sea level rises",icon:"🌊",distractors:["Sea level drops","More land appears","Ocean temperature drops"],wrongCauses:["Ice caps remain frozen","Global temperatures drop","Ocean water evaporates completely"]},
+];
+
+// ===== STATE =====
+let state = {
+  mode: 'predict',
+  level: 0,
+  questions: [],
+  current: 0,
+  score: 0,
+  correct: 0,
+  wrong: 0,
+  answered: false,
+  combo: 0,
+  rapidTimer: null,
+  rapidTimeLeft: 60,
+  matchSelected: null,
+  matchPairs: [],
+  matchCorrect: 0,
+  timerInterval: null,
+  timePerQ: 30,
+  timeLeft: 30,
+};
+
+let selectedLevel = 0;
+let selectedMode = 'predict';
+let deferredPrompt = null;
+
+// ===== PWA =====
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installBanner').classList.remove('hidden');
+});
+document.getElementById('installBtn').onclick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.add('hidden');
+};
+
+// ===== AUDIO =====
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx;
+function getCtx() { if (!ctx) ctx = new AudioCtx(); return ctx; }
+function playTone(freq, type='sine', duration=0.2, vol=0.3, delay=0) {
+  try {
+    const ac = getCtx();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = type; osc.frequency.setValueAtTime(freq, ac.currentTime + delay);
+    gain.gain.setValueAtTime(vol, ac.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + delay + duration);
+    osc.start(ac.currentTime + delay);
+    osc.stop(ac.currentTime + delay + duration + 0.05);
+  } catch(e) {}
+}
+function playCorrect() {
+  playTone(523, 'sine', 0.15, 0.3, 0);
+  playTone(659, 'sine', 0.15, 0.3, 0.1);
+  playTone(784, 'sine', 0.2, 0.3, 0.2);
+}
+function playWrong() {
+  playTone(300, 'sawtooth', 0.3, 0.3, 0);
+  playTone(200, 'sawtooth', 0.3, 0.2, 0.15);
+}
+function playClick() { playTone(800, 'sine', 0.05, 0.2, 0); }
+function playCombo() {
+  [523,659,784,1047].forEach((f,i) => playTone(f,'sine',0.15,0.3,i*0.08));
+}
+function playGameStart() {
+  [262,330,392,523].forEach((f,i) => playTone(f,'sine',0.2,0.25,i*0.1));
+}
+function playRapidTick() { playTone(600,'square',0.05,0.1,0); }
+function playTimesUp() {
+  playTone(400,'sawtooth',0.15,0.3,0);
+  playTone(300,'sawtooth',0.3,0.3,0.2);
+}
+function playResults(score) {
+  if (score > 150) { [523,659,784,1047,1319].forEach((f,i)=>playTone(f,'sine',0.3,0.3,i*0.12)); }
+  else if (score > 50) { [523,659,784].forEach((f,i)=>playTone(f,'sine',0.25,0.3,i*0.12)); }
+  else { playTone(350,'sine',0.4,0.3,0); }
+}
+
+// ===== UTILS =====
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function shuffle(arr) { return [...arr].sort(() => Math.random()-0.5); }
+function getQsByLevel(lvl) {
+  if (lvl===0) return allQuestions;
+  return allQuestions.filter(q=>q.l===lvl);
+}
+function showScreen(id) {
+  playClick();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  if (id==='splash') updateSplashStats();
+}
+
+// ===== LOCAL STORAGE =====
+function getStorage() { try { return JSON.parse(localStorage.getItem('scienceSparks')||'{}'); } catch(e){return{};} }
+function setStorage(d) { try { localStorage.setItem('scienceSparks', JSON.stringify(d)); } catch(e){} }
+function updateSplashStats() {
+  const countEl = document.getElementById('questionCountLabel');
+  if (countEl) countEl.textContent = `${allQuestions.length}+ Questions • 4 Game Modes`;
+  const d = getStorage();
+  if (d.totalGames) {
+    document.getElementById('splashStats').style.display='flex';
+    document.getElementById('statBestScore').textContent = d.bestScore||0;
+    document.getElementById('statTotalGames').textContent = d.totalGames||0;
+    const acc = d.totalAnswered ? Math.round((d.totalCorrect/d.totalAnswered)*100) : 0;
+    document.getElementById('statAccuracy').textContent = acc+'%';
+  }
+}
+function saveResult(score, correct, wrong) {
+  const d = getStorage();
+  d.totalGames = (d.totalGames||0)+1;
+  d.bestScore = Math.max(d.bestScore||0, score);
+  d.totalCorrect = (d.totalCorrect||0)+correct;
+  d.totalAnswered = (d.totalAnswered||0)+correct+wrong;
+  const lb = d.leaderboard||[];
+  lb.push({name:'You', score, date:Date.now()});
+  lb.sort((a,b)=>b.score-a.score);
+  d.leaderboard = lb.slice(0,10);
+  setStorage(d);
+}
+
+// ===== LEVEL SELECT =====
+function selectLevel(lvl, btn) {
+  selectedLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ===== PARTICLES =====
+function spawnParticles(x, y, type) {
+  const emojis = type==='correct' ? ['⭐','✨','💫','🎉','⚡'] : ['💥','😬','🔴'];
+  for (let i=0;i<5;i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    p.style.cssText = `left:${x+Math.random()*60-30}px;top:${y}px;animation-delay:${Math.random()*0.3}s`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+function spawnScorePopup(x, y, pts) {
+  const p = document.createElement('div');
+  p.className = 'score-popup';
+  p.textContent = pts>0 ? `+${pts}` : `${pts}`;
+  p.style.cssText = `left:${x}px;top:${y}px;color:${pts>0?'var(--green)':'var(--red)'}`;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),1500);
+}
+function showAchievement(text, icon='🏆') {
+  const t = document.createElement('div');
+  t.className = 'achievement-toast';
+  t.innerHTML = `<span>${icon}</span><span>${text}</span>`;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.classList.add('fade-out');setTimeout(()=>t.remove(),400);},2500);
+}
+
+// ===== GAME START =====
+function startGame(mode) {
+  playClick();
+  selectedMode = mode;
+  const qs = getQsByLevel(selectedLevel);
+  if (qs.length<4) { alert('Not enough questions for this level!'); return; }
+  state.mode = mode;
+  state.level = selectedLevel;
+  state.questions = shuffle(qs).slice(0, mode==='rapid'?10 : mode==='match'?8 : 10);
+  state.current = 0;
+  state.score = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.answered = false;
+  state.combo = 0;
+  state.rapidTimeLeft = 60;
+  state.timeLeft = 30;
+  clearInterval(state.timerInterval);
+  clearInterval(state.rapidTimer);
+
+  showScreen('game-screen');
+  playGameStart();
+  updateGameHeader();
+
+  if (mode === 'rapid') {
+    showCountdown(() => { renderQuestion(); startRapidTimer(); });
+  } else if (mode === 'match') {
+    renderMatchMode();
+  } else {
+    renderQuestion();
+    startQuestionTimer();
+  }
+}
+
+function showCountdown(cb) {
+  const overlay = document.createElement('div');
+  overlay.className = 'countdown-overlay';
+  document.body.appendChild(overlay);
+  let n = 3;
+  function tick() {
+    if (n===0) { overlay.remove(); cb(); return; }
+    overlay.innerHTML = `<div style="font-size:1.2rem;font-family:Orbitron;letter-spacing:4px;color:var(--dim)">GET READY</div><div class="countdown-num">${n}</div>`;
+    playTone(n===1?880:440,'sine',0.3,0.4,0);
+    n--; setTimeout(tick,900);
+  }
+  tick();
+}
+
+// ===== QUESTION TIMER =====
+function startQuestionTimer() {
+  clearInterval(state.timerInterval);
+  state.timeLeft = state.mode==='predict'||state.mode==='reverse' ? 30 : 25;
+  updateTimerUI();
+  state.timerInterval = setInterval(()=>{
+    state.timeLeft--;
+    updateTimerUI();
+    if (state.timeLeft<=5) playTone(state.timeLeft%2?600:500,'square',0.08,0.2,0);
+    if (state.timeLeft<=0) { clearInterval(state.timerInterval); timeOut(); }
+  },1000);
+}
+function updateTimerUI() {
+  const fill = document.getElementById('timerFill');
+  const num = document.getElementById('timerNum');
+  if(!fill||!num) return;
+  const max = state.mode==='predict'||state.mode==='reverse' ? 30 : 25;
+  const pct = state.timeLeft/max;
+  const dashOffset = 170*(1-pct);
+  fill.style.strokeDashoffset = dashOffset;
+  fill.style.stroke = pct>0.5?'var(--blue)':pct>0.25?'var(--yellow)':'var(--red)';
+  num.textContent = state.timeLeft;
+  num.style.color = pct>0.5?'var(--white)':pct>0.25?'var(--yellow)':'var(--red)';
+}
+function timeOut() {
+  if (state.answered) return;
+  state.answered = true;
+  state.wrong++;
+  state.combo = 0;
+  playTimesUp();
+  document.querySelectorAll('.option-btn').forEach(b=>{
+    if (b.dataset.correct==='true') b.classList.add('reveal');
+    b.disabled=true;
+  });
+  showFeedback(false, '⏰ Time\'s up!', 'The correct answer was highlighted above.', -1);
+  updateGameHeader();
+}
+
+// ===== RAPID FIRE TIMER =====
+function startRapidTimer() {
+  clearInterval(state.rapidTimer);
+  state.rapidTimeLeft = 60;
+  updateRapidTimerUI();
+  state.rapidTimer = setInterval(()=>{
+    state.rapidTimeLeft--;
+    updateRapidTimerUI();
+    if (state.rapidTimeLeft<=10) playRapidTick();
+    if (state.rapidTimeLeft<=0) { clearInterval(state.rapidTimer); endGame(); }
+  },1000);
+}
+function updateRapidTimerUI() {
+  const el = document.getElementById('rapidTimerFill');
+  if (el) el.style.width = (state.rapidTimeLeft/60*100)+'%';
+  const el2 = document.getElementById('rapidTimerNum');
+  if (el2) el2.textContent = state.rapidTimeLeft+'s';
+}
+
+// ===== UPDATE HEADER =====
+function updateGameHeader() {
+  document.getElementById('gameModeTag').textContent = {
+    predict:'🔮 PREDICT IT', match:'🧩 MATCH IT', rapid:'⚡ RAPID FIRE', reverse:'🔁 REVERSE MODE'
+  }[state.mode]||state.mode.toUpperCase();
+  document.getElementById('gameProgressText').textContent =
+    state.mode==='match' ? `Round ${Math.floor(state.matchCorrect/2)+1}` : `Q ${state.current+1} / ${state.questions.length}`;
+  document.getElementById('gameScore').textContent = state.score;
+  document.getElementById('gameCorrect').textContent = state.correct;
+  document.getElementById('gameWrong').textContent = state.wrong;
+  const pct = ((state.current)/(state.questions.length))*100;
+  document.getElementById('progressBarFill').style.width = pct+'%';
+}
+
+// ===== RENDER QUESTION =====
+function renderQuestion() {
+  if (state.current >= state.questions.length) { endGame(); return; }
+  const q = state.questions[state.current];
+  state.answered = false;
+  updateGameHeader();
+
+  const isReverse = state.mode==='reverse';
+  const questionText = isReverse ? q.effect : q.cause;
+  const answerText = isReverse ? q.cause : q.effect;
+  const questionLabel = isReverse ? '🔁 Find the CAUSE for this effect:' : '⚡ What will happen?';
+  const causeLabel = isReverse ? 'EFFECT:' : 'CAUSE:';
+
+  const options = shuffle([answerText, ...(isReverse ? q.wrongCauses : q.distractors)]).slice(0,4);
+  const letters = ['A','B','C','D'];
+  const lvlColors = {1:'lv1',2:'lv2',3:'lv3',4:'lv4'};
+  const lvlNames = {1:'Level 1 – Basic',2:'Level 2 – Intermediate',3:'Level 3 – Advanced',4:'Bonus Round'};
+
+  let timerHTML = state.mode!=='match' ? `
+    <div class="timer-ring-wrap">
+      <svg class="timer-svg" width="64" height="64" viewBox="0 0 64 64">
+        <circle class="timer-track" cx="32" cy="32" r="27"/>
+        <circle class="timer-fill" id="timerFill" cx="32" cy="32" r="27"/>
+      </svg>
+      <div class="timer-num" id="timerNum">30</div>
+    </div>` : '';
+
+  let rapidBarHTML = state.mode==='rapid' ? `
+    <div class="rapid-header">
+      <span style="font-size:0.75rem;color:var(--dim)">TIME</span>
+      <div class="rapid-timer-bar"><div class="rapid-timer-fill" id="rapidTimerFill" style="width:100%"></div></div>
+      <span id="rapidTimerNum" style="font-family:Orbitron;font-size:0.85rem;font-weight:700;color:var(--yellow)">60s</span>
+    </div>` : '';
+
+  document.getElementById('gameBody').innerHTML = `
+    ${rapidBarHTML}
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="level-badge ${lvlColors[q.l]||'lv1'}">${lvlNames[q.l]||'Level '+q.l}</span>
+      ${timerHTML}
+    </div>
+    <div class="question-card">
+      <div class="question-label">${questionLabel}</div>
+      <span class="question-icon">${q.icon||'🔬'}</span>
+      <div style="font-size:0.75rem;color:var(--dim);margin-bottom:4px">${causeLabel}</div>
+      <div class="question-text">${escapeHtml(questionText)}</div>
+      ${isReverse ? '' : '<div class="question-arrow">→</div>'}
+    </div>
+    <div class="options-grid">
+      ${options.map((opt,i)=>`
+        <button class="option-btn" data-idx="${i}" data-correct="${opt===answerText}">
+          <div class="option-letter">${letters[i]}</div>
+          <span>${escapeHtml(opt)}</span>
+        </button>`).join('')}
+    </div>
+    <div id="feedbackArea"></div>
+  `;
+
+  document.querySelectorAll('#gameBody .option-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => handleAnswer(btn, options[i]===answerText, answerText));
+  });
+
+  if (state.mode!=='match') startQuestionTimer();
+}
+
+// ===== HANDLE ANSWER =====
+function handleAnswer(btn, isCorrect, correctAnswer) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timerInterval);
+
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    state.correct++;
+    state.combo++;
+    let pts = 2;
+    if (state.timeLeft > 20) pts += 1; // speed bonus
+    if (state.combo >= 3) pts += 1; // combo bonus
+    state.score += pts;
+    playCorrect();
+    spawnParticles(cx, cy, 'correct');
+    spawnScorePopup(cx-20, cy-30, pts);
+    updateComboDisplay();
+    if (state.combo===3) { showAchievement('🔥 Triple Combo!','🔥'); playCombo(); }
+    if (state.combo===5) { showAchievement('⚡ Unstoppable! 5 in a row!','⚡'); playCombo(); }
+    showFeedback(true, '✅ Correct!', `${correctAnswer}`, pts);
+  } else {
+    btn.classList.add('wrong');
+    state.wrong++;
+    state.combo = 0;
+    state.score = Math.max(0, state.score-1);
+    playWrong();
+    spawnParticles(cx, cy, 'wrong');
+    spawnScorePopup(cx-20, cy-30, -1);
+    updateComboDisplay();
+    document.querySelectorAll('.option-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('reveal'); });
+    showFeedback(false, '❌ Wrong!', `Correct: ${correctAnswer}`, -1);
+  }
+  document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+  updateGameHeader();
+}
+
+function updateComboDisplay() {
+  const el = document.getElementById('comboDisplay');
+  if (state.combo >= 2) {
+    el.classList.add('show');
+    document.getElementById('comboNum').textContent = state.combo;
+  } else {
+    el.classList.remove('show');
+  }
+}
+
+function showFeedback(correct, title, text, pts) {
+  const area = document.getElementById('feedbackArea');
+  if (!area) return;
+  area.innerHTML = `
+    <div class="feedback-card ${correct?'correct':'wrong'}">
+      <div class="feedback-icon">${correct?'🎯':'💡'}</div>
+      <div>
+        <div class="feedback-title">${title}</div>
+        <div class="feedback-text">${escapeHtml(text)}</div>
+        <div class="points-earned ${pts>0?'points-pos':'points-neg'}">${pts>0?'+'+pts:pts} pts</div>
+      </div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">
+      ${state.current+1 >= state.questions.length ? '🏁 See Results' : 'Next Question →'}
+    </button>`;
+}
+
+function nextQuestion() {
+  playClick();
+  state.current++;
+  if (state.current >= state.questions.length) { endGame(); return; }
+  renderQuestion();
+  updateGameHeader();
+}
+
+// ===== MATCH MODE =====
+function renderMatchMode() {
+  const qs = state.questions.slice(0,6);
+  state.matchPairs = qs.map(q=>({cause:q.cause,effect:q.effect,icon:q.icon}));
+  state.matchCorrect = 0;
+  state.matchSelected = null;
+  renderMatchBoard();
+}
+
+function renderMatchBoard() {
+  const pairs = state.matchPairs;
+  const causes = shuffle(pairs.map((p,i)=>({text:p.cause,idx:i,type:'cause'})));
+  const effects = shuffle(pairs.map((p,i)=>({text:p.effect,idx:i,type:'effect'})));
+
+  document.getElementById('gameBody').innerHTML = `
+    <div style="text-align:center;font-size:0.8rem;color:var(--dim)">Match each CAUSE with its EFFECT 🧩</div>
+    <div class="match-board">
+      <div class="match-col">
+        <div class="match-col-title">⚡ CAUSE</div>
+        ${causes.map(c=>`<div class="match-item" id="cause-${c.idx}" data-idx="${c.idx}" data-type="cause" onclick="selectMatchItem(this)">${c.text}</div>`).join('')}
+      </div>
+      <div class="match-col">
+        <div class="match-col-title">🎯 EFFECT</div>
+        ${effects.map(e=>`<div class="match-item" id="effect-${e.idx}" data-idx="${e.idx}" data-type="effect" onclick="selectMatchItem(this)">${e.text}</div>`).join('')}
+      </div>
+    </div>
+    <div id="matchScore" style="text-align:center;font-family:Orbitron;font-size:1.1rem;font-weight:700;color:var(--green)">Matched: 0 / ${state.matchPairs.length}</div>
+  `;
+}
+
+function selectMatchItem(el) {
+  if (el.classList.contains('matched')) return;
+  playClick();
+  if (!state.matchSelected) {
+    state.matchSelected = el;
+    el.classList.add('selected');
+    return;
+  }
+  if (state.matchSelected === el) {
+    el.classList.remove('selected');
+    state.matchSelected = null;
+    return;
+  }
+  const prev = state.matchSelected;
+  el.classList.add('selected');
+  state.matchSelected = null;
+
+  const prevType = prev.dataset.type;
+  const currType = el.dataset.type;
+  if (prevType === currType) {
+    prev.classList.remove('selected'); el.classList.remove('selected');
+    playWrong(); return;
+  }
+  const prevIdx = parseInt(prev.dataset.idx);
+  const currIdx = parseInt(el.dataset.idx);
+  if (prevIdx === currIdx) {
+    prev.classList.remove('selected'); el.classList.remove('selected');
+    prev.classList.add('matched'); el.classList.add('matched');
+    state.matchCorrect++;
+    state.score += 3; state.correct++;
+    state.combo++;
+    playCorrect();
+    spawnParticles(el.getBoundingClientRect().left, el.getBoundingClientRect().top, 'correct');
+    updateGameHeader();
+    const scoreEl = document.getElementById('matchScore');
+    if (scoreEl) scoreEl.textContent = `Matched: ${state.matchCorrect} / ${state.matchPairs.length}`;
+    if (state.matchCorrect === state.matchPairs.length) {
+      setTimeout(()=>{ showAchievement('🧩 Perfect Match!','🧩'); setTimeout(endGame, 1000); }, 500);
+    }
+  } else {
+    prev.classList.remove('selected'); el.classList.remove('selected');
+    prev.classList.add('wrong-match'); el.classList.add('wrong-match');
+    state.score = Math.max(0,state.score-1); state.wrong++;
+    state.combo = 0;
+    playWrong();
+    spawnParticles(el.getBoundingClientRect().left, el.getBoundingClientRect().top, 'wrong');
+    setTimeout(()=>{ prev.classList.remove('wrong-match'); el.classList.remove('wrong-match'); }, 500);
+    updateGameHeader();
+  }
+}
+
+// ===== END GAME =====
+function endGame() {
+  clearInterval(state.timerInterval);
+  clearInterval(state.rapidTimer);
+  const combo = document.getElementById('comboDisplay');
+  if (combo) combo.classList.remove('show');
+  saveResult(state.score, state.correct, state.wrong);
+  showResultsScreen();
+}
+
+function showResultsScreen() {
+  showScreen('results-screen');
+  playResults(state.score);
+  const total = state.correct + state.wrong;
+  const acc = total>0 ? Math.round((state.correct/total)*100) : 0;
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('resCorrect').textContent = state.correct;
+  document.getElementById('resWrong').textContent = state.wrong;
+  document.getElementById('resAccuracy').textContent = acc+'%';
+
+  const pct = Math.min(100, Math.max(0, acc));
+  document.getElementById('resultsCircle').style.setProperty('--pct', pct+'%');
+
+  let title, sub;
+  if (acc>=90) { title='🌟 Outstanding!'; sub='You\'re a Science Master!'; }
+  else if (acc>=75) { title='🎉 Excellent!'; sub='Great scientific thinking!'; }
+  else if (acc>=60) { title='👍 Good Job!'; sub='Keep practising!'; }
+  else if (acc>=40) { title='📚 Keep Going!'; sub='Review the concepts and try again!'; }
+  else { title='💪 Try Again!'; sub='Science is about persistence!'; }
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsSubtitle').textContent = sub;
+
+  // Leaderboard
+  const d = getStorage();
+  const lb = (d.leaderboard||[]).slice(0,5);
+  const rows = lb.map((entry,i)=>`
+    <div class="lb-row ${entry.date===d.leaderboard?.find(x=>x.date===entry.date)?.date?'':''} current-user" style="${i<3?'':''}">
+      <div class="lb-rank ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
+      <div class="lb-name">${entry.name||'Player'}</div>
+      <div class="lb-score">${entry.score} pts</div>
+    </div>`).join('');
+  document.getElementById('lbRows').innerHTML = rows || '<div style="padding:16px;color:var(--dim);font-size:0.85rem;text-align:center">Play more to see rankings!</div>';
+
+  if (state.score > 0 && acc===100) showAchievement('🏆 Perfect Score!','🏆');
+  else if (state.combo>=5) showAchievement(`🔥 Max Combo: ${state.combo}x`,'🔥');
+}
+
+function playAgain() {
+  playClick();
+  startGame(state.mode);
+}
+
+function confirmExit() {
+  playClick();
+  clearInterval(state.timerInterval);
+  clearInterval(state.rapidTimer);
+  showScreen('mode-select');
+}
+
+// ===== INIT =====
+updateSplashStats();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
