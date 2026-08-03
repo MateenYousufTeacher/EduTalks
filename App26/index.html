@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a2342"/>
+<title>Comprehensive FLN Diagnostic & Intervention Suite</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+  :root {
+    --navy: #0a2342;
+    --navy-mid: #123567;
+    --blue: #1a4b8c;
+    --blue-light: #2a6fcd;
+    --green: #2ecc71;
+    --green-dark: #1e9e55;
+    --amber: #f39c12;
+    --red: #e74c3c;
+    --white: #ffffff;
+    --off-white: #f4f7fb;
+    --gray-100: #e8eef6;
+    --gray-200: #cdd8e8;
+    --gray-400: #8fa3be;
+    --gray-600: #4a6080;
+    --text: #1a2a3a;
+    --shadow: 0 4px 24px rgba(10,35,66,0.12);
+    --shadow-lg: 0 8px 40px rgba(10,35,66,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--off-white);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ═══════════════════════════════════════
+     TITLE / HOME SCREEN
+  ═══════════════════════════════════════ */
+  #screen-home {
+    background: linear-gradient(160deg, #07192e 0%, #0a2342 40%, #123567 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  #screen-home.active { display: flex; }
+
+  .home-bg-pattern {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.04;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.5) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.5) 40px);
+  }
+
+  .home-header {
+    width: 100%; background: rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 2;
+  }
+  .home-header .logo-text { font-size: 13px; color: var(--gray-400); letter-spacing: 2px; text-transform: uppercase; }
+  .badge {
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 5px 12px; border-radius: 20px;
+    text-align: center; line-height: 1.4;
+  }
+
+  .home-hero {
+    width: 100%; max-width: 900px;
+    padding: 48px 32px 24px;
+    text-align: center;
+    position: relative; z-index: 2;
+  }
+
+  .home-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--blue-light), var(--green));
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 40px;
+    box-shadow: 0 8px 32px rgba(46,204,113,0.3);
+  }
+
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 38px);
+    font-weight: 900;
+    line-height: 1.2;
+    color: white;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .home-title span { color: var(--green); }
+
+  .home-subtitle {
+    font-size: 15px; color: var(--gray-200);
+    margin-bottom: 8px; line-height: 1.6;
+  }
+
+  .author-strip {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 14px 20px;
+    margin: 20px auto; max-width: 500px;
+  }
+  .author-strip img {
+    width: 52px; height: 52px; border-radius: 50%;
+    object-fit: cover; border: 2px solid var(--green);
+  }
+  .author-info { text-align: left; }
+  .author-name { font-weight: 700; font-size: 15px; color: white; }
+  .author-role { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+  .nav-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; width: 100%; max-width: 720px;
+    padding: 0 32px 32px; margin: 0 auto;
+    position: relative; z-index: 2;
+  }
+  @media(min-width: 600px) { .nav-grid { grid-template-columns: repeat(2,1fr); } }
+
+  .nav-btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px; padding: 22px 18px;
+    cursor: pointer; transition: all 0.25s ease;
+    text-align: left; color: white;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.14);
+    border-color: var(--green);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(46,204,113,0.15);
+  }
+  .nav-btn .nb-icon { font-size: 28px; }
+  .nav-btn .nb-title { font-weight: 700; font-size: 15px; }
+  .nav-btn .nb-desc { font-size: 12px; color: var(--gray-400); line-height: 1.4; }
+
+  /* ── INNER APP LAYOUT ── */
+  .app-layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 260px; background: var(--navy);
+    color: white; flex-shrink: 0;
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: -260px;
+    height: 100vh; z-index: 100;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+  .sidebar.open { left: 0; }
+  @media(min-width: 900px) {
+    .sidebar { position: relative; left: 0; }
+  }
+
+  .sidebar-header {
+    background: rgba(0,0,0,0.2); padding: 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-header .sh-icon { font-size: 24px; }
+  .sidebar-header .sh-title { font-size: 13px; font-weight: 700; line-height: 1.3; }
+
+  .sidebar nav { padding: 8px 0; flex: 1; }
+  .nav-section { padding: 8px 16px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray-400); }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; cursor: pointer;
+    font-size: 14px; color: rgba(255,255,255,0.75);
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+  .nav-item.active { background: rgba(42,111,205,0.2); border-left-color: var(--green); color: white; }
+  .nav-item .ni-icon { font-size: 18px; width: 24px; text-align: center; }
+  .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: var(--gray-400); }
+
+  .main-content {
+    flex: 1; display: flex; flex-direction: column;
+    min-height: 100vh; overflow: hidden;
+  }
+
+  .topbar {
+    background: white; border-bottom: 1px solid var(--gray-100);
+    padding: 14px 24px; display: flex;
+    align-items: center; gap: 16px; position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .hamburger { display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 4px; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: var(--navy); border-radius: 2px; }
+  @media(min-width: 900px) { .hamburger { display: none; } }
+  .topbar-title { font-weight: 700; font-size: 16px; color: var(--navy); flex: 1; }
+  .home-btn { background: var(--navy); color: white; border: none; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+  .page-body { flex: 1; padding: 24px; max-width: 900px; width: 100%; margin: 0 auto; }
+
+  /* ── CARDS & COMPONENTS ── */
+  .card {
+    background: white; border-radius: 16px;
+    border: 1px solid var(--gray-100); padding: 24px;
+    margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .card-subtitle { font-size: 14px; color: var(--gray-600); margin-bottom: 16px; }
+
+  .section-header {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white; border-radius: 16px;
+    padding: 24px; margin-bottom: 20px;
+  }
+  .section-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; }
+  .section-header p { font-size: 14px; opacity: 0.8; margin-top: 6px; }
+
+  /* Forms */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-select, .form-input {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--gray-200); border-radius: 10px;
+    font-size: 14px; font-family: inherit;
+    background: var(--off-white); color: var(--text);
+    transition: border-color 0.2s;
+  }
+  .form-select:focus, .form-input:focus { outline: none; border-color: var(--blue-light); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--blue); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-green { background: var(--green-dark); color: white; }
+  .btn-green:hover { background: var(--green); transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+  .btn-outline:hover { background: var(--navy); color: white; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .btn-amber { background: var(--amber); color: white; }
+  .btn-red { background: var(--red); color: white; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--gray-100); }
+  tr:hover td { background: var(--off-white); }
+
+  /* Badges */
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag-red { background: #fde8e8; color: var(--red); }
+  .tag-amber { background: #fef3cd; color: #c87f0a; }
+  .tag-green { background: #d4f5e2; color: var(--green-dark); }
+  .tag-blue { background: #dceeff; color: var(--blue); }
+
+  /* Progress bars */
+  .progress-bar { height: 10px; background: var(--gray-100); border-radius: 6px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+  .fill-red { background: var(--red); }
+  .fill-amber { background: var(--amber); }
+  .fill-green { background: var(--green-dark); }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  @media(max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* Stat boxes */
+  .stat-box { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--gray-100); text-align: center; }
+  .stat-box .stat-num { font-size: 32px; font-weight: 900; font-family: 'Playfair Display', serif; }
+  .stat-box .stat-label { font-size: 12px; color: var(--gray-600); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Policy pages */
+  .policy-content h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 16px 0 8px; }
+  .policy-content p { font-size: 14px; line-height: 1.7; margin-bottom: 12px; color: #2a3a4a; }
+  .policy-content ul { padding-left: 20px; margin-bottom: 12px; }
+  .policy-content li { font-size: 14px; line-height: 1.7; color: #2a3a4a; margin-bottom: 4px; }
+  .reflection-box { background: #e8f4fd; border-left: 4px solid var(--blue-light); padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 16px 0; }
+  .reflection-box strong { color: var(--navy); font-size: 13px; }
+  .reflection-box p { font-size: 13px; color: var(--blue); margin: 6px 0 0; }
+  .example-box { background: #eafaf1; border-left: 4px solid var(--green-dark); padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 16px 0; }
+  .example-box strong { color: var(--green-dark); font-size: 13px; }
+  .example-box p { font-size: 13px; color: #1a5c38; margin: 6px 0 0; }
+
+  /* Heatmap */
+  .heatmap-cell { padding: 12px; border-radius: 10px; text-align: center; }
+  .heatmap-red { background: #fde8e8; color: #c0392b; }
+  .heatmap-amber { background: #fef3cd; color: #c87f0a; }
+  .heatmap-green { background: #d4f5e2; color: #1e9e55; }
+
+  /* Chart canvas */
+  canvas { max-width: 100%; }
+
+  /* Diagnostic worksheet */
+  .task-item { background: var(--off-white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .task-num { display: inline-block; width: 28px; height: 28px; background: var(--navy); color: white; border-radius: 50%; text-align: center; line-height: 28px; font-size: 13px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+  .task-row { display: flex; align-items: flex-start; }
+  .task-content { font-size: 15px; flex: 1; line-height: 1.5; }
+  .answer-line { display: block; width: 100%; border: none; border-bottom: 1.5px dashed var(--gray-400); background: transparent; font-size: 14px; padding: 6px 0; margin-top: 10px; color: var(--text); }
+  .answer-line:focus { outline: none; border-bottom-color: var(--blue-light); }
+
+  /* Print */
+  @media print {
+    .sidebar, .topbar, .no-print { display: none !important; }
+    .page-body { padding: 0; max-width: 100%; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+  }
+
+  /* Overlay for sidebar mobile */
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+  .sidebar-overlay.active { display: block; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--gray-100); margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 8px 8px 0 0; color: var(--gray-600); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .tab.active { color: var(--navy); border-bottom-color: var(--navy); background: var(--off-white); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Group cards */
+  .group-card { border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .group-a { background: #fde8e8; border-left: 5px solid var(--red); }
+  .group-b { background: #fef3cd; border-left: 5px solid var(--amber); }
+  .group-c { background: #d4f5e2; border-left: 5px solid var(--green-dark); }
+  .group-card h4 { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+  .group-card ul { padding-left: 18px; font-size: 13px; line-height: 1.8; }
+
+  /* Alert */
+  .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .alert-info { background: #dceeff; color: var(--blue); }
+  .alert-warn { background: #fef3cd; color: #c87f0a; }
+  .alert-danger { background: #fde8e8; color: var(--red); }
+  .alert-success { background: #d4f5e2; color: var(--green-dark); }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .step { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step-dot.done { background: var(--green-dark); color: white; }
+  .step-dot.active { background: var(--navy); color: white; }
+  .step-dot.pending { background: var(--gray-200); color: var(--gray-600); }
+  .step-line { flex: 1; height: 2px; background: var(--gray-200); min-width: 20px; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN: HOME
+════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-bg-pattern"></div>
+  <div class="home-header">
+    <span class="logo-text">FLN Suite v1.0</span>
+    <div class="badge">Aligned with NEP 2020 | NCF 2023 | FLN Mission</div>
+  </div>
+  <div class="home-hero">
+    <div class="home-icon">📊</div>
+    <h1 class="home-title">Comprehensive <span>FLN</span> Diagnostic<br>&amp; Intervention Suite</h1>
+    <p class="home-subtitle">Foundational Literacy &amp; Numeracy · Early Grade Assessment · Remediation Planner</p>
+    <div class="author-strip">
+      <img src="author.jpg" alt="Mateen Yousuf" onerror="this.style.display='none'"/>
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Teacher · School Education Department Kashmir</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-grid">
+    <div class="nav-btn" onclick="openSection('diagnostic')">
+      <div class="nb-icon">🔍</div>
+      <div class="nb-title">Run Diagnostic</div>
+      <div class="nb-desc">Literacy &amp; Numeracy diagnostic worksheets for Grade 1–3</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('intervention')">
+      <div class="nb-icon">📋</div>
+      <div class="nb-title">Intervention Planner</div>
+      <div class="nb-desc">Generate 2–4 week remedial action plans</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('progress')">
+      <div class="nb-icon">📈</div>
+      <div class="nb-title">Progress Tracker</div>
+      <div class="nb-desc">Weekly score tracking with growth charts</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('policy')">
+      <div class="nb-icon">📖</div>
+      <div class="nb-title">FLN Policy &amp; Framework</div>
+      <div class="nb-desc">NEP 2020, NCF 2023 reference guide</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('gap')">
+      <div class="nb-icon">🧩</div>
+      <div class="nb-title">Gap Analyzer</div>
+      <div class="nb-desc">Micro-skill heatmap &amp; severity scores</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('grouping')">
+      <div class="nb-icon">👥</div>
+      <div class="nb-title">Learning Groups</div>
+      <div class="nb-desc">Differentiated group builder for classrooms</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('dashboard')">
+      <div class="nb-icon">🏫</div>
+      <div class="nb-title">School Dashboard</div>
+      <div class="nb-desc">Class-level FLN health index</div>
+    </div>
+    <div class="nav-btn" onclick="openSection('parent')">
+      <div class="nb-icon">👨‍👩‍👧</div>
+      <div class="nb-title">Parent Communication</div>
+      <div class="nb-desc">Printable parent progress &amp; support guide</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN APP (all inner screens)
+════════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sh-icon">📊</span>
+        <div class="sh-title">FLN Diagnostic Suite</div>
+      </div>
+      <nav>
+        <div class="nav-section">Core Tools</div>
+        <div class="nav-item" onclick="showPage('diagnostic')"><span class="ni-icon">🔍</span> Diagnostic Engine</div>
+        <div class="nav-item" onclick="showPage('intervention')"><span class="ni-icon">📋</span> Intervention Planner</div>
+        <div class="nav-item" onclick="showPage('progress')"><span class="ni-icon">📈</span> Progress Tracker</div>
+        <div class="nav-section">Analysis</div>
+        <div class="nav-item" onclick="showPage('gap')"><span class="ni-icon">🧩</span> Gap Analyzer</div>
+        <div class="nav-item" onclick="showPage('grouping')"><span class="ni-icon">👥</span> Learning Groups</div>
+        <div class="nav-section">School Level</div>
+        <div class="nav-item" onclick="showPage('dashboard')"><span class="ni-icon">🏫</span> School Dashboard</div>
+        <div class="nav-item" onclick="showPage('parent')"><span class="ni-icon">👨‍👩‍👧</span> Parent Report</div>
+        <div class="nav-section">Reference</div>
+        <div class="nav-item" onclick="showPage('policy')"><span class="ni-icon">📖</span> FLN Policy</div>
+        <div class="nav-section">Data</div>
+        <div class="nav-item" onclick="showPage('backup')"><span class="ni-icon">💾</span> Backup &amp; Restore</div>
+      </nav>
+      <div class="sidebar-footer">
+        <div>Developed by Mateen Yousuf</div>
+        <div>School Edu. Dept. Kashmir</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></div>
+        <div class="topbar-title" id="topbarTitle">FLN Diagnostic &amp; Intervention Suite</div>
+        <button class="home-btn" onclick="goHome()">🏠 Home</button>
+      </div>
+
+      <div class="page-body">
+
+        <!-- ── PAGE: DIAGNOSTIC ── -->
+        <div id="page-diagnostic" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>🔍 Diagnostic Engine</h2>
+            <p>Generate structured literacy &amp; numeracy diagnostic worksheets for Grade 1–3</p>
+          </div>
+
+          <div class="tabs">
+            <div class="tab active" onclick="switchTab(event,'diag','literacy')">📚 Literacy</div>
+            <div class="tab" onclick="switchTab(event,'diag','numeracy')">🔢 Numeracy</div>
+            <div class="tab" onclick="switchTab(event,'diag','results')">📊 Results</div>
+          </div>
+
+          <!-- LITERACY TAB -->
+          <div id="diag-literacy" class="tab-pane active">
+            <div class="card">
+              <div class="card-title">Configure Literacy Diagnostic</div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Grade</label>
+                  <select class="form-select" id="litGrade">
+                    <option value="1">Grade 1</option>
+                    <option value="2">Grade 2</option>
+                    <option value="3">Grade 3</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Skill Area</label>
+                  <select class="form-select" id="litSkill">
+                    <option value="letter">Letter Recognition</option>
+                    <option value="phonics">Phonics / Sounds</option>
+                    <option value="fluency">Reading Fluency</option>
+                    <option value="comprehension">Comprehension</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Difficulty</label>
+                  <select class="form-select" id="litDiff">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Student Name (optional)</label>
+                  <input class="form-input" id="litStudent" placeholder="Enter student name"/>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="generateLiteracyDiag()">⚡ Generate Worksheet</button>
+            </div>
+            <div id="litWorksheet" style="display:none">
+              <div class="card" id="litWsContent"></div>
+              <div class="no-print" style="display:flex;gap:10px;margin-top:8px">
+                <button class="btn btn-green" onclick="saveLitResults()">💾 Save Results</button>
+                <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NUMERACY TAB -->
+          <div id="diag-numeracy" class="tab-pane">
+            <div class="card">
+              <div class="card-title">Configure Numeracy Diagnostic</div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Grade</label>
+                  <select class="form-select" id="numGrade">
+                    <option value="1">Grade 1</option>
+                    <option value="2">Grade 2</option>
+                    <option value="3">Grade 3</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Skill Area</label>
+                  <select class="form-select" id="numSkill">
+                    <option value="numbersense">Number Sense</option>
+                    <option value="placevalue">Place Value</option>
+                    <option value="addition">Addition</option>
+                    <option value="subtraction">Subtraction</option>
+                    <option value="patterns">Patterns</option>
+                    <option value="measurement">Measurement</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Difficulty</label>
+                  <select class="form-select" id="numDiff">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Student Name (optional)</label>
+                  <input class="form-input" id="numStudent" placeholder="Enter student name"/>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="generateNumeracyDiag()">⚡ Generate Worksheet</button>
+            </div>
+            <div id="numWorksheet" style="display:none">
+              <div class="card" id="numWsContent"></div>
+              <div class="no-print" style="display:flex;gap:10px;margin-top:8px">
+                <button class="btn btn-green" onclick="saveNumResults()">💾 Save Results</button>
+                <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESULTS TAB -->
+          <div id="diag-results" class="tab-pane">
+            <div class="card">
+              <div class="card-title">Saved Diagnostic Results</div>
+              <div id="savedResultsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PAGE: INTERVENTION ── -->
+        <div id="page-intervention" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>📋 Intervention Planner</h2>
+            <p>Generate targeted remedial plans based on identified skill gaps</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Select Gap Areas</div>
+            <div class="card-subtitle">Select the skills where students need support</div>
+            <div class="grid-2">
+              <div>
+                <p style="font-weight:700;margin-bottom:10px;font-size:14px;color:var(--navy)">📚 Literacy Gaps</p>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_letters" value="Letter Recognition"> Letter Recognition</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_phonics" value="Phonics"> Phonics &amp; Sounds</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_fluency" value="Reading Fluency"> Reading Fluency</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_comprehension" value="Comprehension"> Comprehension</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_writing" value="Writing"> Writing / Handwriting</label>
+              </div>
+              <div>
+                <p style="font-weight:700;margin-bottom:10px;font-size:14px;color:var(--navy)">🔢 Numeracy Gaps</p>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_numbersense" value="Number Sense"> Number Sense</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_placevalue" value="Place Value"> Place Value</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_addition" value="Addition"> Addition</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_subtraction" value="Subtraction"> Subtraction</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px"><input type="checkbox" id="ig_patterns" value="Patterns"> Patterns &amp; Measurement</label>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:16px">
+              <label class="form-label">Plan Duration</label>
+              <select class="form-select" id="planDuration" style="max-width:200px">
+                <option value="2">2-Week Plan</option>
+                <option value="4">4-Week Intensive Plan</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="generateIntervention()">📋 Generate Intervention Plan</button>
+          </div>
+          <div id="interventionPlan" style="display:none"></div>
+        </div>
+
+        <!-- ── PAGE: GAP ANALYZER ── -->
+        <div id="page-gap" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>🧩 Micro-Skill Gap Analyzer</h2>
+            <p>Enter the number of students weak in each skill to get severity scores and heatmap</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Class Data Entry</div>
+            <div class="form-group" style="max-width:200px">
+              <label class="form-label">Total Students</label>
+              <input class="form-input" type="number" id="totalStudents" value="30" min="1"/>
+            </div>
+            <div id="gapInputTable"></div>
+            <button class="btn btn-primary" style="margin-top:16px" onclick="analyzeGaps()">📊 Analyze Gaps</button>
+          </div>
+          <div id="gapResults" style="display:none"></div>
+        </div>
+
+        <!-- ── PAGE: GROUPING ── -->
+        <div id="page-grouping" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>👥 Differentiated Learning Group Builder</h2>
+            <p>Organize students into support groups based on performance levels</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Enter Student Counts</div>
+            <div class="grid-3">
+              <div class="form-group">
+                <label class="form-label">🔴 High Support (0–40%)</label>
+                <input class="form-input" type="number" id="grp_a" value="8" min="0"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">🟡 Moderate Support (41–70%)</label>
+                <input class="form-input" type="number" id="grp_b" value="14" min="0"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">🟢 Advanced Learners (71–100%)</label>
+                <input class="form-input" type="number" id="grp_c" value="8" min="0"/>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildGroups()">👥 Build Groups</button>
+          </div>
+          <div id="groupResults" style="display:none"></div>
+        </div>
+
+        <!-- ── PAGE: PROGRESS ── -->
+        <div id="page-progress" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>📈 Progress Tracker</h2>
+            <p>Record and monitor weekly literacy &amp; numeracy scores with growth charts</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Add Weekly Entry</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Week / Date</label>
+                <input class="form-input" type="date" id="progDate"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Student / Class Name</label>
+                <input class="form-input" id="progName" placeholder="e.g. Aisha / Class 2A"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Literacy Score (0–100)</label>
+                <input class="form-input" type="number" id="progLit" min="0" max="100"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Numeracy Score (0–100)</label>
+                <input class="form-input" type="number" id="progNum" min="0" max="100"/>
+              </div>
+            </div>
+            <button class="btn btn-green" onclick="addProgress()">➕ Add Entry</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Progress Chart</div>
+            <canvas id="progressChart" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Progress Records</div>
+            <div id="progressTable"></div>
+          </div>
+        </div>
+
+        <!-- ── PAGE: DASHBOARD ── -->
+        <div id="page-dashboard" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>🏫 School FLN Dashboard</h2>
+            <p>Aggregate class-level data and FLN health index</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Enter Grade-Wise Data</div>
+            <div id="dashInputGrid"></div>
+            <button class="btn btn-primary" style="margin-top:16px" onclick="computeDashboard()">📊 Generate Dashboard</button>
+          </div>
+          <div id="dashResults" style="display:none"></div>
+        </div>
+
+        <!-- ── PAGE: PARENT ── -->
+        <div id="page-parent" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>👨‍👩‍👧 Parent Communication Tool</h2>
+            <p>Generate printable student progress summary and home support guide</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Student Details</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Student Name</label>
+                <input class="form-input" id="pr_name" placeholder="Student name"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Class / Grade</label>
+                <input class="form-input" id="pr_class" placeholder="e.g. Grade 2, Section A"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Literacy Level</label>
+                <select class="form-select" id="pr_lit">
+                  <option value="needs_support">Needs Support</option>
+                  <option value="developing">Developing</option>
+                  <option value="proficient">Proficient</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Numeracy Level</label>
+                <select class="form-select" id="pr_num">
+                  <option value="needs_support">Needs Support</option>
+                  <option value="developing">Developing</option>
+                  <option value="proficient">Proficient</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Teacher's Name</label>
+                <input class="form-input" id="pr_teacher" value="Mateen Yousuf"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input class="form-input" type="date" id="pr_date"/>
+              </div>
+            </div>
+            <button class="btn btn-green" onclick="generateParentReport()">📄 Generate Report</button>
+          </div>
+          <div id="parentReport" style="display:none"></div>
+        </div>
+
+        <!-- ── PAGE: POLICY ── -->
+        <div id="page-policy" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>📖 FLN Policy &amp; Framework</h2>
+            <p>Reference guide: NEP 2020, NCF 2023, and FLN Mission</p>
+          </div>
+          <div class="tabs" style="flex-wrap:wrap">
+            <div class="tab active" onclick="switchTab(event,'policy','p1')">NEP 2020</div>
+            <div class="tab" onclick="switchTab(event,'policy','p2')">NCF 2023</div>
+            <div class="tab" onclick="switchTab(event,'policy','p3')">Lit Skills</div>
+            <div class="tab" onclick="switchTab(event,'policy','p4')">Num Skills</div>
+            <div class="tab" onclick="switchTab(event,'policy','p5')">Assessment</div>
+            <div class="tab" onclick="switchTab(event,'policy','p6')">Gaps</div>
+            <div class="tab" onclick="switchTab(event,'policy','p7')">Remediation</div>
+            <div class="tab" onclick="switchTab(event,'policy','p8')">Mother Tongue</div>
+            <div class="tab" onclick="switchTab(event,'policy','p9')">CFA</div>
+            <div class="tab" onclick="switchTab(event,'policy','p10')">Differentiation</div>
+            <div class="tab" onclick="switchTab(event,'policy','p11')">Parents</div>
+            <div class="tab" onclick="switchTab(event,'policy','p12')">School Plan</div>
+          </div>
+          <div id="policy-p1" class="tab-pane active card policy-content" id="pp1"></div>
+          <div id="policy-p2" class="tab-pane card policy-content"></div>
+          <div id="policy-p3" class="tab-pane card policy-content"></div>
+          <div id="policy-p4" class="tab-pane card policy-content"></div>
+          <div id="policy-p5" class="tab-pane card policy-content"></div>
+          <div id="policy-p6" class="tab-pane card policy-content"></div>
+          <div id="policy-p7" class="tab-pane card policy-content"></div>
+          <div id="policy-p8" class="tab-pane card policy-content"></div>
+          <div id="policy-p9" class="tab-pane card policy-content"></div>
+          <div id="policy-p10" class="tab-pane card policy-content"></div>
+          <div id="policy-p11" class="tab-pane card policy-content"></div>
+          <div id="policy-p12" class="tab-pane card policy-content"></div>
+        </div>
+
+        <!-- ── PAGE: BACKUP ── -->
+        <div id="page-backup" class="page-content" style="display:none">
+          <div class="section-header">
+            <h2>💾 Backup &amp; Restore</h2>
+            <p>Export all data as JSON or import from a previous backup</p>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">Export Data</div>
+              <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px">Download all saved diagnostic results, progress records, and intervention plans as a JSON backup file.</p>
+              <button class="btn btn-primary" onclick="exportData()">⬇️ Export Backup</button>
+            </div>
+            <div class="card">
+              <div class="card-title">Import Data</div>
+              <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px">Restore data from a previously exported backup file.</p>
+              <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"/>
+              <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">⬆️ Import Backup</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Stored Data Summary</div>
+            <div id="backupSummary"></div>
+          </div>
+        </div>
+
+      </div><!-- /page-body -->
+    </div><!-- /main-content -->
+  </div><!-- /app-layout -->
+</div><!-- /screen-app -->
+
+<!-- Chart.js CDN (cached by SW) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script>
+/* ══════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+let currentPage = '';
+let progressChart = null;
+
+function openSection(page) {
+  document.getElementById('screen-home').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  showPage(page);
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) { el.style.display = 'block'; }
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(page.toLowerCase().substring(0,5))) n.classList.add('active');
+  });
+  const titles = { diagnostic:'Diagnostic Engine', intervention:'Intervention Planner', gap:'Gap Analyzer',
+    grouping:'Learning Groups', progress:'Progress Tracker', dashboard:'School Dashboard',
+    parent:'Parent Communication', policy:'FLN Policy & Framework', backup:'Backup & Restore' };
+  document.getElementById('topbarTitle').textContent = titles[page] || 'FLN Suite';
+  currentPage = page;
+
+  if (page === 'policy') initPolicyContent();
+  if (page === 'gap') initGapInputs();
+  if (page === 'dashboard') initDashboardInputs();
+  if (page === 'progress') { initProgress(); renderProgressTable(); drawProgressChart(); }
+  if (page === 'diagnostic') renderSavedResults();
+  if (page === 'backup') renderBackupSummary();
+  closeSidebar();
+}
+
+function goHome() {
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-home').classList.add('active');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+function switchTab(e, group, pane) {
+  document.querySelectorAll(`#page-${group === 'policy' ? 'policy' : 'diagnostic'} .tab, .tabs`).forEach(() => {});
+  const container = e.target.closest('.page-content') || e.target.closest('.screen');
+  const allTabs = e.target.parentElement.querySelectorAll('.tab');
+  allTabs.forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  const prefix = group + '-';
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(prefix + pane);
+  if (target) target.classList.add('active');
+}
+
+/* ══════════════════════════════════════
+   DIAGNOSTIC — LITERACY
+════════════════════════════════════════ */
+const litSets = {
+  letter: {
+    easy:   { tasks: ['Name the letters: A B C D E', 'Circle the vowels: a e i o u b c d f', 'Write the missing letter: A _ C D _', 'Match capital to small: A→ __  B→ __  C→ __', 'How many letters in the alphabet? ___'], checklist: ['Knows A–Z capitals','Knows a–z small letters','Identifies vowels','Letter matching','Alphabet count'] },
+    medium: { tasks: ['Write all vowels (capital & small):', 'Unscramble: a t c = ___ ; p o t = ___', 'Which letter comes after R? ___  Before G? ___', 'Find letters that look similar: b/d  p/q  m/n', 'Write 2 words starting with each: B___ M___ S___'], checklist: ['Vowel recall','Unscrambling','Letter ordering','Visual discrimination','Initial letter words'] },
+    hard:   { tasks: ['Write the alphabet backwards from Z to A:', 'Sort these into vowels/consonants: k a t s e r o', 'Write a word for each vowel sound: a=___ e=___ i=___ o=___ u=___', 'How many consonants in "elephant"? ___', 'Write 5 two-letter words:'], checklist: ['Reverse alphabet','Sorting skills','Vowel sounds','Consonant count','Word building'] }
+  },
+  phonics: {
+    easy:   { tasks: ['What sound does "b" make? Write a word: ___', 'Circle words that rhyme: cat/bat/sun  dog/log/pen', 'Sound out: c-a-t = ___  d-o-g = ___  s-i-t = ___', 'Write the first sound: _at  _og  _an  _it', 'How many sounds in "ship"? ___'], checklist: ['Letter sounds','Rhyming words','Blending CVC','Initial sounds','Phoneme counting'] },
+    medium: { tasks: ['Blend and write: sh+ip=___  ch+at=___  th+en=___', 'Circle the odd one out: cake lake bake duck', 'Write words with "oo" sound: b___ m___ t___', 'Change one letter: cat→bat  pin→___  hot→___', 'Clap syllables: elephant=__ butterfly=__ sun=__'], checklist: ['Digraph blending','Rhyme family','Long vowel sounds','Word manipulation','Syllable counting'] },
+    hard:   { tasks: ['Write 3 words for each vowel pattern: a_e (cake) ___ ___; ee (feet) ___ ___; oa (boat) ___ ___', 'Split into syllables: animal=___ beautiful=___ together=___', 'What is silent in: knight  lamb  write  kneel?', 'Write 3 words with "ph" making /f/ sound:', 'Identify the vowel team: rain  steam  road  suit'], checklist: ['Vowel patterns','Multi-syllable words','Silent letters','Unusual phonics','Vowel teams'] }
+  },
+  fluency: {
+    easy:   { tasks: ['Read aloud: "The cat sat on the mat. The dog ran fast."', 'Read and answer: "I have a red ball. It is big." — What colour is the ball? ___', 'Put in order: ran / dog / the / fast → ___', 'Read with expression (teacher marks): 😊 Good  🙂 Ok  😐 Needs practice', 'How many words can you read in 1 minute? ___'], checklist: ['Word-by-word reading','Simple sentence comprehension','Word order','Expression','Reading speed'] },
+    medium: { tasks: ['Read: "Rima goes to school every day. She loves to read books and draw pictures." — How many sentences? ___', 'Read and circle mistakes: "The sun shine brightly. The birds singed songs."', 'Read fluently (mark pauses): "Once upon a time / a little girl / walked through the forest."', 'Read 3 sentences in 30 seconds. Teacher counts: ___', 'Identify punctuation: . , ! ? in a passage'], checklist: ['Multi-sentence reading','Error detection','Phrasing/pausing','Reading rate','Punctuation awareness'] },
+    hard:   { tasks: ['Read a 100-word passage silently then answer 3 questions:', '1. What is the main idea? ___', '2. Who are the characters? ___', '3. What happens at the end? ___', 'Read aloud with correct stress and intonation (teacher assessment)', 'Calculate: words read correctly in 1 min = ___  Accuracy rate = ___÷___ × 100 = ___%'], checklist: ['Silent reading','Main idea','Character identification','Prosody','Accuracy rate'] }
+  },
+  comprehension: {
+    easy:   { tasks: ['Read: "A bird has wings. It can fly high in the sky." — What does a bird have? ___ What can it do? ___', 'Tick true or false: Birds have four legs. T/F   Birds can fly. T/F', 'Draw what the story is about (describe to teacher):', 'Who/What/Where: "Rani plays in the garden." Who? ___ Where? ___', 'Retell the story in your own words:'], checklist: ['Literal recall','True/False','Visualizing','WH-questions','Retelling'] },
+    medium: { tasks: ['Read a short passage. Answer: What is the main character doing? ___', 'What happened first, next, last? First:___ Next:___ Last:___', 'What does the word "enormous" mean in context? ___', 'Why did the character feel sad? (inference) ___', 'Give the story a different ending:'], checklist: ['Character action','Sequencing','Vocabulary in context','Inference','Creative thinking'] },
+    hard:   { tasks: ['Read a 150-word story. Write a 3-sentence summary:', 'Compare two characters: Character A ___ vs Character B ___', 'What is the author\'s message? ___', 'Find 3 cause-effect relationships in the story:', 'Write your opinion: Was the ending good? Why? ___'], checklist: ['Summarizing','Character comparison','Author\'s purpose','Cause-effect','Opinion writing'] }
+  }
+};
+
+const numSets = {
+  numbersense: {
+    easy:   { tasks: ['Count and write: 🌟🌟🌟🌟🌟 = ___', 'Fill in: 1,2,3,___,5,___,7,___,9,___', 'Which is bigger? 7 or 4? ___  3 or 8? ___', 'Write the number: five=___ nine=___ two=___', 'Count backwards: 10,9,8,___,___,5,___,___,2,___,0'], checklist: ['Counting objects','Number sequence','Comparison','Number words','Backwards counting'] },
+    medium: { tasks: ['Write before/after: ___,15,___  ___,28,___  ___,50,___', 'Order from smallest to largest: 17, 5, 23, 11, 8', 'Odd or Even? 6=___ 13=___ 20=___ 7=___', 'Fill in: 10,20,30,___,___,60,___,80,___,100', 'Write in words: 25=___ 40=___ 100=___'], checklist: ['Before/after numbers','Ordering','Odd/Even','Skip counting','Number words to 100'] },
+    hard:   { tasks: ['Round to nearest 10: 37≈___ 84≈___ 55≈___ 92≈___', 'Expanded form: 47 = ___tens + ___ones; 83 = ___', 'Compare using > < =: 56 ___ 65; 100 ___ 99; 48 ___ 48', 'Write the number pattern rule: 2,4,6,8 Rule:___; 5,10,15 Rule:___', 'How many tens and ones in 93? Tens=___ Ones=___'], checklist: ['Rounding','Expanded form','Comparing 2-digit','Pattern rules','Place value decomposition'] }
+  },
+  addition: {
+    easy:   { tasks: ['3 + 2 = ___', '5 + 4 = ___', '6 + 0 = ___', '1 + 7 = ___', '4 + 4 = ___', 'Draw dots to add: ●●● + ●● = ___', 'Complete: 2 + ___ = 7; ___ + 4 = 6', 'Story: Ravi has 3 mangoes. He gets 5 more. Total = ___'], checklist: ['Basic addition to 10','Zero addition','Missing addends','Pictorial addition','Word problem'] },
+    medium: { tasks: ['14 + 5 = ___', '23 + 16 = ___', '37 + 24 = ___', '48 + 13 = ___', '55 + 27 = ___', 'Add three numbers: 4 + 3 + 6 = ___', 'Story: There are 25 girls and 18 boys. How many children? ___', 'Find the pattern: 10+5=15, 20+5=25, 30+5=___'], checklist: ['2-digit + 1-digit','2-digit without carry','2-digit with carry','Three addends','Word problem'] },
+    hard:   { tasks: ['245 + 136 = ___', '387 + 254 = ___', '499 + 1 = ___', '150 + 250 = ___', '347 + 0 = ___', 'Mental math: 98 + 7 = ___  (Strategy: ___ )', 'Estimate: 43 + 58 ≈ ___', 'Story: A school has 215 boys and 198 girls. Total students = ___'], checklist: ['3-digit addition','Regrouping','Near-100 strategy','Estimation','3-digit word problem'] }
+  },
+  subtraction: {
+    easy:   { tasks: ['5 - 2 = ___', '8 - 3 = ___', '10 - 7 = ___', '9 - 9 = ___', '6 - 0 = ___', 'Cross out and subtract: ●●●●●● subtract 4 = ___', 'Complete: 7 - ___ = 3; ___ - 5 = 2', 'Story: 8 birds on a tree. 3 fly away. How many left? ___'], checklist: ['Basic subtraction to 10','Subtract zero','Missing numbers','Pictorial subtraction','Word problem'] },
+    medium: { tasks: ['25 - 12 = ___', '43 - 27 = ___', '60 - 34 = ___', '72 - 45 = ___', '50 - 19 = ___', 'Story: 56 students. 23 go home. How many remain? ___', 'Check by addition: 47 - 23 = ___ Verify: 23 + ___=47', 'Subtract tens: 80 - 30 = ___; 100 - 40 = ___'], checklist: ['2-digit without borrow','2-digit with borrow','Multiples of 10','Verification','Word problem'] },
+    hard:   { tasks: ['342 - 178 = ___', '500 - 263 = ___', '700 - 1 = ___', '1000 - 450 = ___', 'Fill missing: 3_5 - 2_8 = 117, find missing digits', 'Story: Library has 450 books. 178 taken. How many left? ___', 'Estimate: 89 - 37 ≈ ___', 'Mental: 100 - 37 = ___  Strategy: ___'], checklist: ['3-digit with borrowing','Subtracting from 500/1000','Missing digits','Estimation','Mental strategies'] }
+  },
+  numbersense: { easy:{tasks:[],checklist:[]}, medium:{tasks:[],checklist:[]}, hard:{tasks:[],checklist:[]} },
+  placevalue: {
+    easy:   { tasks: ['How many tens? 30 = ___ tens; 20 = ___ tens', 'How many ones? 14 = ___ tens ___ ones', 'Write the number: 2 tens 5 ones = ___', '40 = ___ + ___', 'Circle the tens digit in: 35  67  89  12'], checklist: ['Tens recognition','Tens and ones','Place value writing','Decomposing tens','Tens digit identification'] },
+    medium: { tasks: ['Write: 3 hundreds 4 tens 2 ones = ___', '256 = ___ H + ___ T + ___ O', 'What is the value of 5 in 356? ___', 'What is the value of 3 in 312? ___', 'Which digit is in tens place: 847 = ___'], checklist: ['3-digit place value','Expanded form','Value of digit','Hundreds place','Tens place identification'] },
+    hard:   { tasks: ['4 digit number: 2,345 = ___ Th + ___ H + ___ T + ___ O', 'What is the value of 7 in 7,256? ___', 'Write in expanded form: 5,408 = ___', 'Compare place values: In 567, is the value of 5 > value of 6? ___', 'Write 3000+400+20+7 as a number: ___'], checklist: ['4-digit place value','Thousands place','Expanded form 4-digit','Place value comparison','Compact form'] }
+  },
+  patterns: {
+    easy:   { tasks: ['Continue: 🔴🔵🔴🔵___ ___', 'Number pattern: 2,4,6,___,10,___', 'What comes next: A,B,A,B,___', 'Odd/Even pattern: 1,3,5,___,9,___', 'Shape pattern: △○△○___'], checklist: ['AB patterns','+2 number pattern','Letter patterns','Odd number pattern','Shape patterns'] },
+    medium: { tasks: ['Rule for: 5,10,15,20 — Rule: ___', 'Continue: 100,90,80,___,___', 'Find the missing: 3,6,___,12,15,___', 'Pattern: 1,4,9,16,___ (squares)', 'Create your own pattern with 6 terms:'], checklist: ['Identifying rule','Counting backwards by 10','Missing terms','Square numbers','Pattern creation'] },
+    hard:   { tasks: ['What is the 10th term: 3,6,9,12... ___', 'Two-step rule: 1,3,7,15,31,___ Rule: ___', 'Find rule: 2,5,10,17,26,___ Rule: ___', 'Fibonacci: 1,1,2,3,5,8,___ ___', 'Create a pattern with rule "×2+1":'], checklist: ['Extending patterns','Two-step rules','Complex rules','Fibonacci','Creating complex patterns'] }
+  },
+  measurement: {
+    easy:   { tasks: ['Use a ruler: Draw a line 5 cm long', 'Which is longer: pencil(12cm) or eraser(4cm)? ___', 'Write: 1 metre = ___ centimetres', 'Estimate: height of classroom door ≈ ___ metres', 'Which unit: weight of apple = grams or kilometres? ___'], checklist: ['Using ruler','Comparing lengths','m to cm','Estimation','Appropriate units'] },
+    medium: { tasks: ['Convert: 2m = ___cm; 150cm = ___m ___cm', 'Add lengths: 35cm + 48cm = ___', 'Perimeter of square with side 6cm = ___', 'Read the scale: [show picture description] ___kg', 'Story: Rope 85cm. Cut 37cm. Remaining = ___'], checklist: ['Unit conversion','Adding lengths','Perimeter','Reading scales','Word problem'] },
+    hard:   { tasks: ['Perimeter of rectangle: l=12cm, b=8cm = ___', 'Area of rectangle: l=7cm, b=5cm = ___sq cm', 'Convert: 3km 400m = ___m; 5kg 250g = ___g', 'Estimate and measure: book cover area ≈ ___', 'Story: Field 25m × 18m. Perimeter = ___ Area = ___'], checklist: ['Rectangle perimeter','Rectangle area','Multi-unit conversion','Area estimation','Compound word problems'] }
+  }
+};
+
+function generateLiteracyDiag() {
+  const grade = document.getElementById('litGrade').value;
+  const skill = document.getElementById('litSkill').value;
+  const diff = document.getElementById('litDiff').value;
+  const student = document.getElementById('litStudent').value || 'Student';
+  const set = litSets[skill]?.[diff];
+  if (!set || !set.tasks.length) { alert('No tasks available for this combination.'); return; }
+
+  let html = `
+    <div class="card-title">📚 Literacy Diagnostic Worksheet</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:13px;color:var(--gray-600)">
+      <span>👤 ${student}</span><span>📚 Grade ${grade}</span>
+      <span>🎯 ${skill.charAt(0).toUpperCase()+skill.slice(1)}</span>
+      <span>⚡ ${diff.charAt(0).toUpperCase()+diff.slice(1)}</span>
+      <span>📅 ${new Date().toLocaleDateString()}</span>
+    </div>
+    <p style="font-size:13px;background:#dceeff;padding:10px;border-radius:8px;margin-bottom:16px">
+      <strong>Teacher Instructions:</strong> Administer tasks orally or in written form as appropriate for the grade. Mark ✓ for correct, ✗ for incorrect.
+    </p>`;
+
+  set.tasks.forEach((t, i) => {
+    html += `<div class="task-item"><div class="task-row">
+      <span class="task-num">${i+1}</span>
+      <div class="task-content">${t}<input class="answer-line" placeholder="Student response / teacher observation"/></div>
+    </div></div>`;
+  });
+
+  html += `<div style="margin-top:20px"><p style="font-weight:700;font-size:15px;color:var(--navy);margin-bottom:10px">✅ Skill Checklist</p><table>
+    <tr><th>Micro-Skill</th><th>✓ Achieved</th><th>✗ Not Yet</th><th>Notes</th></tr>`;
+  set.checklist.forEach(c => {
+    html += `<tr><td>${c}</td><td><input type="radio" name="${c.replace(/\s/g,'')}" value="yes"/> Yes</td><td><input type="radio" name="${c.replace(/\s/g,'')}" value="no"/> No</td><td><input class="answer-line" style="width:100%"/></td></tr>`;
+  });
+  html += '</table></div>';
+
+  html += `<div style="margin-top:16px;padding:14px;background:var(--off-white);border-radius:10px">
+    <p style="font-weight:700;margin-bottom:8px;color:var(--navy)">📊 Summary</p>
+    <p style="font-size:14px">Tasks Attempted: ___ / ${set.tasks.length} &nbsp;&nbsp; Skills Mastered: ___ / ${set.checklist.length}</p>
+    <p style="font-size:14px;margin-top:8px">Overall Level: &nbsp; 🔴 Below Basic &nbsp; 🟡 Developing &nbsp; 🟢 Proficient</p>
+    <p style="font-size:14px;margin-top:8px">Next Step: _______________</p>
+  </div>`;
+
+  document.getElementById('litWsContent').innerHTML = html;
+  document.getElementById('litWorksheet').style.display = 'block';
+  document.getElementById('litWorksheet').scrollIntoView({ behavior:'smooth' });
+}
+
+function saveLitResults() {
+  const r = JSON.parse(localStorage.getItem('diagnosticResults') || '[]');
+  r.push({
+    type:'literacy', grade: document.getElementById('litGrade').value,
+    skill: document.getElementById('litSkill').value, diff: document.getElementById('litDiff').value,
+    student: document.getElementById('litStudent').value || 'Student', date: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('diagnosticResults', JSON.stringify(r));
+  alert('✅ Results saved!');
+}
+
+function generateNumeracyDiag() {
+  const grade = document.getElementById('numGrade').value;
+  const skill = document.getElementById('numSkill').value;
+  const diff = document.getElementById('numDiff').value;
+  const student = document.getElementById('numStudent').value || 'Student';
+  const set = numSets[skill]?.[diff];
+  if (!set || !set.tasks.length) {
+    const fallback = numSets['addition'][diff];
+    generateNumericFromSet(fallback, grade, skill, diff, student);
+    return;
+  }
+  generateNumericFromSet(set, grade, skill, diff, student);
+}
+
+function generateNumericFromSet(set, grade, skill, diff, student) {
+  let html = `
+    <div class="card-title">🔢 Numeracy Diagnostic Worksheet</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:13px;color:var(--gray-600)">
+      <span>👤 ${student}</span><span>📚 Grade ${grade}</span>
+      <span>🎯 ${skill.charAt(0).toUpperCase()+skill.slice(1)}</span>
+      <span>⚡ ${diff.charAt(0).toUpperCase()+diff.slice(1)}</span>
+      <span>📅 ${new Date().toLocaleDateString()}</span>
+    </div>`;
+
+  set.tasks.forEach((t, i) => {
+    html += `<div class="task-item"><div class="task-row">
+      <span class="task-num">${i+1}</span>
+      <div class="task-content">${t}<input class="answer-line" placeholder="Answer"/></div>
+    </div></div>`;
+  });
+
+  html += `<div style="margin-top:20px"><p style="font-weight:700;font-size:15px;color:var(--navy);margin-bottom:10px">✅ Skill Checklist</p><table>
+    <tr><th>Micro-Skill</th><th>✓</th><th>✗</th><th>Notes</th></tr>`;
+  set.checklist.forEach(c => {
+    html += `<tr><td>${c}</td><td><input type="checkbox"/></td><td><input type="checkbox"/></td><td><input class="answer-line"/></td></tr>`;
+  });
+  html += `</table></div>
+  <div style="margin-top:16px;padding:14px;background:var(--off-white);border-radius:10px">
+    <p style="font-weight:700;margin-bottom:8px">Score: ___ / ${set.tasks.length} &nbsp;&nbsp; Mastery: ___ / ${set.checklist.length}</p>
+    <p style="font-size:14px">Level: 🔴 Needs Help &nbsp; 🟡 Developing &nbsp; 🟢 Mastered</p>
+  </div>`;
+
+  document.getElementById('numWsContent').innerHTML = html;
+  document.getElementById('numWorksheet').style.display = 'block';
+  document.getElementById('numWorksheet').scrollIntoView({ behavior:'smooth' });
+}
+
+function saveNumResults() {
+  const r = JSON.parse(localStorage.getItem('diagnosticResults') || '[]');
+  r.push({
+    type:'numeracy', grade: document.getElementById('numGrade').value,
+    skill: document.getElementById('numSkill').value, diff: document.getElementById('numDiff').value,
+    student: document.getElementById('numStudent').value || 'Student', date: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('diagnosticResults', JSON.stringify(r));
+  alert('✅ Results saved!');
+}
+
+function renderSavedResults() {
+  const r = JSON.parse(localStorage.getItem('diagnosticResults') || '[]');
+  const el = document.getElementById('savedResultsList');
+  if (!r.length) { el.innerHTML = '<p style="color:var(--gray-400);font-size:14px">No results saved yet.</p>'; return; }
+  let html = '<table><tr><th>#</th><th>Type</th><th>Student</th><th>Grade</th><th>Skill</th><th>Date</th></tr>';
+  r.forEach((rec,i) => {
+    html += `<tr><td>${i+1}</td><td><span class="tag tag-${rec.type==='literacy'?'blue':'amber'}">${rec.type}</span></td><td>${rec.student}</td><td>Grade ${rec.grade}</td><td>${rec.skill}</td><td>${rec.date}</td></tr>`;
+  });
+  html += '</table>';
+  if (r.length) html += `<button class="btn btn-red btn-sm" style="margin-top:12px" onclick="clearResults()">🗑️ Clear All</button>`;
+  el.innerHTML = html;
+}
+
+function clearResults() {
+  if (confirm('Clear all saved results?')) { localStorage.removeItem('diagnosticResults'); renderSavedResults(); }
+}
+
+/* ══════════════════════════════════════
+   GAP ANALYZER
+════════════════════════════════════════ */
+const gapSkills = [
+  'Letter Recognition','Phonics/Sounds','Reading Fluency','Comprehension','Writing',
+  'Number Sense','Place Value','Addition','Subtraction','Patterns & Measurement'
+];
+
+function initGapInputs() {
+  let html = '<table><tr><th>Skill</th><th>Students Weak (#)</th><th>Priority</th></tr>';
+  gapSkills.forEach((s,i) => {
+    html += `<tr><td>${s}</td><td><input type="number" id="gap_${i}" min="0" value="0" style="width:80px;padding:6px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px"/></td><td id="gap_pri_${i}">—</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('gapInputTable').innerHTML = html;
+}
+
+function analyzeGaps() {
+  const total = parseInt(document.getElementById('totalStudents').value) || 30;
+  const data = gapSkills.map((s,i) => {
+    const weak = parseInt(document.getElementById(`gap_${i}`).value) || 0;
+    const pct = (weak / total) * 100;
+    const severity = pct >= 60 ? 'critical' : pct >= 30 ? 'moderate' : 'low';
+    return { skill: s, weak, pct: pct.toFixed(1), severity };
+  });
+
+  data.sort((a,b) => b.pct - a.pct);
+
+  let html = '<div class="card"><div class="card-title">📊 Gap Analysis Results</div>';
+  html += `<p style="font-size:14px;margin-bottom:16px">Total Students: <strong>${total}</strong> &nbsp;|&nbsp; FLN Health Index: <strong style="color:${data.filter(d=>d.severity==='critical').length>3?'var(--red)':'var(--amber)'}">${Math.round(100 - data.reduce((a,b)=>a+parseFloat(b.pct),0)/data.length)}%</strong></p>`;
+
+  html += '<div style="margin-bottom:20px">';
+  data.forEach(d => {
+    const col = d.severity === 'critical' ? 'red' : d.severity === 'moderate' ? 'amber' : 'green';
+    html += `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:14px;font-weight:600">${d.skill}</span>
+        <span class="tag tag-${col}">${d.severity.toUpperCase()} — ${d.weak} students (${d.pct}%)</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill fill-${col}" style="width:${Math.min(d.pct,100)}%"></div></div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Heatmap
+  html += '<p style="font-weight:700;margin-bottom:12px;color:var(--navy)">🌡️ Skill Heatmap</p>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">';
+  data.forEach(d => {
+    const cls = d.severity === 'critical' ? 'heatmap-red' : d.severity === 'moderate' ? 'heatmap-amber' : 'heatmap-green';
+    html += `<div class="heatmap-cell ${cls}"><div style="font-size:18px">${d.severity==='critical'?'🔴':d.severity==='moderate'?'🟡':'🟢'}</div><div style="font-size:12px;font-weight:700;margin-top:4px">${d.skill}</div><div style="font-size:13px">${d.pct}%</div></div>`;
+  });
+  html += '</div></div>';
+
+  // Priority action
+  const critical = data.filter(d => d.severity === 'critical');
+  if (critical.length) {
+    html += `<div class="card"><div class="alert alert-danger">⚠️ <strong>${critical.length} Critical Skill Gap(s):</strong> Immediate intervention needed for: ${critical.map(d=>d.skill).join(', ')}</div>`;
+    html += '<div class="card-title">Priority Action Sheet</div><ol style="font-size:14px;line-height:2;padding-left:20px">';
+    critical.forEach((d,i) => {
+      html += `<li><strong>${d.skill}</strong>: ${d.weak} students (${d.pct}%) need intensive support</li>`;
+    });
+    html += '</ol></div>';
+  }
+
+  localStorage.setItem('gapAnalysis', JSON.stringify(data));
+  document.getElementById('gapResults').innerHTML = html;
+  document.getElementById('gapResults').style.display = 'block';
+}
+
+/* ══════════════════════════════════════
+   INTERVENTION PLANNER
+════════════════════════════════════════ */
+const interventionBank = {
+  'Letter Recognition': { w2: ['Daily alphabet flashcard drill (10 mins)', 'Sand letter tracing', 'Letter hunt in classroom labels', 'A-Z song and chant', 'Letter formation practice book'], w4: ['Alphabet chart with pictures', 'Letter-picture matching game', 'Letter bingo', 'Peer pair letter quiz', 'Progressive alphabet writing'] },
+  'Phonics': { w2: ['Sound picture matching daily', 'CVC word building with cards', 'Rhyme circle games', 'Initial sound sorting', 'Alphabet sound chants'], w4: ['Phonics workbook pages', 'Blending practice with letter tiles', 'Word family posters', 'Phonics readers (decodable books)', 'Partner phonics games'] },
+  'Reading Fluency': { w2: ['Echo reading with teacher', 'Repeated reading of 50-word passage', 'Reader\'s theatre scripts', 'Whisper reading practice', 'Timed reading with progress chart'], w4: ['Paired reading programme', 'Levelled readers library', 'Daily 15-min reading time', 'Fluency checklist self-monitoring', 'Read-aloud performance'] },
+  'Comprehension': { w2: ['Story retelling with props', 'WH-question cards after reading', 'Picture sequence activities', 'Think-aloud modelling', 'Vocabulary graphic organizers'], w4: ['Graphic organizers (story maps)', 'Guided reading groups', 'Comprehension question stems', 'Book discussion circles', 'Inference practice passages'] },
+  'Writing': { w2: ['Tracing practice sheets', 'Copy sentences from board', 'Picture description writing', 'Letter formation correction', 'Word sorting and writing'], w4: ['Journal writing (3 sentences/day)', 'Sentence expansion exercises', 'Story starter completion', 'Peer editing pairs', 'Personal word dictionary'] },
+  'Number Sense': { w2: ['Counting objects daily (concrete)', 'Number line activities', 'More/less comparison games', 'Count and write practice', 'Number recognition flashcards'], w4: ['Abacus use for counting', 'Number chart activities', 'Skip counting songs', 'Estimation jar activity', 'Number value anchor chart'] },
+  'Place Value': { w2: ['Base-10 block activities', 'Tens/ones sorting with sticks', 'Place value chart practice', 'Expanded form writing', 'Digit value card games'], w4: ['Place value discs', 'Number expander strips', 'Place value bingo', 'Compare and order numbers', '3-digit number building'] },
+  'Addition': { w2: ['Counting on with fingers', 'Number bond practice (to 10)', 'Adding with manipulatives', 'Mental math warm-ups', 'Addition fact flashcards'], w4: ['Addition fact chart mastery', 'Doubles and near-doubles strategy', 'Regrouping with base-10 blocks', 'Mental addition games', 'Addition word problem bank'] },
+  'Subtraction': { w2: ['Counting back on number line', 'Take-away with objects', 'Subtraction stories', 'Number bond subtraction', 'Minus flashcards (0–10)'], w4: ['Regrouping practice with blocks', 'Subtraction fact families', 'Related addition for checking', 'Missing number subtraction', 'Subtraction word problems'] },
+  'Patterns & Measurement': { w2: ['Pattern block continuation', 'Body measurement activities', 'Ruler use practice', 'Calendar pattern activities', 'Skip count patterns'], w4: ['Measurement station activities', 'Perimeter with string/ruler', 'Pattern rule identification', 'Standard vs non-standard units', 'Measurement word problems'] }
+};
+
+function generateIntervention() {
+  const checks = ['ig_letters','ig_phonics','ig_fluency','ig_comprehension','ig_writing','ig_numbersense','ig_placevalue','ig_addition','ig_subtraction','ig_patterns'];
+  const labels = ['Letter Recognition','Phonics','Reading Fluency','Comprehension','Writing','Number Sense','Place Value','Addition','Subtraction','Patterns & Measurement'];
+  const weeks = parseInt(document.getElementById('planDuration').value);
+  const selected = checks.map((id,i) => ({ checked: document.getElementById(id).checked, label: labels[i] })).filter(s => s.checked).map(s => s.label);
+
+  if (!selected.length) { alert('Please select at least one gap area.'); return; }
+
+  let html = `<div class="card"><div class="card-title">📋 ${weeks}-Week Intervention Plan</div>
+    <div class="alert alert-info" style="margin-bottom:16px">🎯 Target Skills: <strong>${selected.join(', ')}</strong></div>`;
+
+  for (let w = 1; w <= weeks; w++) {
+    html += `<div style="border:1px solid var(--gray-200);border-radius:12px;margin-bottom:16px;overflow:hidden">
+      <div style="background:var(--navy);color:white;padding:12px 16px;font-weight:700;font-size:15px">Week ${w}</div>
+      <div style="padding:16px">`;
+    selected.forEach(skill => {
+      const bank = interventionBank[skill] || { w2: ['Targeted practice activities'], w4: ['Extended practice'] };
+      const acts = weeks === 2 ? (bank.w2 || []) : (bank.w4 || []);
+      const act = acts[Math.min(w-1, acts.length-1)] || acts[0] || 'Skill practice activity';
+      html += `<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px">
+        <span style="font-size:16px">▸</span>
+        <div><strong style="font-size:13px;color:var(--navy)">${skill}:</strong> <span style="font-size:14px">${act}</span></div>
+      </div>`;
+    });
+    html += `<div style="margin-top:12px;padding:10px;background:var(--off-white);border-radius:8px;font-size:13px">
+      <strong>Peer Grouping:</strong> Pair struggling students with peers who have mastered 1–2 skills above their level.<br>
+      <strong>Home Activity:</strong> Send home a simple practice sheet for 10 minutes of supported practice.
+    </div>`;
+    html += '</div></div>';
+  }
+
+  html += `<div style="background:#eafaf1;border-radius:12px;padding:16px;margin-top:8px">
+    <p style="font-weight:700;color:var(--green-dark);margin-bottom:8px">📦 Classroom Activity Bank</p>
+    <ul style="font-size:14px;line-height:2;padding-left:18px">
+      <li>Flashcard rotation centres</li><li>Peer tutoring pairs</li>
+      <li>Manipulative exploration stations</li><li>Movement-based learning games</li>
+      <li>Story-based skill integration</li><li>Art and language crossover tasks</li>
+    </ul>
+  </div>
+  <button class="btn btn-outline no-print" style="margin-top:16px" onclick="window.print()">🖨️ Print Plan</button>
+  </div>`;
+
+  localStorage.setItem('interventionPlans', JSON.stringify({ date: new Date().toLocaleDateString(), weeks, skills: selected }));
+  document.getElementById('interventionPlan').innerHTML = html;
+  document.getElementById('interventionPlan').style.display = 'block';
+}
+
+/* ══════════════════════════════════════
+   GROUPING
+════════════════════════════════════════ */
+function buildGroups() {
+  const a = parseInt(document.getElementById('grp_a').value) || 0;
+  const b = parseInt(document.getElementById('grp_b').value) || 0;
+  const c = parseInt(document.getElementById('grp_c').value) || 0;
+  const total = a + b + c;
+
+  let html = `<div class="card"><div class="card-title">👥 Differentiated Learning Groups</div>
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px">Total Students: <strong>${total}</strong></p>`;
+
+  html += `<div class="group-card group-a">
+    <h4>🔴 Group A — High Support (${a} students, ${Math.round(a/total*100)}%)</h4>
+    <p style="font-size:13px;margin-bottom:8px">Students scoring 0–40%. Need intensive foundational support.</p>
+    <ul>
+      <li>Work directly with teacher in small group (4–6 students)</li>
+      <li>Use concrete manipulatives exclusively</li>
+      <li>Oral/pictorial tasks — minimize written load</li>
+      <li>Simplify all tasks to single-step operations</li>
+      <li>Positive reinforcement every 2–3 minutes</li>
+      <li>Assessment: observation-based, no timed tests</li>
+    </ul>
+  </div>`;
+
+  html += `<div class="group-card group-b">
+    <h4>🟡 Group B — Moderate Support (${b} students, ${Math.round(b/total*100)}%)</h4>
+    <p style="font-size:13px;margin-bottom:8px">Students scoring 41–70%. Have partial understanding, need scaffolding.</p>
+    <ul>
+      <li>Guided group work with teacher check-ins</li>
+      <li>Semi-concrete to representational tasks</li>
+      <li>Graphic organizers and visual support tools</li>
+      <li>2-step problems with worked examples</li>
+      <li>Weekly formative check: short 5-question quiz</li>
+      <li>Peer support from Group C during activities</li>
+    </ul>
+  </div>`;
+
+  html += `<div class="group-card group-c">
+    <h4>🟢 Group C — Advanced Learners (${c} students, ${Math.round(c/total*100)}%)</h4>
+    <p style="font-size:13px;margin-bottom:8px">Students scoring 71–100%. Ready for extension and enrichment.</p>
+    <ul>
+      <li>Independent and collaborative project tasks</li>
+      <li>Abstract and symbolic reasoning challenges</li>
+      <li>Multi-step, open-ended problems</li>
+      <li>Peer tutor role for Group A/B activities</li>
+      <li>Creative application tasks (stories, puzzles)</li>
+      <li>Portfolio-based assessment</li>
+    </ul>
+  </div>`;
+
+  html += `<div class="alert alert-info">💡 <strong>Tip:</strong> Groups are fluid — reassess every 3–4 weeks. Students can move between groups as they progress.</div>
+  <button class="btn btn-outline no-print" onclick="window.print()">🖨️ Print Groups</button></div>`;
+
+  document.getElementById('groupResults').innerHTML = html;
+  document.getElementById('groupResults').style.display = 'block';
+}
+
+/* ══════════════════════════════════════
+   PROGRESS TRACKER
+════════════════════════════════════════ */
+function initProgress() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('progDate').value = today;
+}
+
+function addProgress() {
+  const date = document.getElementById('progDate').value;
+  const name = document.getElementById('progName').value || 'Unknown';
+  const lit = parseInt(document.getElementById('progLit').value) || 0;
+  const num = parseInt(document.getElementById('progNum').value) || 0;
+  const records = JSON.parse(localStorage.getItem('progressRecords') || '[]');
+  records.push({ date, name, lit, num });
+  localStorage.setItem('progressRecords', JSON.stringify(records));
+  document.getElementById('progLit').value = '';
+  document.getElementById('progNum').value = '';
+  renderProgressTable();
+  drawProgressChart();
+}
+
+function renderProgressTable() {
+  const records = JSON.parse(localStorage.getItem('progressRecords') || '[]');
+  const el = document.getElementById('progressTable');
+  if (!records.length) { el.innerHTML = '<p style="color:var(--gray-400);font-size:14px">No progress records yet.</p>'; return; }
+
+  let html = '<table><tr><th>Date</th><th>Name</th><th>Literacy</th><th>Numeracy</th><th>Status</th></tr>';
+  records.slice().reverse().forEach(r => {
+    const avg = (r.lit + r.num) / 2;
+    const status = avg >= 70 ? '<span class="tag tag-green">On Track</span>' : avg >= 40 ? '<span class="tag tag-amber">Developing</span>' : '<span class="tag tag-red">At Risk</span>';
+    html += `<tr><td>${r.date}</td><td>${r.name}</td><td>${r.lit}%</td><td>${r.num}%</td><td>${status}</td></tr>`;
+  });
+  html += '</table>';
+  if (records.length) html += `<button class="btn btn-red btn-sm no-print" style="margin-top:12px" onclick="clearProgress()">🗑️ Clear</button>`;
+  el.innerHTML = html;
+
+  // Check early warning
+  const last5 = records.slice(-5);
+  if (last5.length >= 3) {
+    const avgLit = last5.reduce((a,r)=>a+r.lit,0)/last5.length;
+    const avgNum = last5.reduce((a,r)=>a+r.num,0)/last5.length;
+    if (avgLit < 40 || avgNum < 40) {
+      el.innerHTML = `<div class="alert alert-danger">⚠️ Early Warning: Average scores below 40% for last ${last5.length} entries. Consider intensive intervention.</div>` + el.innerHTML;
+    }
+  }
+}
+
+function clearProgress() {
+  if (confirm('Clear progress records?')) { localStorage.removeItem('progressRecords'); renderProgressTable(); drawProgressChart(); }
+}
+
+function drawProgressChart() {
+  const records = JSON.parse(localStorage.getItem('progressRecords') || '[]');
+  const canvas = document.getElementById('progressChart');
+  if (!canvas) return;
+  if (progressChart) progressChart.destroy();
+  if (!records.length) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#8fa3be'; ctx.font = '14px sans-serif';
+    ctx.fillText('No data yet — add weekly entries above.', 40, 50);
+    return;
+  }
+  const labels = records.map(r => r.date);
+  progressChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Literacy', data: records.map(r=>r.lit), borderColor: '#2a6fcd', backgroundColor: 'rgba(42,111,205,0.08)', tension: 0.3, fill: true },
+        { label: 'Numeracy', data: records.map(r=>r.num), borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,0.08)', tension: 0.3, fill: true }
+      ]
+    },
+    options: {
+      responsive: true, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } },
+      plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw}%` } } }
+    }
+  });
+}
+
+/* ══════════════════════════════════════
+   SCHOOL DASHBOARD
+════════════════════════════════════════ */
+function initDashboardInputs() {
+  let html = '<div class="grid-3">';
+  ['Grade 1','Grade 2','Grade 3'].forEach((g,i) => {
+    html += `<div style="background:var(--off-white);padding:16px;border-radius:12px;border:1px solid var(--gray-100)">
+      <p style="font-weight:700;margin-bottom:12px;color:var(--navy)">${g}</p>
+      <div class="form-group"><label class="form-label">Literacy Avg %</label><input type="number" id="dash_lit_${i}" min="0" max="100" value="60" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Numeracy Avg %</label><input type="number" id="dash_num_${i}" min="0" max="100" value="55" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Total Students</label><input type="number" id="dash_tot_${i}" min="0" value="40" class="form-input"/></div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('dashInputGrid').innerHTML = html;
+}
+
+function computeDashboard() {
+  const grades = ['Grade 1','Grade 2','Grade 3'];
+  const data = grades.map((g,i) => ({
+    grade: g,
+    lit: parseInt(document.getElementById(`dash_lit_${i}`).value)||0,
+    num: parseInt(document.getElementById(`dash_num_${i}`).value)||0,
+    tot: parseInt(document.getElementById(`dash_tot_${i}`).value)||0
+  }));
+
+  const totalStudents = data.reduce((a,d)=>a+d.tot,0);
+  const avgLit = data.reduce((a,d)=>a+d.lit,0)/3;
+  const avgNum = data.reduce((a,d)=>a+d.num,0)/3;
+  const healthIndex = Math.round((avgLit + avgNum) / 2);
+  const healthColor = healthIndex >= 70 ? 'var(--green-dark)' : healthIndex >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  let html = `<div class="card">
+    <div class="card-title">🏫 School FLN Health Index</div>
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-box"><div class="stat-num" style="color:${healthColor}">${healthIndex}%</div><div class="stat-label">FLN Health Index</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--blue)">${Math.round(avgLit)}%</div><div class="stat-label">Avg Literacy</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--green-dark)">${Math.round(avgNum)}%</div><div class="stat-label">Avg Numeracy</div></div>
+    </div>`;
+
+  html += '<div class="card-title" style="font-size:16px;margin-bottom:12px">Grade-Wise Comparison</div>';
+  data.forEach(d => {
+    const lCol = d.lit >= 70 ? 'green' : d.lit >= 45 ? 'amber' : 'red';
+    const nCol = d.num >= 70 ? 'green' : d.num >= 45 ? 'amber' : 'red';
+    html += `<div style="margin-bottom:16px"><p style="font-weight:700;font-size:14px;margin-bottom:6px">${d.grade} (${d.tot} students)</p>
+      <div style="margin-bottom:6px"><span style="font-size:13px;width:80px;display:inline-block">📚 Literacy</span><div class="progress-bar" style="display:inline-block;width:70%;vertical-align:middle"><div class="progress-fill fill-${lCol}" style="width:${d.lit}%"></div></div> <strong>${d.lit}%</strong></div>
+      <div><span style="font-size:13px;width:80px;display:inline-block">🔢 Numeracy</span><div class="progress-bar" style="display:inline-block;width:70%;vertical-align:middle"><div class="progress-fill fill-${nCol}" style="width:${d.num}%"></div></div> <strong>${d.num}%</strong></div>
+    </div>`;
+  });
+
+  const atRisk = data.filter(d => d.lit < 50 || d.num < 50);
+  if (atRisk.length) {
+    html += `<div class="alert alert-danger">⚠️ At-Risk Grades: ${atRisk.map(d=>d.grade).join(', ')} — Immediate school-level attention required</div>`;
+  }
+
+  html += `<div class="alert alert-info" style="margin-top:16px">📌 Priority Actions:<br>
+    1. Focus intensive resources on lowest-performing grade<br>
+    2. Schedule teacher development on FLN strategies<br>
+    3. Engage SMC/parents for home support programme<br>
+    4. Report progress to cluster resource centre monthly
+  </div></div>`;
+
+  localStorage.setItem('schoolFLNData', JSON.stringify({ date: new Date().toLocaleDateString(), healthIndex, data }));
+  document.getElementById('dashResults').innerHTML = html;
+  document.getElementById('dashResults').style.display = 'block';
+}
+
+/* ══════════════════════════════════════
+   PARENT REPORT
+════════════════════════════════════════ */
+function generateParentReport() {
+  const name = document.getElementById('pr_name').value || 'Student';
+  const cls = document.getElementById('pr_class').value || 'Grade 2';
+  const lit = document.getElementById('pr_lit').value;
+  const num = document.getElementById('pr_num').value;
+  const teacher = document.getElementById('pr_teacher').value || 'Teacher';
+  const date = document.getElementById('pr_date').value || new Date().toLocaleDateString();
+
+  const litLabel = { needs_support: '🔴 Needs Support', developing: '🟡 Developing', proficient: '🟢 Proficient' }[lit];
+  const numLabel = { needs_support: '🔴 Needs Support', developing: '🟡 Developing', proficient: '🟢 Proficient' }[num];
+
+  const litAdvice = {
+    needs_support: ['Read picture books together daily (10–15 mins)', 'Point to letters on signs and packaging', 'Practice alphabet songs', 'Let child retell stories in their own words', 'Visit a library or read any text together'],
+    developing: ['Read storybooks aloud 20 mins per day', 'Ask "what do you think will happen next?"', 'Practice reading simple sentences', 'Play word family games', 'Visit the school library weekly'],
+    proficient: ['Encourage independent reading time', 'Discuss book plots and characters', 'Let child read to younger siblings', 'Explore diverse books and topics', 'Write a daily journal entry']
+  }[lit];
+
+  const numAdvice = {
+    needs_support: ['Count objects at home (spoons, steps, fruits)', 'Use fingers for small addition', 'Play number recognition games', 'Practice counting 1–20 daily', 'Draw shapes and count sides'],
+    developing: ['Practice addition with household objects', 'Calendar activities (today is day __ of month)', 'Simple measurement tasks (how many cups?)', 'Mental math during daily tasks', 'Play number board games'],
+    proficient: ['Solve real-life problems together', 'Practice multiplication with skip counting', 'Measure ingredients while cooking', 'Play strategy/puzzle games', 'Explore patterns in nature']
+  }[num];
+
+  let html = `<div class="card" id="parentReportDoc">
+    <div style="text-align:center;border-bottom:2px solid var(--navy);padding-bottom:16px;margin-bottom:20px">
+      <div style="font-size:28px;margin-bottom:8px">📄</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--navy)">Student Progress Report</div>
+      <div style="font-size:13px;color:var(--gray-600);margin-top:4px">Foundational Literacy & Numeracy Assessment</div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px">
+      <div><strong>Student:</strong> ${name}</div>
+      <div><strong>Class:</strong> ${cls}</div>
+      <div><strong>Teacher:</strong> ${teacher}</div>
+      <div><strong>Date:</strong> ${date}</div>
+    </div>
+    <div style="background:var(--off-white);border-radius:12px;padding:16px;margin-bottom:20px">
+      <p style="font-weight:700;margin-bottom:12px;color:var(--navy)">Performance Summary</p>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="text-align:center;background:white;padding:16px;border-radius:10px;flex:1"><div style="font-size:24px">${litLabel}</div><div style="font-size:13px;color:var(--gray-600);margin-top:6px">Literacy</div></div>
+        <div style="text-align:center;background:white;padding:16px;border-radius:10px;flex:1"><div style="font-size:24px">${numLabel}</div><div style="font-size:13px;color:var(--gray-600);margin-top:6px">Numeracy</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <p style="font-weight:700;margin-bottom:10px;color:var(--navy)">📚 Home Reading Support</p>
+      <ul style="font-size:14px;line-height:2;padding-left:20px">${litAdvice.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>
+    <div style="margin-bottom:20px">
+      <p style="font-weight:700;margin-bottom:10px;color:var(--navy)">🔢 Home Numeracy Support</p>
+      <ul style="font-size:14px;line-height:2;padding-left:20px">${numAdvice.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>
+    <div style="background:var(--navy);color:white;border-radius:12px;padding:16px;font-size:13px;line-height:1.8">
+      <strong>Teacher's Note:</strong> This report reflects your child's current foundational skills. With consistent home practice and school support, every child can achieve grade-level learning. Please feel free to meet me for any queries.
+      <br><br><strong>Signed:</strong> ${teacher} &nbsp;&nbsp; <strong>Date:</strong> ${date}
+    </div>
+    <button class="btn btn-outline no-print" style="margin-top:16px" onclick="window.print()">🖨️ Print Report</button>
+  </div>`;
+
+  document.getElementById('parentReport').innerHTML = html;
+  document.getElementById('parentReport').style.display = 'block';
+}
+
+/* ══════════════════════════════════════
+   POLICY CONTENT
+════════════════════════════════════════ */
+const policyPages = {
+  'policy-p1': {
+    title: 'NEP 2020 and the FLN Mission',
+    content: `
+      <h3>What is the National Education Policy 2020?</h3>
+      <p>The National Education Policy (NEP) 2020 represents India's most comprehensive education reform in over three decades. Unveiled in July 2020, it replaces the 1986 National Policy on Education and charts a new course for the Indian education system aligned with the aspirations of 21st-century learning. The policy is built on five foundational pillars: Access, Equity, Quality, Affordability, and Accountability.</p>
+      <p>At the heart of NEP 2020 lies a profound recognition: unless children develop strong foundational skills in their earliest years, all subsequent learning becomes compromised. This insight has translated into the most urgent priority of the policy — achieving universal Foundational Literacy and Numeracy (FLN) for every child by Grade 3.</p>
+      <h3>The 5+3+3+4 Curricular Structure</h3>
+      <p>NEP 2020 reconceptualises the school structure into four stages:</p>
+      <ul>
+        <li><strong>Foundational Stage (5 years):</strong> Ages 3–8, covering pre-primary (3 years) and Grades 1–2. Focus on play-based learning and foundational literacy/numeracy.</li>
+        <li><strong>Preparatory Stage (3 years):</strong> Grades 3–5, ages 8–11. More formal learning while retaining activity-based approaches.</li>
+        <li><strong>Middle Stage (3 years):</strong> Grades 6–8, ages 11–14. Subject-specific teachers and abstract thinking.</li>
+        <li><strong>Secondary Stage (4 years):</strong> Grades 9–12, ages 14–18. Multidisciplinary approach with flexibility.</li>
+      </ul>
+      <h3>NIPUN Bharat Mission</h3>
+      <p>In 2021, the Government of India launched NIPUN Bharat (National Initiative for Proficiency in Reading with Understanding and Numeracy) under NEP 2020's FLN mandate. The mission's goal: ensure that every child in India attains basic literacy and numeracy competencies by the end of Grade 3 by 2026–27.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>In a Grade 2 classroom in Kashmir, the teacher uses local folk stories in the mother tongue to build comprehension skills before transitioning to Hindi/English text. This mother-tongue first approach aligns perfectly with NEP 2020's language policy.</p></div>
+      <h3>Why Foundational Skills Matter</h3>
+      <p>Research consistently shows that children who cannot read with understanding by Grade 3 struggle throughout their academic careers. UNESCO data indicates that 53% of children in low- and middle-income countries cannot read a simple story by age 10 — a phenomenon called the "Learning Poverty" crisis. NEP 2020 addresses this directly by mandating structured diagnostic assessment, teacher training, and remediation programmes at the foundational stage.</p>
+      <div class="reflection-box"><strong>🪞 Reflection for Teachers</strong><p>How many students in your class can read a simple 2-sentence story with understanding? What strategies are you using for those who cannot?</p></div>
+      <h3>Key Policy Commitments for FLN</h3>
+      <ul>
+        <li>Every child will attain foundational literacy and numeracy by Grade 3</li>
+        <li>Dedicated FLN time in school timetable (minimum 2 hours daily at foundational stage)</li>
+        <li>Structured pedagogy with evidence-based teaching approaches</li>
+        <li>Regular diagnostic assessment without high-stakes grading</li>
+        <li>Teacher capacity building through FLN-focused training</li>
+        <li>Special focus on children with learning difficulties and disabilities</li>
+        <li>Community and parental engagement in FLN outcomes</li>
+      </ul>`
+  },
+  'policy-p2': {
+    title: 'NCF 2023 Foundational Stage Framework',
+    content: `
+      <h3>NCF 2023: A New Curriculum for a New Era</h3>
+      <p>The National Curriculum Framework for Foundational Stage (NCF-FS) 2022, updated in 2023, provides detailed guidance for education from ages 3 to 8. This framework translates the broad vision of NEP 2020 into specific learning goals, pedagogical approaches, and assessment principles for early childhood and foundational stage education.</p>
+      <h3>The Five Domains of Development</h3>
+      <p>NCF 2023 frames child development across five interdependent domains:</p>
+      <ul>
+        <li><strong>Physical Development:</strong> Motor skills, health, sensory development</li>
+        <li><strong>Socio-Emotional Development:</strong> Relationships, self-regulation, emotional literacy</li>
+        <li><strong>Cognitive Development:</strong> Problem-solving, critical thinking, curiosity</li>
+        <li><strong>Language and Literacy:</strong> Communication, reading, writing across languages</li>
+        <li><strong>Aesthetic and Cultural Development:</strong> Arts, music, cultural identity</li>
+      </ul>
+      <h3>Competency-Based Learning Outcomes</h3>
+      <p>Unlike the old syllabus-coverage model, NCF 2023 defines learning outcomes as competencies — what a child can do, not just what they know. For foundational literacy, competencies range from recognizing letters to reading with expression. For numeracy, from number identification to solving simple word problems.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>Instead of "covering Chapter 3 on addition," the NCF 2023-aligned teacher asks: "Can my students compose and decompose numbers up to 20 using multiple representations?" This shifts focus from content delivery to skill demonstration.</p></div>
+      <h3>Play-Based and Activity-Based Learning</h3>
+      <p>NCF 2023 mandates that foundational stage learning be predominantly play-based and experiential. Children learn best when they are active, engaged, and given opportunities to explore. The framework specifies that at least 75% of learning time in Grades 1–2 should involve hands-on, play-based activities.</p>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>Look at your lesson plans for last week. What percentage of activities were hands-on or play-based? How can you increase this proportion?</p></div>
+      <h3>Multilingual Approach</h3>
+      <p>NCF 2023 strongly advocates for mother-tongue-first education at the foundational stage. Children acquire literacy faster in familiar languages and transfer these skills to second and third languages. Teachers are encouraged to use children's home languages as bridges to school language learning.</p>`
+  },
+  'policy-p3': {
+    title: 'Literacy Micro-Competencies',
+    content: `
+      <h3>Understanding Literacy as a Ladder of Skills</h3>
+      <p>Literacy is not a single skill — it is a complex architecture of interdependent micro-competencies that must be systematically built from the ground up. Understanding this architecture allows teachers to diagnose exactly where a child is stuck and provide targeted support.</p>
+      <h3>Pre-Reading Competencies (Pre-Grade 1)</h3>
+      <ul>
+        <li><strong>Print Awareness:</strong> Understanding that text carries meaning, read left to right</li>
+        <li><strong>Phonological Awareness:</strong> Hearing rhymes, syllables, and individual sounds</li>
+        <li><strong>Oral Language:</strong> Vocabulary, sentence formation, listening comprehension</li>
+        <li><strong>Letter Knowledge:</strong> Recognizing and naming letters of the alphabet</li>
+      </ul>
+      <h3>Foundational Literacy Skills (Grades 1–3)</h3>
+      <ul>
+        <li><strong>Phonemic Awareness:</strong> Identifying, blending, and segmenting individual sounds (phonemes)</li>
+        <li><strong>Phonics:</strong> Understanding sound-symbol relationships (decoding)</li>
+        <li><strong>Fluency:</strong> Reading accurately, at appropriate speed, with expression</li>
+        <li><strong>Vocabulary:</strong> Building word knowledge, both spoken and written</li>
+        <li><strong>Comprehension:</strong> Understanding, interpreting, and responding to text</li>
+        <li><strong>Writing:</strong> Letter formation, spelling, sentence construction</li>
+      </ul>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>A Grade 2 student reads "cat" correctly but struggles with "catch." This suggests strong basic phonics but a gap in consonant clusters/digraphs. The teacher now targets this specific micro-skill rather than repeating general phonics exercises.</p></div>
+      <h3>Diagnostic Indicators by Skill</h3>
+      <p><strong>Letter Recognition gaps:</strong> Confuses visually similar letters (b/d, p/q, m/n), skips letters when reading, struggles with uppercase/lowercase matching.</p>
+      <p><strong>Phonics gaps:</strong> Cannot blend CVC words, misreads vowel sounds, does not hear rhyming, cannot segment spoken words.</p>
+      <p><strong>Fluency gaps:</strong> Word-by-word reading, ignores punctuation, monotone reading, very slow rate (below 20 words/minute for Grade 2).</p>
+      <p><strong>Comprehension gaps:</strong> Cannot answer literal questions, does not retell stories, cannot make simple inferences, poor vocabulary limiting understanding.</p>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>For your weakest readers — which specific micro-skill is the primary barrier? Have you diagnosed this systematically or are you guessing?</p></div>`
+  },
+  'policy-p4': {
+    title: 'Numeracy Micro-Competencies',
+    content: `
+      <h3>The Numeracy Pyramid</h3>
+      <p>Mathematical competence at the foundational stage is built on a pyramid of micro-skills. Each layer supports the one above it. Gaps at the base create instability across the entire structure.</p>
+      <h3>Number Sense Foundation</h3>
+      <p>Number sense is the intuitive understanding of numbers and their relationships. It underpins all mathematical operations. Children with strong number sense can:</p>
+      <ul>
+        <li>Recognize quantities without counting (subitizing)</li>
+        <li>Compare numbers and understand relative magnitude</li>
+        <li>Compose and decompose numbers flexibly (7 = 3+4 = 5+2 = 6+1)</li>
+        <li>Understand the counting sequence and its properties</li>
+        <li>Connect number names, symbols, and quantities</li>
+      </ul>
+      <h3>Place Value Understanding</h3>
+      <p>Place value is one of the most critical and frequently misunderstood foundational concepts. Children must understand that the same digit has different values based on its position. Common misconceptions include: treating 42 as 4+2 rather than 40+2, not understanding that 10 ones = 1 ten, struggling to compare two-digit numbers.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>Use bundled sticks: 10 loose sticks bundled into one "ten." Ask students: "How many tens in 34? How many ones?" This concrete activity builds place value understanding before moving to abstract notation.</p></div>
+      <h3>Operations: Addition and Subtraction</h3>
+      <p>Children move through stages: counting all → counting on → derived facts → known facts. A student stuck at "counting all" needs strategies to advance to "counting on" before being pushed to memorize facts.</p>
+      <h3>Patterns and Relationships</h3>
+      <p>Pattern recognition is the essence of mathematical thinking. Skills include: extending patterns, identifying rules, creating patterns, and applying pattern knowledge to number sequences.</p>
+      <h3>Measurement</h3>
+      <p>Measurement connects mathematics to the real world. Key micro-skills: choosing appropriate units, using instruments correctly, converting units, estimating, and solving measurement word problems.</p>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>Can your Grade 2 students explain WHY 25 + 17 = 42, or do they only know the procedure? Deep understanding comes from building on number sense — not rushing to algorithms.</p></div>`
+  },
+  'policy-p5': {
+    title: 'Diagnostic Assessment in Early Grades',
+    content: `
+      <h3>Assessment FOR Learning, Not OF Learning</h3>
+      <p>In early grade education, assessment should serve one primary purpose: to identify what each child knows and can do, so teachers can adjust instruction accordingly. This is fundamentally different from summative assessment which measures and ranks performance after learning.</p>
+      <h3>Principles of Good Diagnostic Assessment</h3>
+      <ul>
+        <li><strong>Formative:</strong> Happens during learning, not just at the end</li>
+        <li><strong>Diagnostic:</strong> Identifies specific skill gaps, not just general performance levels</li>
+        <li><strong>Non-threatening:</strong> No grades, no competition, no anxiety</li>
+        <li><strong>Actionable:</strong> Directly informs the next instructional steps</li>
+        <li><strong>Frequent:</strong> Weekly/fortnightly, not just termly</li>
+        <li><strong>Observation-based:</strong> What the child does, not just what they write</li>
+      </ul>
+      <h3>Types of Diagnostic Tools</h3>
+      <p><strong>Oral Assessment:</strong> Ask the child to read aloud, explain their thinking, or answer questions verbally. This is essential for Grade 1 where writing ability cannot yet be a barrier to demonstrating knowledge.</p>
+      <p><strong>Observation Checklists:</strong> Systematic observation of specific behaviors during regular classroom activities. "Does the child track print left to right?" "Does the child use fingers when adding beyond 5?"</p>
+      <p><strong>Task-Based Assessment:</strong> Short, focused tasks targeting specific micro-skills. A 5-minute phonics assessment or a 10-question number recognition task.</p>
+      <p><strong>Portfolio Assessment:</strong> Collection of student work over time showing growth trajectories.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>Every Monday, spend 5 minutes with 3 students each for a "reading check-in." Over two weeks, you've informally assessed the whole class. Record observations on a simple checklist and use this to adjust Tuesday's teaching groups.</p></div>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>After your last assessment, how many students did you identify as needing specific support? Did your next lesson change as a result of what you found?</p></div>`
+  },
+  'policy-p6': {
+    title: 'Common FLN Learning Gaps',
+    content: `
+      <h3>Why Gaps Form in Early Grade Learning</h3>
+      <p>Learning gaps at the foundational stage rarely result from lack of student ability. They typically arise from systemic factors: instructional mismatch, insufficient practice time, language barriers, absenteeism, lack of home support, or undetected learning difficulties. Identifying the root cause of a gap is as important as addressing its symptoms.</p>
+      <h3>Most Common Literacy Gaps (Research Evidence)</h3>
+      <ul>
+        <li><strong>Phonological Awareness Deficit:</strong> Cannot hear individual sounds in words. Often the earliest predictor of reading difficulty. Affects 15–20% of learners.</li>
+        <li><strong>Letter-Sound Correspondence:</strong> Knows letter names but not sounds. Critical bottleneck for decoding.</li>
+        <li><strong>Blending Difficulties:</strong> Can identify sounds but cannot merge them into words (b-a-t ≠ "bat")</li>
+        <li><strong>Sight Word Weakness:</strong> Has not automatized high-frequency words, making fluency impossible</li>
+        <li><strong>Reading in Isolation:</strong> Can decode but does not understand what they read</li>
+      </ul>
+      <h3>Most Common Numeracy Gaps</h3>
+      <ul>
+        <li><strong>Rote Counting vs. Conceptual Counting:</strong> Can count to 20 but doesn't know that 14 is more than 9</li>
+        <li><strong>Place Value Confusion:</strong> The most prevalent gap in Grade 2–3, affecting nearly 40% of students nationally</li>
+        <li><strong>Operation Sign Confusion:</strong> Treats + and - as interchangeable or ignores them</li>
+        <li><strong>No Number Sense:</strong> Cannot estimate, cannot judge reasonableness of answers</li>
+        <li><strong>Word Problem Difficulty:</strong> Can compute but cannot decode mathematical language in problems</li>
+      </ul>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>A child counts 1,2,3...10,11,12 correctly but when asked "is 12 more than 9?" says "I don't know." This reveals that counting sequence is memorized but quantity concept is not developed. Intervention: extensive concrete number comparison activities.</p></div>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>Identify the top 3 literacy gaps and top 3 numeracy gaps in YOUR class right now. What evidence do you have for these? What is your current plan to address them?</p></div>`
+  },
+  'policy-p7': {
+    title: 'Play-Based Remediation Strategies',
+    content: `
+      <h3>Why Play is the Most Powerful Remediation Tool</h3>
+      <p>Decades of developmental research confirm that children learn best through play. When remediation is delivered through play and games, three critical things happen: motivation increases, anxiety decreases, and practice repetitions multiply. A child who plays a card-sorting game practices number recognition 50+ times without ever feeling like they're "doing math."</p>
+      <h3>Literacy Remediation Through Play</h3>
+      <p><strong>Letter Games:</strong> Letter treasure hunts (find 5 things starting with 'b'), alphabet hopscotch, sand letter tracing, clay letter formation, letter bingo, magnetic letter building.</p>
+      <p><strong>Phonics Games:</strong> "I spy" with beginning sounds, onset-rime card games, rhyme chains (cat-bat-hat-sat), sound sorting with picture cards, CVC word building with tiles.</p>
+      <p><strong>Fluency Games:</strong> Echo reading, choral reading, partner reading, readers' theatre, recording and listening back, timed reading charts (self-competition, not peer comparison).</p>
+      <p><strong>Comprehension Games:</strong> Story retelling with puppets, sequence card ordering, "what happens next?" prediction games, character role-play, story mapping.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>Rhyme Relay: Teacher says a word; student says a rhyming word; next student says another rhyme. Chain continues until someone breaks it. This game builds phonological awareness through 40+ repetitions in 5 minutes — and students beg to play it again.</p></div>
+      <h3>Numeracy Remediation Through Play</h3>
+      <p><strong>Number Sense:</strong> Dot card subitizing, number talks (how do you see it?), counting collections, estimation jars, number line hopscotch.</p>
+      <p><strong>Operations:</strong> Dice addition games, ten-frame card games, domino addition, skip-counting chants, "make 10" card games.</p>
+      <p><strong>Place Value:</strong> Bundling sticks into tens, base-10 block trading games, hundred chart activities, place value bingo.</p>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>Choose one game from each category above. Plan how you will introduce it this week. Note: games work best when practiced regularly (3x/week) for short periods (10–15 mins) rather than infrequently for long periods.</p></div>`
+  },
+  'policy-p8': {
+    title: 'Mother Tongue and Conceptual Clarity',
+    content: `
+      <h3>The Science of Mother-Tongue-First Education</h3>
+      <p>One of the most evidence-based findings in educational linguistics is this: children learn to read faster, develop stronger comprehension, and achieve better long-term outcomes when initial literacy instruction occurs in their mother tongue. This is not a cultural preference — it is cognitive science.</p>
+      <h3>Why Mother Tongue Matters for FLN</h3>
+      <p>When a child is taught to read in an unfamiliar language, they face a double burden: learning to decode text AND simultaneously learning the meaning of unfamiliar words and structures. This cognitive overload dramatically slows literacy acquisition. Mother-tongue instruction removes this burden for the critical first 2–3 years.</p>
+      <h3>The Kashmiri Context</h3>
+      <p>In Jammu & Kashmir, children often come to school speaking Kashmiri, Dogri, Gojri, or other home languages, while school instruction may begin in Urdu, Hindi, or English. Effective teachers in this context build bridges: they explain concepts in the home language, use familiar cultural contexts for stories and problems, and gradually transition to the official medium of instruction.</p>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>A Kashmiri-speaking Grade 1 student doesn't understand the English word "river" in a comprehension passage. The teacher says "Ye wuchiv — ye chus nallah yeti che krur" (Look — this is a stream here in the mountains). Now the child connects the concept. Comprehension unlocks. This is mother-tongue as a bridge.</p></div>
+      <h3>Conceptual Clarity vs. Rote Learning</h3>
+      <p>Rote learning — memorizing without understanding — is the enemy of foundational education. A child who can "count" 1 to 100 without understanding quantity relationships has not developed number sense. A child who can decode "cat" but not understand the word in context has not developed literacy. Teachers must constantly check: Is this child understanding, or merely performing?</p>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>In your last week of teaching, how often did you explain a concept in a student's mother tongue or using a culturally familiar reference? How did students respond differently?</p></div>`
+  },
+  'policy-p9': {
+    title: 'Continuous Formative Assessment (CFA)',
+    content: `
+      <h3>What is Continuous Formative Assessment?</h3>
+      <p>Continuous Formative Assessment (CFA) refers to the systematic, ongoing process of gathering evidence about student learning during instruction and using that evidence to make immediate adjustments. NEP 2020 and NCF 2023 both mandate CFA as the primary assessment approach at the foundational stage.</p>
+      <h3>CFA vs. Summative Assessment</h3>
+      <p><strong>Summative Assessment:</strong> End-of-term exam, grades, ranking, accountability — looks BACK at what was learned.</p>
+      <p><strong>Formative Assessment:</strong> During learning, diagnostic, instructional improvement — looks FORWARD to guide what comes next.</p>
+      <h3>Practical CFA Techniques</h3>
+      <ul>
+        <li><strong>Exit Tickets:</strong> 2-minute task at end of lesson — "Show me one thing you learned today"</li>
+        <li><strong>Thumbs Up/Down:</strong> Quick comprehension check during teaching</li>
+        <li><strong>Observation Journals:</strong> Brief daily notes on 2–3 students' specific behaviors</li>
+        <li><strong>Mini Whiteboards:</strong> Students write answers; teacher scans room instantly</li>
+        <li><strong>Think-Pair-Share:</strong> Students discuss before answering — reveals understanding levels</li>
+        <li><strong>Learning Stations:</strong> Observe students at work in small groups</li>
+        <li><strong>Reading Conferences:</strong> 5-minute one-on-one reading observation sessions</li>
+      </ul>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>During a phonics lesson, the teacher writes a CVC word on the board and asks all 30 students to write their answer on slates. A quick visual scan reveals 8 students wrote the wrong vowel. The teacher immediately groups these 8 for a 3-minute targeted review before moving on.</p></div>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>What is ONE CFA technique you could implement tomorrow — before, during, and after your lesson? How will you record what you observe?</p></div>`
+  },
+  'policy-p10': {
+    title: 'Classroom Differentiation Strategies',
+    content: `
+      <h3>The Differentiation Imperative</h3>
+      <p>In any early grade classroom, you will find children at dramatically different stages of foundational development. Some Grade 2 students may be reading simple stories while others cannot yet recognize all letters. Effective teachers do not teach "one lesson for all" — they differentiate content, process, product, and environment to meet students where they are.</p>
+      <h3>Four Dimensions of Differentiation</h3>
+      <p><strong>Content:</strong> What students learn. Provide simpler texts for struggling readers while advanced readers access more complex materials on the same theme.</p>
+      <p><strong>Process:</strong> How students learn. Some students need concrete manipulatives; others can work semi-abstractly; advanced learners can work symbolically.</p>
+      <p><strong>Product:</strong> How students demonstrate learning. Allow oral responses for students who struggle with writing; offer drawing or acting as alternative demonstration modes.</p>
+      <p><strong>Environment:</strong> Where and with whom students learn. Strategic grouping — homogeneous for skill-building, heterogeneous for collaborative tasks.</p>
+      <h3>Practical Classroom Organization</h3>
+      <ul>
+        <li><strong>Learning Stations:</strong> 3–4 stations operating simultaneously with differentiated tasks at each</li>
+        <li><strong>Flexible Grouping:</strong> Regroup every 2–3 weeks based on ongoing assessment data</li>
+        <li><strong>Tiered Tasks:</strong> Same concept taught at 3 difficulty levels</li>
+        <li><strong>Anchor Activities:</strong> Independent tasks for students who finish early</li>
+        <li><strong>Peer Tutoring:</strong> Structured, reciprocal learning between students at different levels</li>
+      </ul>
+      <div class="example-box"><strong>🏫 Classroom Example</strong><p>During "addition time," Group A uses concrete blocks, Group B uses a number line, and Group C solves word problems. The teacher circulates but spends most time with Group A. All three groups are learning addition — but through appropriate challenges for their current level.</p></div>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>How many different "levels" of task do you typically provide in one lesson? Could you add one more level — either simpler for struggling students or more challenging for advanced learners?</p></div>`
+  },
+  'policy-p11': {
+    title: 'Parental Involvement in FLN',
+    content: `
+      <h3>Parents as Essential Partners</h3>
+      <p>Research consistently shows that parental involvement is one of the strongest predictors of student achievement — often more powerful than school factors alone. For foundational literacy and numeracy, home practice can dramatically accelerate school-based learning when parents are given specific, achievable guidance.</p>
+      <h3>Barriers to Parental Involvement</h3>
+      <ul>
+        <li>Low parental literacy or numeracy</li>
+        <li>Long working hours and economic pressures</li>
+        <li>Lack of guidance on HOW to support learning at home</li>
+        <li>Language mismatch between school communication and home language</li>
+        <li>Cultural beliefs that education is entirely the school's responsibility</li>
+      </ul>
+      <h3>Practical Home Support Strategies</h3>
+      <p><strong>For Literacy:</strong></p>
+      <ul>
+        <li>Read any text aloud together for 10–15 minutes daily (even a newspaper)</li>
+        <li>Tell stories from family/community oral tradition</li>
+        <li>Point out letters and words on packaging, signs, and labels</li>
+        <li>Ask children to "read" to them — even if the child is making up the story from pictures</li>
+        <li>Maintain a simple home reading log</li>
+      </ul>
+      <p><strong>For Numeracy:</strong></p>
+      <ul>
+        <li>Count objects during daily activities (cups, steps, vegetables)</li>
+        <li>Play simple number games (dice, cards)</li>
+        <li>Involve children in cooking measurement activities</li>
+        <li>Ask children to handle small amounts of money</li>
+        <li>Identify shapes and patterns in the home environment</li>
+      </ul>
+      <div class="reflection-box"><strong>🪞 Reflection</strong><p>When did you last communicate with a parent specifically about their child's foundational skills — not just behavior or attendance? What would you say differently if you focused on specific literacy/numeracy gaps?</p></div>`
+  },
+  'policy-p12': {
+    title: 'School-Level FLN Planning',
+    content: `
+      <h3>Building a School FLN Action Plan</h3>
+      <p>Individual teacher effort is necessary but not sufficient for achieving FLN goals. School-level planning ensures coordination, resource alignment, accountability, and sustainability. Every school should have a dedicated FLN action plan updated termly.</p>
+      <h3>Components of a School FLN Plan</h3>
+      <ul>
+        <li><strong>Baseline Data:</strong> Grade-wise literacy and numeracy assessment data at start of year</li>
+        <li><strong>Gap Analysis:</strong> Which skills need the most urgent attention across which grades</li>
+        <li><strong>Resource Mapping:</strong> Available TLMs, books, supplementary materials</li>
+        <li><strong>Time Allocation:</strong> Protected FLN time in the daily timetable</li>
+        <li><strong>Teacher Responsibilities:</strong> Who is responsible for which intervention groups</li>
+        <li><strong>Progress Monitoring:</strong> Monthly data collection and review meetings</li>
+        <li><strong>Community Engagement:</strong> Plan for parent meetings and home support programmes</li>
+      </ul>
+      <h3>The Role of the Headmaster/Principal</h3>
+      <p>School leaders play a critical role in FLN success: creating a supportive culture where assessment data is used constructively rather than punitively, protecting instructional time, facilitating teacher collaboration, engaging parents, and representing FLN priorities to the education department.</p>
+      <h3>Monitoring and Accountability</h3>
+      <p>Effective FLN monitoring involves: weekly teacher-level tracking (this app supports this), monthly school-level review meetings, termly cluster-level reporting, and annual state-level reporting aligned with NIPUN Bharat targets.</p>
+      <div class="example-box"><strong>🏫 School Example</strong><p>A school in Kashmir's Anantnag district established a "FLN Wall" in the staffroom — a shared chart showing each class's monthly literacy and numeracy averages. This created collective accountability, triggered peer learning between teachers, and made FLN progress visible to all stakeholders including visiting officials.</p></div>
+      <div class="reflection-box"><strong>🪞 Reflection for School Leaders</strong><p>Does your school have a current FLN baseline? Is there a designated time for teachers to share FLN data and strategies? What one structural change could you make this month to improve FLN outcomes?</p></div>`
+  }
+};
+
+function initPolicyContent() {
+  Object.keys(policyPages).forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.innerHTML.trim()) {
+      const pg = policyPages[id];
+      el.innerHTML = `<div class="card-title" style="font-size:20px;margin-bottom:16px">${pg.title}</div>${pg.content}`;
+    }
+  });
+}
+
+/* ══════════════════════════════════════
+   BACKUP & RESTORE
+════════════════════════════════════════ */
+function renderBackupSummary() {
+  const keys = ['diagnosticResults','gapAnalysis','interventionPlans','progressRecords','schoolFLNData'];
+  let html = '<table><tr><th>Data Store</th><th>Status</th><th>Records</th></tr>';
+  keys.forEach(k => {
+    const val = localStorage.getItem(k);
+    let count = '—';
+    if (val) { try { const p = JSON.parse(val); count = Array.isArray(p) ? p.length : '1 record'; } catch(e){} }
+    html += `<tr><td>${k}</td><td>${val ? '<span class="tag tag-green">Has Data</span>' : '<span class="tag tag-amber">Empty</span>'}</td><td>${count}</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('backupSummary').innerHTML = html;
+}
+
+function exportData() {
+  const keys = ['diagnosticResults','gapAnalysis','interventionPlans','progressRecords','schoolFLNData'];
+  const data = {};
+  keys.forEach(k => { const v = localStorage.getItem(k); if (v) data[k] = JSON.parse(v); });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `fln-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      Object.keys(data).forEach(k => localStorage.setItem(k, JSON.stringify(data[k])));
+      alert('✅ Data imported successfully!');
+      renderBackupSummary();
+    } catch(err) { alert('❌ Invalid backup file.'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ══════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Set today's date in parent report
+  const prDate = document.getElementById('pr_date');
+  if (prDate) prDate.value = new Date().toISOString().split('T')[0];
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+});
+</script>
+</body>
+</html>
