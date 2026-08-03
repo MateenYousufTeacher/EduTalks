@@ -1,0 +1,39 @@
+{
+  "name": "Literacy Booster – NEP 2020 & NCF",
+  "short_name": "LiteracyBooster",
+  "description": "Offline Foundational Literacy App aligned with NEP 2020, NCF, NCERT & PARAKH. Developed by Mateen Yousuf, Teacher – SED J&K.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a3a6b",
+  "theme_color": "#1a3a6b",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='24' fill='%231a3a6b'/><text y='130' x='30' font-size='120'>📚</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='60' fill='%231a3a6b'/><text y='360' x='60' font-size='320'>📚</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Phonics Training",
+      "url": "./index.html#phonics",
+      "description": "Start Phonics Module"
+    },
+    {
+      "name": "Reading Passages",
+      "url": "./index.html#reading",
+      "description": "Start Reading Module"
+    }
+  ]
+}
