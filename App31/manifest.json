@@ -1,0 +1,43 @@
+{
+  "name": "Foundational Numeracy Mastery Lab",
+  "short_name": "Numeracy Lab",
+  "description": "An offline-first numeracy learning app for Grades 1-3, aligned with NEP 2020 and NCF 2023 FLN Mission. Developed by Mateen Yousuf, School Education Department Kashmir.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f2440",
+  "theme_color": "#1a3a5c",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "categories": ["education", "kids"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Number Sense Lab",
+      "short_name": "Numbers",
+      "description": "Open the Number Sense module",
+      "url": "./index.html#numSenseHome",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Teacher Diagnostic",
+      "short_name": "Diagnostic",
+      "description": "Open Teacher Diagnostic Mode",
+      "url": "./index.html#diagnosticScreen",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

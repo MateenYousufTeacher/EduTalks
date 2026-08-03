@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="theme-color" content="#1a3a5c"/>
+<meta name="description" content="Foundational Numeracy Mastery Lab - NEP 2020 aligned offline PWA for Grades 1-3"/>
+<title>Foundational Numeracy Mastery Lab</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --navy: #1a3a5c;
+  --navy-dark: #0f2440;
+  --navy-light: #2a5298;
+  --green: #27ae60;
+  --green-light: #2ecc71;
+  --accent: #f39c12;
+  --accent-light: #f9ca24;
+  --white: #ffffff;
+  --off-white: #f0f4f8;
+  --light-gray: #e8edf2;
+  --text-dark: #1a2a3a;
+  --text-mid: #3a5068;
+  --text-light: #6a8099;
+  --red: #e74c3c;
+  --purple: #8e44ad;
+  --teal: #16a085;
+  --radius: 16px;
+  --shadow: 0 4px 20px rgba(26,58,92,0.15);
+  --shadow-lg: 0 8px 40px rgba(26,58,92,0.25);
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--off-white);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh;animation:fadeIn 0.4s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== TOP NAV ===== */
+.top-nav{background:var(--navy);color:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.nav-title{font-size:14px;font-weight:700;letter-spacing:0.5px;}
+.nav-back{background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;}
+.nav-back:hover{background:rgba(255,255,255,0.25);}
+
+/* ===== HOME SCREEN ===== */
+#home{background:linear-gradient(160deg,var(--navy-dark) 0%,var(--navy) 50%,var(--navy-light) 100%);color:white;padding:0;}
+
+.home-hero{padding:40px 20px 30px;text-align:center;position:relative;overflow:hidden;}
+.home-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,0.03);border-radius:50%;}
+.home-hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:150px;height:150px;background:rgba(39,174,96,0.1);border-radius:50%;}
+
+.app-badge{display:inline-block;background:rgba(39,174,96,0.2);border:1px solid rgba(39,174,96,0.5);color:#7fffc4;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
+
+.app-title{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.3);}
+.app-title span{color:var(--accent-light);}
+
+.app-subtitle{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:20px;line-height:1.5;}
+
+.nep-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 16px;margin-bottom:30px;flex-wrap:wrap;}
+.nep-tag{font-size:11px;font-weight:700;color:var(--accent-light);letter-spacing:0.5px;}
+.nep-sep{color:rgba(255,255,255,0.3);font-size:12px;}
+
+.author-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.08);border-radius:14px;padding:14px 18px;margin-bottom:30px;text-align:left;}
+.author-img{width:56px;height:56px;border-radius:50%;border:3px solid var(--accent-light);object-fit:cover;flex-shrink:0;}
+.author-info .name{font-size:14px;font-weight:700;color:white;}
+.author-info .role{font-size:11px;color:rgba(255,255,255,0.65);line-height:1.5;}
+
+/* ===== HOME BUTTONS ===== */
+.home-buttons{padding:0 20px 20px;}
+.btn-hero{display:block;width:100%;padding:16px 20px;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden;}
+.btn-hero:active{transform:scale(0.98);}
+
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--green-light));color:white;box-shadow:0 4px 20px rgba(39,174,96,0.4);}
+.btn-primary:hover{box-shadow:0 6px 25px rgba(39,174,96,0.5);}
+.btn-secondary{background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);}
+.btn-secondary:hover{background:rgba(255,255,255,0.2);}
+.btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent-light));color:var(--navy-dark);box-shadow:0 4px 20px rgba(243,156,18,0.4);}
+.btn-icon{font-size:20px;margin-right:8px;}
+
+/* ===== SECTION GRID ===== */
+.section-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px;}
+.section-card{background:white;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:var(--shadow);}
+.section-card:active{transform:scale(0.97);}
+.section-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.section-card .icon{font-size:32px;margin-bottom:8px;display:block;}
+.section-card .title{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3;}
+.section-card .sub{font-size:11px;color:var(--text-light);margin-top:4px;}
+
+.section-card.color-1{border-top:4px solid var(--green);}
+.section-card.color-2{border-top:4px solid var(--accent);}
+.section-card.color-3{border-top:4px solid var(--purple);}
+.section-card.color-4{border-top:4px solid var(--red);}
+.section-card.color-5{border-top:4px solid var(--teal);}
+.section-card.color-6{border-top:4px solid #e67e22;}
+.section-card.color-7{border-top:4px solid #2980b9;}
+.section-card.color-8{border-top:4px solid #8e44ad;}
+
+/* ===== CONTENT PAGES ===== */
+.page-content{padding:16px;}
+.page-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:white;padding:20px;border-radius:var(--radius);margin-bottom:16px;box-shadow:var(--shadow);}
+.page-header h1{font-size:20px;font-weight:900;margin-bottom:6px;}
+.page-header p{font-size:13px;opacity:0.8;line-height:1.5;}
+
+.content-card{background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.content-card h2{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--light-gray);}
+.content-card h3{font-size:13px;font-weight:700;color:var(--navy-light);margin:10px 0 6px;}
+.content-card p{font-size:13px;line-height:1.7;color:var(--text-mid);margin-bottom:8px;}
+.content-card ul{padding-left:18px;}
+.content-card li{font-size:13px;line-height:1.7;color:var(--text-mid);margin-bottom:4px;}
+
+.highlight-box{background:linear-gradient(135deg,rgba(39,174,96,0.08),rgba(39,174,96,0.03));border-left:4px solid var(--green);border-radius:0 10px 10px 0;padding:12px 14px;margin:10px 0;}
+.highlight-box p{margin:0;font-size:13px;color:var(--text-dark);font-style:italic;}
+
+.reflection-box{background:linear-gradient(135deg,rgba(243,156,18,0.1),rgba(243,156,18,0.03));border:1px solid rgba(243,156,18,0.3);border-radius:10px;padding:12px 14px;margin:10px 0;}
+.reflection-box .label{font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.reflection-box p{margin:0;font-size:13px;color:var(--text-dark);}
+
+.activity-box{background:linear-gradient(135deg,rgba(42,82,152,0.08),rgba(42,82,152,0.02));border:1px solid rgba(42,82,152,0.2);border-radius:10px;padding:12px 14px;margin:10px 0;}
+.activity-box .label{font-size:11px;font-weight:800;color:var(--navy-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.activity-box p{margin:0;font-size:13px;color:var(--text-dark);}
+
+/* ===== POLICY PAGES LIST ===== */
+.policy-list{padding:16px;}
+.policy-item{background:white;border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform 0.15s;}
+.policy-item:active{transform:scale(0.98);}
+.policy-item .num{width:36px;height:36px;background:var(--navy);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+.policy-item .info .title{font-size:14px;font-weight:700;color:var(--navy);}
+.policy-item .info .sub{font-size:12px;color:var(--text-light);margin-top:2px;}
+.policy-item .arrow{margin-left:auto;color:var(--text-light);font-size:16px;}
+
+/* ===== NUMBER SENSE ===== */
+.number-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;padding:16px;}
+.num-cell{aspect-ratio:1;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);transition:all 0.15s;border:2px solid transparent;}
+.num-cell:active{transform:scale(0.9);}
+.num-cell.selected{background:var(--navy);color:white;border-color:var(--navy-light);}
+.num-cell.highlight{background:var(--green);color:white;}
+
+.counting-area{padding:16px;}
+.objects-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:16px;background:white;border-radius:var(--radius);margin-bottom:12px;min-height:100px;}
+.count-obj{font-size:36px;cursor:pointer;transition:transform 0.15s;user-select:none;}
+.count-obj:active{transform:scale(1.3);}
+.count-obj.counted{opacity:0.4;transform:scale(0.9);}
+
+.comparison-tool{padding:16px;}
+.compare-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.num-input{width:70px;height:60px;border:3px solid var(--light-gray);border-radius:12px;font-size:24px;font-weight:800;text-align:center;color:var(--navy);background:white;}
+.compare-symbol{width:50px;height:50px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;cursor:pointer;box-shadow:var(--shadow);}
+.number-line{background:white;border-radius:12px;padding:16px;margin-top:12px;overflow-x:auto;}
+.nl-container{display:flex;align-items:center;gap:0;min-width:300px;}
+.nl-tick{display:flex;flex-direction:column;align-items:center;flex:1;}
+.nl-line{height:3px;background:var(--navy);flex:1;}
+.nl-mark{width:2px;height:12px;background:var(--navy);}
+.nl-num{font-size:11px;font-weight:700;color:var(--navy);margin-top:3px;}
+.nl-highlight{color:var(--red);background:var(--red);}
+
+/* ===== PLACE VALUE ===== */
+.place-value-area{padding:16px;}
+.pv-display{background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px;text-align:center;box-shadow:var(--shadow);}
+.pv-number{font-size:60px;font-weight:900;color:var(--navy);letter-spacing:4px;}
+.pv-columns{display:flex;gap:8px;justify-content:center;margin-top:12px;}
+.pv-col{flex:1;text-align:center;}
+.pv-col-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:6px;border-radius:6px 6px 0 0;color:white;}
+.pv-col-label.h{background:var(--red);}
+.pv-col-label.t{background:var(--accent);}
+.pv-col-label.o{background:var(--green);}
+.pv-col-val{font-size:32px;font-weight:900;padding:12px 6px;background:var(--off-white);border-radius:0 0 6px 6px;}
+.pv-blocks{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:40px;margin-top:6px;}
+.pv-block{width:14px;height:14px;border-radius:3px;}
+.pv-block.h-block{background:var(--red);}
+.pv-block.t-block{background:var(--accent);}
+.pv-block.o-block{background:var(--green);}
+.pv-slider{width:100%;margin:12px 0;}
+.pv-decompose{background:var(--off-white);border-radius:10px;padding:10px 14px;text-align:center;font-size:16px;font-weight:700;color:var(--navy);margin-top:8px;}
+
+/* ===== ADDITION / SUBTRACTION ===== */
+.math-lab{padding:16px;}
+.math-problem{background:white;border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px;}
+.math-display{font-size:36px;font-weight:900;color:var(--navy);font-family:monospace;line-height:1.5;}
+.math-line{border-top:3px solid var(--navy);margin:8px 20px;}
+.math-input{font-size:32px;font-weight:900;width:100px;border:3px solid var(--light-gray);border-radius:10px;text-align:center;color:var(--navy);padding:6px;}
+.math-feedback{font-size:20px;font-weight:800;padding:10px;border-radius:10px;margin-top:10px;}
+.math-feedback.correct{background:rgba(39,174,96,0.15);color:var(--green);}
+.math-feedback.wrong{background:rgba(231,76,60,0.15);color:var(--red);}
+
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+.numpad-btn{padding:14px;background:white;border:2px solid var(--light-gray);border-radius:10px;font-size:20px;font-weight:700;cursor:pointer;color:var(--navy);transition:all 0.1s;}
+.numpad-btn:active{background:var(--navy);color:white;transform:scale(0.95);}
+.numpad-btn.clear{background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.3);color:var(--red);}
+.numpad-btn.check{background:var(--green);color:white;border-color:var(--green);}
+
+.score-bar{background:white;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);}
+.score-info{font-size:14px;font-weight:700;color:var(--navy);}
+.score-count{font-size:22px;font-weight:900;color:var(--green);}
+
+/* ===== PATTERNS ===== */
+.pattern-area{padding:16px;}
+.pattern-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.pattern-item{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:8px;background:var(--off-white);}
+.pattern-blank{width:44px;height:44px;border:3px dashed var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--accent);}
+.pattern-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.pattern-opt{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:28px;background:white;border:2px solid var(--light-gray);border-radius:8px;cursor:pointer;transition:all 0.15s;}
+.pattern-opt:active{transform:scale(0.9);background:var(--green);border-color:var(--green);}
+
+/* ===== MEASUREMENT ===== */
+.measure-area{padding:16px;}
+.ruler{background:white;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);}
+.ruler-bar{height:30px;background:linear-gradient(90deg,#f8f9fa,#e9ecef);border-radius:4px;position:relative;margin:10px 0;border:1px solid #dee2e6;}
+.ruler-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green-light));border-radius:4px;transition:width 0.5s ease;}
+.ruler-ticks{display:flex;justify-content:space-between;padding:0 2px;}
+.ruler-tick{font-size:10px;color:var(--text-light);font-weight:600;}
+.clock-face{width:160px;height:160px;border:4px solid var(--navy);border-radius:50%;margin:16px auto;position:relative;background:white;box-shadow:var(--shadow);}
+.clock-center{width:8px;height:8px;background:var(--navy);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;}
+.clock-hand{position:absolute;bottom:50%;left:50%;transform-origin:bottom center;border-radius:4px;}
+.hour-hand{width:5px;height:45px;background:var(--navy);margin-left:-2.5px;}
+.minute-hand{width:3px;height:60px;background:var(--navy-light);margin-left:-1.5px;}
+.clock-num{position:absolute;font-size:12px;font-weight:800;color:var(--navy);}
+
+/* ===== DIAGNOSTIC ===== */
+.diagnostic-area{padding:16px;}
+.diag-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.diag-select{background:white;border:2px solid var(--light-gray);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--navy);font-weight:600;cursor:pointer;width:100%;}
+.worksheet{background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.ws-header{text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--light-gray);}
+.ws-title{font-size:18px;font-weight:900;color:var(--navy);}
+.ws-info{font-size:12px;color:var(--text-light);margin-top:4px;}
+.ws-problem{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--light-gray);}
+.ws-num{width:24px;height:24px;background:var(--navy);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.ws-q{flex:1;font-size:15px;font-weight:700;color:var(--text-dark);}
+.ws-ans{width:70px;border-bottom:2px solid var(--navy);text-align:center;font-size:15px;font-weight:700;color:transparent;}
+
+/* ===== PROGRESS TRACKER ===== */
+.progress-area{padding:16px;}
+.prog-card{background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.prog-title{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;}
+.skill-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.skill-name{width:110px;font-size:12px;font-weight:600;color:var(--text-mid);}
+.skill-bar-bg{flex:1;height:12px;background:var(--light-gray);border-radius:6px;overflow:hidden;}
+.skill-bar-fill{height:100%;border-radius:6px;transition:width 1s ease;}
+.skill-pct{width:36px;font-size:12px;font-weight:800;color:var(--navy);text-align:right;}
+.radar-canvas{width:100%;max-width:260px;margin:0 auto;display:block;}
+
+/* ===== REMEDIAL ===== */
+.remedial-area{padding:16px;}
+.search-bar{display:flex;gap:8px;margin-bottom:12px;}
+.search-input{flex:1;padding:12px 14px;border:2px solid var(--light-gray);border-radius:10px;font-size:14px;color:var(--navy);}
+.search-btn{padding:12px 16px;background:var(--navy);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
+.remedial-card{background:white;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);}
+.remedial-card .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.tag-manipulative{background:rgba(39,174,96,0.12);color:var(--green);}
+.tag-game{background:rgba(243,156,18,0.12);color:var(--accent);}
+.tag-home{background:rgba(142,68,173,0.12);color:var(--purple);}
+.tag-classroom{background:rgba(41,128,185,0.12);color:#2980b9;}
+.remedial-card h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.remedial-card p{font-size:12px;color:var(--text-mid);line-height:1.6;}
+
+/* ===== FLN INFO ===== */
+.fln-area{padding:16px;}
+.fln-stat{background:white;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
+.fln-stat .icon{font-size:32px;width:48px;text-align:center;flex-shrink:0;}
+.fln-stat .info .val{font-size:18px;font-weight:900;color:var(--navy);}
+.fln-stat .info .desc{font-size:12px;color:var(--text-light);margin-top:2px;}
+
+/* ===== BUTTONS (General) ===== */
+.btn{padding:12px 20px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.btn-green{background:var(--green);color:white;}
+.btn-green:active{background:#1e8449;transform:scale(0.97);}
+.btn-navy{background:var(--navy);color:white;}
+.btn-navy:active{background:var(--navy-dark);transform:scale(0.97);}
+.btn-accent{background:var(--accent);color:white;}
+.btn-red{background:var(--red);color:white;}
+.btn-full{width:100%;display:block;text-align:center;}
+.btn-row{display:flex;gap:8px;margin:10px 0;}
+
+/* ===== TABS ===== */
+.tab-bar{display:flex;background:var(--light-gray);border-radius:12px;padding:4px;margin-bottom:14px;}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--text-mid);border-radius:8px;cursor:pointer;transition:all 0.2s;}
+.tab.active{background:var(--navy);color:white;box-shadow:0 2px 8px rgba(26,58,92,0.3);}
+
+/* ===== WORD PROBLEMS ===== */
+.word-problem{background:linear-gradient(135deg,rgba(42,82,152,0.08),rgba(42,82,152,0.02));border:1px solid rgba(42,82,152,0.2);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.word-problem p{font-size:15px;line-height:1.7;color:var(--text-dark);font-weight:600;}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:white;padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;z-index:999;transition:transform 0.3s;box-shadow:var(--shadow-lg);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ===== OFFLINE BANNER ===== */
+.offline-banner{background:var(--red);color:white;text-align:center;padding:8px;font-size:12px;font-weight:700;display:none;}
+.offline-banner.show{display:block;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:360px){
+  .app-title{font-size:22px;}
+  .number-grid{grid-template-columns:repeat(10,1fr);gap:2px;}
+  .num-cell{font-size:10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offlineBanner">📵 You are offline — App is running from cache</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: HOME -->
+<!-- ============================================================ -->
+<div class="screen active" id="home">
+  <div class="home-hero">
+    <div class="app-badge">🇮🇳 Made for India's Classrooms</div>
+    <h1 class="app-title">Foundational<br/><span>Numeracy</span><br/>Mastery Lab</h1>
+    <p class="app-subtitle">An interactive offline learning lab for Grades 1–3<br/>aligned with India's national education vision</p>
+    <div class="nep-badge">
+      <span class="nep-tag">NEP 2020</span>
+      <span class="nep-sep">|</span>
+      <span class="nep-tag">NCF 2023</span>
+      <span class="nep-sep">|</span>
+      <span class="nep-tag">FLN Mission</span>
+    </div>
+    <div class="author-card">
+      <img src="author.jpg" alt="Mateen Yousuf" class="author-img"/>
+      <div class="author-info">
+        <div class="name">Mateen Yousuf</div>
+        <div class="role">Teacher, School Education Department<br/>Kashmir, J&K</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-buttons">
+    <button class="btn-hero btn-primary" onclick="goTo('numSenseHome')">
+      <span class="btn-icon">🔢</span> Start Numeracy Lab
+    </button>
+    <button class="btn-hero btn-secondary" onclick="goTo('diagnosticScreen')">
+      <span class="btn-icon">📋</span> Teacher Diagnostic Mode
+    </button>
+    <button class="btn-hero btn-accent" onclick="goTo('flnInfo')">
+      <span class="btn-icon">📚</span> Learn About FLN Numeracy Goals
+    </button>
+  </div>
+
+  <div style="padding:0 20px 10px;">
+    <div style="font-size:13px;font-weight:800;color:var(--text-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;text-align:center;">All Learning Modules</div>
+  </div>
+
+  <div class="section-grid">
+    <div class="section-card color-1" onclick="goTo('numSenseHome')">
+      <span class="icon">🔢</span>
+      <div class="title">Number Sense Lab</div>
+      <div class="sub">0–100 grid, counting, comparison</div>
+    </div>
+    <div class="section-card color-2" onclick="goTo('placeValueScreen')">
+      <span class="icon">🧱</span>
+      <div class="title">Place Value Explorer</div>
+      <div class="sub">Ones, Tens, Hundreds blocks</div>
+    </div>
+    <div class="section-card color-3" onclick="goTo('mathLabScreen')">
+      <span class="icon">➕</span>
+      <div class="title">Addition & Subtraction</div>
+      <div class="sub">Fluency builder with carry/borrow</div>
+    </div>
+    <div class="section-card color-4" onclick="goTo('patternScreen')">
+      <span class="icon">🔷</span>
+      <div class="title">Pattern & Logic Builder</div>
+      <div class="sub">Sequences, shape & number patterns</div>
+    </div>
+    <div class="section-card color-5" onclick="goTo('measurementScreen')">
+      <span class="icon">📏</span>
+      <div class="title">Measurement & Time</div>
+      <div class="sub">Length, weight, clock, calendar</div>
+    </div>
+    <div class="section-card color-6" onclick="goTo('policyList')">
+      <span class="icon">📖</span>
+      <div class="title">Policy Foundation</div>
+      <div class="sub">NEP 2020 & NCF 2023 guides</div>
+    </div>
+    <div class="section-card color-7" onclick="goTo('progressScreen')">
+      <span class="icon">📊</span>
+      <div class="title">Progress Tracker</div>
+      <div class="sub">Charts, radar, weekly data</div>
+    </div>
+    <div class="section-card color-8" onclick="goTo('remedialScreen')">
+      <span class="icon">🎯</span>
+      <div class="title">Remedial Activity Bank</div>
+      <div class="sub">Manipulatives, games, home tips</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:16px;font-size:11px;color:var(--text-light);">
+    ✅ Fully Offline &nbsp;|&nbsp; 📱 PWA Installable &nbsp;|&nbsp; 🚫 No Login Required
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: FLN INFO -->
+<!-- ============================================================ -->
+<div class="screen" id="flnInfo">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">FLN Numeracy Goals</div>
+    <div></div>
+  </div>
+  <div class="fln-area">
+    <div class="page-header">
+      <h1>📚 Understanding FLN</h1>
+      <p>Foundational Literacy & Numeracy — India's most critical education mission</p>
+    </div>
+
+    <div class="fln-stat">
+      <div class="icon">🎯</div>
+      <div class="info"><div class="val">NEP 2020</div><div class="desc">Mandates universal FLN by end of Grade 3 for all Indian children</div></div>
+    </div>
+    <div class="fln-stat">
+      <div class="icon">📅</div>
+      <div class="info"><div class="val">NIPUN Bharat</div><div class="desc">National Initiative for Proficiency in Reading with Understanding & Numeracy — launched 2021</div></div>
+    </div>
+    <div class="fln-stat">
+      <div class="icon">🔢</div>
+      <div class="info"><div class="val">5 Core Areas</div><div class="desc">Number sense, Operations, Patterns, Measurement, Data handling</div></div>
+    </div>
+    <div class="fln-stat">
+      <div class="icon">👦</div>
+      <div class="info"><div class="val">Grades 1–3</div><div class="desc">The foundational stage (ages 6–9) is the critical window for numeracy development</div></div>
+    </div>
+
+    <div class="content-card">
+      <h2>What is Foundational Numeracy?</h2>
+      <p>Foundational numeracy refers to the basic mathematical skills and concepts that every child must acquire in the early years of schooling. These include the ability to count, compare, add, subtract, and understand patterns — forming the bedrock of all future mathematics learning.</p>
+      <p>According to <strong>NEP 2020</strong>, foundational numeracy is as critical as literacy. A child who cannot read numbers or perform basic operations by Grade 3 faces compounding learning difficulties in all subsequent years.</p>
+    </div>
+
+    <div class="content-card">
+      <h2>NCF 2023 Competency Structure</h2>
+      <h3>Numeracy Competencies by Grade</h3>
+      <ul>
+        <li><strong>Grade 1:</strong> Count objects up to 99, recognize numerals, understand more/less</li>
+        <li><strong>Grade 2:</strong> Add and subtract 2-digit numbers, understand place value (tens/ones)</li>
+        <li><strong>Grade 3:</strong> Work with 3-digit numbers, multiplication concepts, simple fractions</li>
+      </ul>
+      <div class="highlight-box"><p>NCF 2023 emphasizes <strong>competency-based progression</strong> — every child advances only when core competencies are demonstrated, not just when the academic year ends.</p></div>
+    </div>
+
+    <div class="content-card">
+      <h2>Play-Based Math Pedagogy</h2>
+      <p>NEP 2020 and NCF 2023 strongly advocate for <strong>play-based learning</strong> in the foundational stage. Mathematical concepts must be experienced physically, not just memorized.</p>
+      <ul>
+        <li>🎲 Using dice, counters, and number cards</li>
+        <li>🧱 Manipulating physical blocks for place value</li>
+        <li>🏃 Body movement games for counting and patterns</li>
+        <li>🎨 Art integration — drawing number stories</li>
+      </ul>
+    </div>
+
+    <div class="content-card">
+      <h2>Common Numeracy Learning Gaps</h2>
+      <ul>
+        <li>Rote counting without number sense (saying numbers without understanding quantity)</li>
+        <li>Confusion between tens and ones in 2-digit numbers</li>
+        <li>Inability to decompose numbers (e.g., 47 = 40 + 7)</li>
+        <li>Difficulty with word problems due to language barriers</li>
+        <li>Fear of mathematics due to pressure and rote methods</li>
+      </ul>
+      <div class="reflection-box">
+        <div class="label">🤔 Reflection for Teachers</div>
+        <p>Which of these gaps do you observe most frequently in your classroom? How does this app help address each?</p>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h2>Teacher's Role in FLN</h2>
+      <ul>
+        <li>📋 Conduct regular diagnostic assessments</li>
+        <li>🎯 Target specific skill gaps with focused activities</li>
+        <li>🤝 Use peer learning and group activities</li>
+        <li>📞 Involve parents with home reinforcement tasks</li>
+        <li>📈 Track individual progress systematically</li>
+      </ul>
+      <div class="activity-box">
+        <div class="label">💡 Quick Classroom Activity</div>
+        <p>Ask each child to show a number using their fingers and count beans into groups of ten. This simple activity reveals both number sense AND place value understanding simultaneously.</p>
+      </div>
+    </div>
+
+    <div style="padding:4px 0 20px;">
+      <button class="btn btn-green btn-full" onclick="goTo('policyList')">📖 Read Full Policy Foundation (10 Pages)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: POLICY LIST -->
+<!-- ============================================================ -->
+<div class="screen" id="policyList">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Policy Foundation</div>
+    <div></div>
+  </div>
+  <div class="policy-list">
+    <div class="page-header" style="margin-bottom:16px;">
+      <h1>📖 Policy Foundation</h1>
+      <p>10 structured pages covering NEP 2020, NCF 2023 and FLN pedagogy</p>
+    </div>
+    <div id="policyItems"></div>
+  </div>
+</div>
+
+<!-- SCREEN: POLICY DETAIL -->
+<div class="screen" id="policyDetail">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('policyList')">← Back</button>
+    <div class="nav-title" id="policyDetailTitle">Policy</div>
+    <div></div>
+  </div>
+  <div class="page-content" id="policyDetailContent"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: NUMBER SENSE HOME -->
+<!-- ============================================================ -->
+<div class="screen" id="numSenseHome">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Number Sense Lab</div>
+    <div></div>
+  </div>
+  <div class="page-content">
+    <div class="page-header">
+      <h1>🔢 Number Sense Lab</h1>
+      <p>Build deep number understanding through interactive exploration</p>
+    </div>
+    <div class="section-grid" style="padding:0;">
+      <div class="section-card color-1" onclick="goTo('numGridScreen')">
+        <span class="icon">🔲</span>
+        <div class="title">Number Grid</div>
+        <div class="sub">0–100 interactive tap grid</div>
+      </div>
+      <div class="section-card color-2" onclick="goTo('countingScreen')">
+        <span class="icon">🍎</span>
+        <div class="title">Counting Practice</div>
+        <div class="sub">Count objects & drag-drop</div>
+      </div>
+      <div class="section-card color-3" onclick="goTo('compareScreen')">
+        <span class="icon">⚖️</span>
+        <div class="title">Greater / Less Than</div>
+        <div class="sub">Compare numbers visually</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: NUMBER GRID -->
+<div class="screen" id="numGridScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('numSenseHome')">← Back</button>
+    <div class="nav-title">Number Grid (0–100)</div>
+    <div></div>
+  </div>
+  <div style="padding:12px;">
+    <div class="content-card" style="margin-bottom:10px;">
+      <p style="font-size:13px;text-align:center;">Tap any number to highlight it. Find multiples and patterns!</p>
+      <div class="btn-row" style="justify-content:center;flex-wrap:wrap;gap:6px;">
+        <button class="btn btn-navy" style="padding:6px 12px;font-size:12px;" onclick="highlightMultiples(2)">× 2</button>
+        <button class="btn btn-navy" style="padding:6px 12px;font-size:12px;" onclick="highlightMultiples(5)">× 5</button>
+        <button class="btn btn-navy" style="padding:6px 12px;font-size:12px;" onclick="highlightMultiples(10)">× 10</button>
+        <button class="btn btn-red" style="padding:6px 12px;font-size:12px;" onclick="clearGrid()">Clear</button>
+      </div>
+    </div>
+    <div class="number-grid" id="numberGrid"></div>
+    <div id="numSpeak" style="text-align:center;font-size:32px;font-weight:900;color:var(--navy);padding:10px;min-height:60px;"></div>
+  </div>
+</div>
+
+<!-- SCREEN: COUNTING -->
+<div class="screen" id="countingScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('numSenseHome')">← Back</button>
+    <div class="nav-title">Counting Practice</div>
+    <div></div>
+  </div>
+  <div class="counting-area">
+    <div class="score-bar">
+      <div class="score-info">Score</div>
+      <div class="score-count" id="countScore">0</div>
+    </div>
+    <div class="content-card" style="text-align:center;margin-bottom:10px;">
+      <h2 id="countQuestion">How many 🍎 do you see? Tap each one!</h2>
+      <div class="objects-grid" id="objectsGrid"></div>
+      <div style="font-size:48px;font-weight:900;color:var(--navy);" id="tapCount">0</div>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn btn-green" onclick="checkCountAnswer()">✅ Check Answer</button>
+        <button class="btn btn-accent" onclick="newCountingRound()">🔄 New Round</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: COMPARE -->
+<div class="screen" id="compareScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('numSenseHome')">← Back</button>
+    <div class="nav-title">Greater Than / Less Than</div>
+    <div></div>
+  </div>
+  <div class="comparison-tool">
+    <div class="content-card">
+      <h2>Compare Two Numbers</h2>
+      <div class="compare-row" style="justify-content:center;">
+        <input type="number" class="num-input" id="compareLeft" value="45" min="0" max="999" oninput="updateComparison()"/>
+        <div class="compare-symbol" id="compareSymbol">?</div>
+        <input type="number" class="num-input" id="compareRight" value="72" min="0" max="999" oninput="updateComparison()"/>
+      </div>
+      <div id="compareResult" style="text-align:center;font-size:16px;font-weight:700;color:var(--navy);padding:8px;"></div>
+      <button class="btn btn-green btn-full" onclick="randomCompare()">🎲 Random Numbers</button>
+    </div>
+    <div class="number-line" id="numberLineArea">
+      <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:8px;">Number Line</div>
+      <div id="numberLineSvg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: PLACE VALUE -->
+<!-- ============================================================ -->
+<div class="screen" id="placeValueScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Place Value Explorer</div>
+    <div></div>
+  </div>
+  <div class="place-value-area">
+    <div class="score-bar">
+      <div class="score-info">Exploring</div>
+      <div class="score-count" id="pvNumber">0</div>
+    </div>
+
+    <div class="pv-display">
+      <div class="pv-number" id="pvDisplay">000</div>
+      <div class="pv-columns">
+        <div class="pv-col">
+          <div class="pv-col-label h">Hundreds</div>
+          <div class="pv-col-val" id="pvH">0</div>
+          <div class="pv-blocks" id="pvHBlocks"></div>
+        </div>
+        <div class="pv-col">
+          <div class="pv-col-label t">Tens</div>
+          <div class="pv-col-val" id="pvT">0</div>
+          <div class="pv-blocks" id="pvTBlocks"></div>
+        </div>
+        <div class="pv-col">
+          <div class="pv-col-label o">Ones</div>
+          <div class="pv-col-val" id="pvO">0</div>
+          <div class="pv-blocks" id="pvOBlocks"></div>
+        </div>
+      </div>
+      <div class="pv-decompose" id="pvDecompose">0 = 0 + 0 + 0</div>
+    </div>
+
+    <div class="content-card">
+      <h2>Set the Number</h2>
+      <label style="font-size:13px;font-weight:700;color:var(--text-mid);">Choose a number (0–999):</label>
+      <input type="range" class="pv-slider" id="pvSlider" min="0" max="999" value="0" oninput="updatePlaceValue(this.value)"/>
+      <div class="btn-row">
+        <button class="btn btn-navy" onclick="pvRandom()">🎲 Random</button>
+        <button class="btn btn-green" onclick="pvDecompose()">🔍 Decompose</button>
+      </div>
+    </div>
+
+    <div class="content-card" id="pvQuizCard">
+      <h2>Quick Quiz</h2>
+      <div id="pvQuizQ" style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px;"></div>
+      <div class="numpad" style="grid-template-columns:repeat(3,1fr);">
+        <button class="numpad-btn" onclick="pvAnswer(1)"></button>
+        <button class="numpad-btn" onclick="pvAnswer(2)"></button>
+        <button class="numpad-btn" onclick="pvAnswer(3)"></button>
+      </div>
+      <div id="pvFeedback" style="text-align:center;font-size:16px;font-weight:800;min-height:30px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: MATH LAB -->
+<!-- ============================================================ -->
+<div class="screen" id="mathLabScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Addition & Subtraction Lab</div>
+    <div></div>
+  </div>
+  <div class="math-lab">
+    <div class="tab-bar">
+      <div class="tab active" onclick="setMathTab('add1')">1-Digit Add</div>
+      <div class="tab" onclick="setMathTab('add2')">2-Digit Add</div>
+      <div class="tab" onclick="setMathTab('sub')">Subtract</div>
+      <div class="tab" onclick="setMathTab('word')">Word</div>
+    </div>
+
+    <div class="score-bar">
+      <div class="score-info">✅ Correct</div>
+      <div class="score-count" id="mathCorrect">0</div>
+      <div class="score-info">❌ Wrong</div>
+      <div class="score-count" id="mathWrong" style="color:var(--red)">0</div>
+    </div>
+
+    <div id="mathProblemArea"></div>
+
+    <div class="numpad" id="numpadArea">
+      <button class="numpad-btn" onclick="mathInput('7')">7</button>
+      <button class="numpad-btn" onclick="mathInput('8')">8</button>
+      <button class="numpad-btn" onclick="mathInput('9')">9</button>
+      <button class="numpad-btn" onclick="mathInput('4')">4</button>
+      <button class="numpad-btn" onclick="mathInput('5')">5</button>
+      <button class="numpad-btn" onclick="mathInput('6')">6</button>
+      <button class="numpad-btn" onclick="mathInput('1')">1</button>
+      <button class="numpad-btn" onclick="mathInput('2')">2</button>
+      <button class="numpad-btn" onclick="mathInput('3')">3</button>
+      <button class="numpad-btn clear" onclick="mathInput('clear')">⌫</button>
+      <button class="numpad-btn" onclick="mathInput('0')">0</button>
+      <button class="numpad-btn check" onclick="checkMathAnswer()">✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: PATTERNS -->
+<!-- ============================================================ -->
+<div class="screen" id="patternScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Pattern & Logic Builder</div>
+    <div></div>
+  </div>
+  <div class="pattern-area">
+    <div class="tab-bar">
+      <div class="tab active" onclick="setPatternTab('shape')">Shapes</div>
+      <div class="tab" onclick="setPatternTab('number')">Numbers</div>
+      <div class="tab" onclick="setPatternTab('color')">Colors</div>
+    </div>
+
+    <div class="score-bar">
+      <div class="score-info">Level</div>
+      <div class="score-count" id="patternLevel">1</div>
+      <div class="score-info">Score</div>
+      <div class="score-count" id="patternScore">0</div>
+    </div>
+
+    <div class="content-card" id="patternCard">
+      <h2>Complete the Pattern</h2>
+      <div class="pattern-row" id="patternRow"></div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin:10px 0 6px;">Choose the missing piece:</div>
+      <div class="pattern-options" id="patternOptions"></div>
+      <div id="patternFeedback" style="text-align:center;font-size:16px;font-weight:800;min-height:30px;margin-top:8px;"></div>
+    </div>
+    <button class="btn btn-navy btn-full" onclick="nextPattern()">⏭ Next Pattern</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: MEASUREMENT -->
+<!-- ============================================================ -->
+<div class="screen" id="measurementScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Measurement & Time</div>
+    <div></div>
+  </div>
+  <div class="measure-area">
+    <div class="tab-bar">
+      <div class="tab active" onclick="setMeasureTab('length')">Length</div>
+      <div class="tab" onclick="setMeasureTab('weight')">Weight</div>
+      <div class="tab" onclick="setMeasureTab('clock')">Clock</div>
+      <div class="tab" onclick="setMeasureTab('calendar')">Calendar</div>
+    </div>
+    <div id="measureContent"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: DIAGNOSTIC -->
+<!-- ============================================================ -->
+<div class="screen" id="diagnosticScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Teacher Diagnostic Mode</div>
+    <div></div>
+  </div>
+  <div class="diagnostic-area">
+    <div class="page-header">
+      <h1>📋 Diagnostic Worksheet Generator</h1>
+      <p>Generate targeted worksheets — no internet needed</p>
+    </div>
+
+    <div class="content-card">
+      <h2>Configure Worksheet</h2>
+      <div class="diag-options">
+        <select class="diag-select" id="diagGrade">
+          <option value="">Select Grade...</option>
+          <option value="1">Grade 1</option>
+          <option value="2">Grade 2</option>
+          <option value="3">Grade 3</option>
+        </select>
+        <select class="diag-select" id="diagSkill">
+          <option value="">Select Skill Area...</option>
+          <option value="counting">Number Recognition & Counting</option>
+          <option value="placevalue">Place Value</option>
+          <option value="addition">Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="patterns">Patterns & Sequences</option>
+          <option value="comparison">Number Comparison</option>
+        </select>
+        <select class="diag-select" id="diagDifficulty">
+          <option value="">Select Difficulty...</option>
+          <option value="1">Level 1 — Easy</option>
+          <option value="2">Level 2 — Medium</option>
+          <option value="3">Level 3 — Challenging</option>
+        </select>
+      </div>
+      <button class="btn btn-green btn-full" onclick="generateWorksheet()">📄 Generate Worksheet</button>
+    </div>
+
+    <div id="worksheetOutput"></div>
+    <div id="skillGapChecklist"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: PROGRESS TRACKER -->
+<!-- ============================================================ -->
+<div class="screen" id="progressScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Student Progress Tracker</div>
+    <div></div>
+  </div>
+  <div class="progress-area">
+    <div class="page-header">
+      <h1>📊 Your Progress</h1>
+      <p>Track your numeracy skills over time</p>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-title">Skill Progress Bars</div>
+      <div class="skill-row">
+        <div class="skill-name">Number Sense</div>
+        <div class="skill-bar-bg"><div class="skill-bar-fill" id="prog-ns" style="background:var(--green);width:0%"></div></div>
+        <div class="skill-pct" id="pct-ns">0%</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">Place Value</div>
+        <div class="skill-bar-bg"><div class="skill-bar-fill" id="prog-pv" style="background:var(--accent);width:0%"></div></div>
+        <div class="skill-pct" id="pct-pv">0%</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">Addition</div>
+        <div class="skill-bar-bg"><div class="skill-bar-fill" id="prog-add" style="background:var(--purple);width:0%"></div></div>
+        <div class="skill-pct" id="pct-add">0%</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">Subtraction</div>
+        <div class="skill-bar-bg"><div class="skill-bar-fill" id="prog-sub" style="background:var(--red);width:0%"></div></div>
+        <div class="skill-pct" id="pct-sub">0%</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-name">Patterns</div>
+        <div class="skill-bar-bg"><div class="skill-bar-fill" id="prog-pat" style="background:var(--teal);width:0%"></div></div>
+        <div class="skill-pct" id="pct-pat">0%</div>
+      </div>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-title">Radar Chart — Overall Numeracy Profile</div>
+      <canvas id="radarCanvas" class="radar-canvas" width="260" height="220"></canvas>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-title">Session Stats</div>
+      <div id="sessionStats" style="font-size:13px;color:var(--text-mid);"></div>
+    </div>
+
+    <button class="btn btn-red btn-full" onclick="resetProgress()" style="margin-top:8px;">🗑 Reset All Progress</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: REMEDIAL -->
+<!-- ============================================================ -->
+<div class="screen" id="remedialScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goTo('home')">← Home</button>
+    <div class="nav-title">Remedial Activity Bank</div>
+    <div></div>
+  </div>
+  <div class="remedial-area">
+    <div class="search-bar">
+      <input type="text" class="search-input" id="remedialSearch" placeholder="Search activities..." oninput="filterRemedial()"/>
+      <button class="search-btn" onclick="filterRemedial()">🔍</button>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="filterRemedialCat('all')">All</div>
+      <div class="tab" onclick="filterRemedialCat('manipulative')">Tools</div>
+      <div class="tab" onclick="filterRemedialCat('game')">Games</div>
+      <div class="tab" onclick="filterRemedialCat('home')">Home</div>
+    </div>
+    <div id="remedialList"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+
+// ===== DATA =====
+const POLICY_PAGES = [
+  {
+    num: 1, title: "NEP 2020 and Foundational Numeracy",
+    sub: "Policy overview & key mandates",
+    content: `
+      <div class="page-header"><h1>📜 NEP 2020 & Foundational Numeracy</h1><p>Understanding India's landmark education policy and its numeracy vision</p></div>
+      <div class="content-card">
+        <h2>What is NEP 2020?</h2>
+        <p>The National Education Policy 2020 is India's most comprehensive education reform in over three decades. Replacing the 1986 policy, NEP 2020 introduces a transformative 5+3+3+4 curricular structure, replacing the older 10+2 framework. The foundational stage (ages 3–8, covering pre-school through Grade 2) receives special attention for the first time.</p>
+        <p>NEP 2020 identifies <strong>Foundational Literacy and Numeracy (FLN)</strong> as the single most critical priority for India's education system. The policy states that if children do not attain basic literacy and numeracy by Grade 3, they will struggle with all future academic content — creating a learning deficit that compounds with each passing year.</p>
+        <div class="highlight-box"><p>"Achieving Foundational Literacy and Numeracy for all children by Grade 3 is the highest priority of the National Education Policy 2020." — NEP 2020, Section 2.1</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Key Numeracy Mandates of NEP 2020</h2>
+        <h3>1. Universal FLN by Grade 3</h3>
+        <p>Every child in India must achieve basic numeracy competencies by the end of Grade 3 (age 8–9). This includes counting, comparing numbers, basic addition and subtraction, and understanding simple patterns.</p>
+        <h3>2. Play-Based and Activity-Based Learning</h3>
+        <p>NEP 2020 mandates that mathematics in the foundational stage must be taught through <strong>play, exploration, and hands-on activities</strong>. Rote memorization of tables and procedures without conceptual understanding is explicitly discouraged.</p>
+        <h3>3. Mother Tongue as Medium of Instruction</h3>
+        <p>Children learn mathematics best in their home language. NEP 2020 recommends that foundational numeracy be taught in the child's mother tongue to maximize comprehension and reduce cognitive load.</p>
+        <h3>4. Teacher Capacity Building</h3>
+        <p>Teachers in foundational grades must receive specialized training in early childhood mathematics pedagogy. The policy mandates subject-specific professional development for all FLN teachers.</p>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>How many of NEP 2020's FLN mandates are currently being implemented in your school? What barriers exist to full implementation?</p></div>
+      </div>
+      <div class="content-card">
+        <h2>NIPUN Bharat Mission</h2>
+        <p>To operationalize NEP 2020's FLN vision, the Government of India launched <strong>NIPUN Bharat</strong> (National Initiative for Proficiency in Reading with Understanding and Numeracy) in July 2021. NIPUN Bharat sets specific, measurable numeracy goals for each grade level.</p>
+        <ul>
+          <li>Grade 1: Count and represent numbers up to 99, recognize and name 2D shapes</li>
+          <li>Grade 2: Add and subtract 2-digit numbers with and without regrouping</li>
+          <li>Grade 3: Multiply single-digit numbers, understand fractions as equal parts</li>
+        </ul>
+        <div class="activity-box"><div class="label">💡 Classroom Activity</div><p>Assess your class using the NIPUN Bharat competency checklist. Identify which children have not yet reached Grade 1 benchmarks, even if they are in Grade 2 or 3. Plan targeted interventions for these children.</p></div>
+      </div>
+    `
+  },
+  {
+    num: 2, title: "NCF 2023 FLN Competency Structure",
+    sub: "Curriculum framework & competencies",
+    content: `
+      <div class="page-header"><h1>📐 NCF 2023 FLN Competency Structure</h1><p>How the National Curriculum Framework maps numeracy development</p></div>
+      <div class="content-card">
+        <h2>Understanding NCF 2023</h2>
+        <p>The National Curriculum Framework for the Foundational Stage (NCF-FS) 2022 and the broader NCF 2023 provide detailed guidance on how to implement NEP 2020's vision in actual classrooms. For numeracy, the NCF 2023 organizes learning into five strands:</p>
+        <ul>
+          <li><strong>Numbers and Operations</strong> — counting, place value, arithmetic</li>
+          <li><strong>Patterns and Relationships</strong> — sequences, rules, functions</li>
+          <li><strong>Measurement</strong> — length, weight, capacity, time</li>
+          <li><strong>Spatial Understanding</strong> — shapes, geometry, position</li>
+          <li><strong>Data Handling</strong> — collecting, organizing, interpreting simple data</li>
+        </ul>
+      </div>
+      <div class="content-card">
+        <h2>Competency Progression by Grade</h2>
+        <h3>Grade 1 Competencies</h3>
+        <ul>
+          <li>Count objects and match with numerals up to 99</li>
+          <li>Understand the concept of zero</li>
+          <li>Compare two groups of objects as more, less, or equal</li>
+          <li>Add single-digit numbers using concrete objects</li>
+          <li>Identify and extend simple repeating patterns</li>
+          <li>Compare lengths, weights using non-standard units</li>
+        </ul>
+        <h3>Grade 2 Competencies</h3>
+        <ul>
+          <li>Understand place value (tens and ones) up to 99</li>
+          <li>Add and subtract 2-digit numbers without regrouping</li>
+          <li>Understand concept of multiplication as repeated addition</li>
+          <li>Read time on a clock to the hour and half-hour</li>
+          <li>Identify 2D and 3D shapes in the environment</li>
+        </ul>
+        <h3>Grade 3 Competencies</h3>
+        <ul>
+          <li>Work with numbers up to 999 including place value of hundreds</li>
+          <li>Add and subtract 3-digit numbers with regrouping</li>
+          <li>Multiply and divide within 100</li>
+          <li>Understand simple fractions (half, quarter, third)</li>
+          <li>Read and interpret simple bar graphs</li>
+        </ul>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>Look at your current Grade 3 class. What percentage of students have mastered Grade 2 NCF competencies? What does this tell you about learning continuity?</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Competency-Based vs. Time-Based Learning</h2>
+        <p>Traditional Indian classrooms advance students based on time (end of academic year), regardless of whether competencies are achieved. NCF 2023 advocates for <strong>competency-based progression</strong> — where advancement is linked to demonstrated mastery.</p>
+        <div class="activity-box"><div class="label">💡 Implementation Strategy</div><p>Create a classroom competency checklist for each child. Use this app's Diagnostic Tool to generate targeted worksheets. After 4 weeks of intervention, re-assess and update the checklist. Share results with parents during PTMs.</p></div>
+      </div>
+    `
+  },
+  {
+    num: 3, title: "Number Sense Development",
+    sub: "Building deep understanding of numbers",
+    content: `
+      <div class="page-header"><h1>🔢 Number Sense Development</h1><p>The foundation of all mathematical thinking</p></div>
+      <div class="content-card">
+        <h2>What is Number Sense?</h2>
+        <p>Number sense is not simply the ability to count or recite numbers. It is a <strong>deep, flexible understanding of numbers</strong> and their relationships. A child with strong number sense can:</p>
+        <ul>
+          <li>Understand that 7 is one more than 6 and one less than 8</li>
+          <li>Decompose 12 as 10+2, or 6+6, or 7+5 — multiple ways</li>
+          <li>Estimate whether 45+38 is closer to 80 or 90 without calculating</li>
+          <li>Recognize that 24 objects can be arranged as 4 groups of 6 or 6 groups of 4</li>
+          <li>Understand the magnitude of numbers (100 is a lot; 1000 is even more)</li>
+        </ul>
+        <div class="highlight-box"><p>Research shows that number sense in Grade 1 is the <strong>strongest predictor</strong> of mathematics achievement in Grade 5 — stronger than even IQ scores.</p></div>
+      </div>
+      <div class="content-card">
+        <h2>The Five Components of Number Sense</h2>
+        <h3>1. Counting Principles</h3>
+        <p>Children must understand that counting is stable (always in the same order), each object is counted once, the last number said is the total quantity, and order of counting doesn't change the total.</p>
+        <h3>2. Subitizing</h3>
+        <p>Instantly recognizing small quantities (1–5) without counting. This is a foundational skill — children who cannot subitize struggle with all arithmetic operations.</p>
+        <h3>3. Number Relationships</h3>
+        <p>Understanding how numbers relate — spatial relationships (3 is between 2 and 4), benchmark relationships (5 and 10 as anchor numbers), and part-part-whole relationships.</p>
+        <h3>4. Magnitude and Comparison</h3>
+        <p>Knowing that 7 > 4 and being able to explain why. Understanding that the further right a number is on the number line, the larger it is.</p>
+        <h3>5. Place Value Understanding</h3>
+        <p>Understanding that our number system groups by tens — 10 ones make a ten, 10 tens make a hundred. This is perhaps the most critical concept in elementary mathematics.</p>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>Which component of number sense do you find most children in your class struggle with? How does this weakness cascade into other areas of math?</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Activities to Build Number Sense</h2>
+        <ul>
+          <li>🎲 <strong>Dot card flash:</strong> Show a card with dot arrangements for 2 seconds. Ask: "How many?" Builds subitizing.</li>
+          <li>🔢 <strong>Number talks:</strong> Ask "How many ways can we make 10?" Record all answers. Builds decomposition.</li>
+          <li>📏 <strong>Number line walks:</strong> Lay a number line on the floor. Ask children to stand on their number and compare with a friend.</li>
+          <li>🧱 <strong>Ten-frame activities:</strong> Fill/empty ten-frames to build benchmark understanding of 5 and 10.</li>
+        </ul>
+      </div>
+    `
+  },
+  {
+    num: 4, title: "Conceptual vs Rote Math Learning",
+    sub: "Why understanding matters more than memorization",
+    content: `
+      <div class="page-header"><h1>🧠 Conceptual vs Rote Math Learning</h1><p>Building understanding, not just procedures</p></div>
+      <div class="content-card">
+        <h2>The Rote Learning Trap</h2>
+        <p>For decades, Indian mathematics education has relied heavily on <strong>rote memorization</strong> — students memorize times tables, formulas, and procedures without understanding why they work. A child who memorizes "8 × 7 = 56" without understanding multiplication cannot apply this knowledge when the problem changes slightly.</p>
+        <p>Rote learning produces short-term performance on familiar tests but <strong>fails catastrophically</strong> when students encounter novel problems, word problems, or higher-level mathematics in later grades.</p>
+        <div class="highlight-box"><p>Research finding: Children who learn arithmetic through rote procedures score 40% higher on immediate recall tests, but children who learn through conceptual understanding score 30% higher on transfer tasks — applying knowledge to new situations. Transfer is what education is actually for.</p></div>
+      </div>
+      <div class="content-card">
+        <h2>What is Conceptual Understanding?</h2>
+        <p>Conceptual understanding means knowing <strong>why</strong> a procedure works, not just how to execute it. A child with conceptual understanding can:</p>
+        <ul>
+          <li>Explain that 23 + 14 = 37 because "20+10=30 and 3+4=7, so 37"</li>
+          <li>Detect when an answer is unreasonable ("36 − 28 cannot be 18 because 36 − 30 is only 6")</li>
+          <li>Invent their own strategies when they forget a memorized procedure</li>
+          <li>Connect mathematical ideas across different topics</li>
+        </ul>
+      </div>
+      <div class="content-card">
+        <h2>Building Conceptual Understanding in Class</h2>
+        <h3>Concrete → Pictorial → Abstract (CPA Approach)</h3>
+        <p>The CPA approach, developed by psychologist Jerome Bruner and popularized in Singapore mathematics, is one of the most evidence-based approaches to early mathematics instruction:</p>
+        <ul>
+          <li><strong>Concrete:</strong> Use physical objects — beans, blocks, sticks — to represent the mathematical idea</li>
+          <li><strong>Pictorial:</strong> Draw pictures or diagrams to represent the same idea without physical objects</li>
+          <li><strong>Abstract:</strong> Only then introduce numerals and symbols</li>
+        </ul>
+        <div class="activity-box"><div class="label">💡 Classroom Activity — CPA Addition</div><p>Concrete: Use 2 bags of beans — one with 8, one with 5. Count together to get 13. Pictorial: Draw 8 circles and 5 circles, count total. Abstract: Write 8 + 5 = 13. Never skip directly to the abstract!</p></div>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>In your teaching of addition, where do you typically start — concrete, pictorial, or abstract? What changes would you need to make to implement CPA fully?</p></div>
+      </div>
+    `
+  },
+  {
+    num: 5, title: "Play-Based Math Pedagogy",
+    sub: "Games, activities and joyful learning",
+    content: `
+      <div class="page-header"><h1>🎮 Play-Based Math Pedagogy</h1><p>Mathematics through joy, games and exploration</p></div>
+      <div class="content-card">
+        <h2>Why Play Matters in Mathematics</h2>
+        <p>Play is not merely a break from learning — it IS the primary mode of learning for children aged 3–8. When children play, they explore mathematical concepts naturally, make decisions, test hypotheses, and build persistence. NEP 2020 mandates that <strong>at least 50% of instructional time</strong> in foundational mathematics be play-based.</p>
+        <div class="highlight-box"><p>Neuroscience finding: Play activates the same brain regions as formal instruction, PLUS activates dopamine reward pathways and reduces cortisol (stress hormone). Children learn more, retain more, and enjoy more when learning through play.</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Types of Mathematical Play</h2>
+        <h3>1. Structured Mathematical Games</h3>
+        <p>Games with specific mathematical objectives — number cards, dice games, dominoes, number snakes and ladders. These games practice skills repeatedly without feeling like drill.</p>
+        <h3>2. Mathematical Explorations</h3>
+        <p>Open-ended investigations: "How many different shapes can you make with 6 squares?" or "Can you find numbers that have exactly 4 factors?" Children explore without a prescribed path.</p>
+        <h3>3. Manipulative Play</h3>
+        <p>Free exploration with mathematical tools — pattern blocks, base-10 blocks, geoboards, balance scales. Children discover mathematical relationships through physical manipulation.</p>
+        <h3>4. Story-Based Mathematics</h3>
+        <p>Mathematical concepts embedded in narratives: "Raju had 15 mangoes and gave 8 to his friends. How many does he have?" Stories provide context and emotional engagement.</p>
+        <div class="activity-box"><div class="label">💡 Low-Cost Play Activity — Number Hopscotch</div><p>Draw a number line on the floor with chalk (numbers 0–20). One child calls out an addition or subtraction problem. Another child must jump to the starting number, then hop forward (add) or backward (subtract) the correct number of steps. The entire class counts along!</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Implementing Play-Based Math in Overcrowded Classrooms</h2>
+        <p>Many Indian teachers face challenges: 40–60 students per class, limited materials, time pressure. Here are strategies that work in challenging conditions:</p>
+        <ul>
+          <li>Partner games: Pair students — one pair plays while others observe, then switch</li>
+          <li>Recycled materials: bottle caps, seeds, pebbles as free manipulatives</li>
+          <li>Group rotations: 3-4 stations, students rotate every 15 minutes</li>
+          <li>Call-and-response chants: Mathematical songs and rhymes for whole-class engagement</li>
+        </ul>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>What is the single biggest barrier to play-based mathematics in your classroom? What one small change could you make this week to introduce more mathematical play?</p></div>
+      </div>
+    `
+  },
+  {
+    num: 6, title: "Constructivist Math Teaching",
+    sub: "Students build their own understanding",
+    content: `
+      <div class="page-header"><h1>🔨 Constructivist Math Teaching</h1><p>Letting children build mathematical knowledge themselves</p></div>
+      <div class="content-card">
+        <h2>What is Constructivism?</h2>
+        <p>Constructivism, developed by Jean Piaget and extended by Lev Vygotsky, holds that <strong>children actively construct knowledge</strong> — they don't passively receive it from teachers. Meaningful learning occurs when children connect new information to their existing understanding through active engagement.</p>
+        <p>In a constructivist mathematics classroom, the teacher is a <strong>facilitator and guide</strong>, not a lecturer. Students explore, discuss, make mistakes, argue, and arrive at mathematical truths through their own reasoning.</p>
+      </div>
+      <div class="content-card">
+        <h2>Vygotsky's Zone of Proximal Development</h2>
+        <p>Vygotsky's ZPD describes the gap between what a child can do independently and what they can do with guidance. Effective teaching always targets this zone — too easy and the child is bored, too hard and the child is frustrated.</p>
+        <ul>
+          <li>Use this app's diagnostic tool to identify each child's current level</li>
+          <li>Design activities just slightly above their current ability</li>
+          <li>Provide scaffolding (hints, visual aids, peer help) to bridge the gap</li>
+          <li>Gradually remove scaffolding as the child develops independence</li>
+        </ul>
+        <div class="activity-box"><div class="label">💡 Constructivist Activity — Inventing Addition</div><p>Without teaching any procedure, give children a problem: "Meena has 24 crayons. Rohan gives her 13 more. How many does she have now?" Let groups discuss and solve any way they like. Then share solutions: "Count all," "Count on," "Break into tens," "Use a number line." Discuss which methods are most efficient and why.</p></div>
+      </div>
+    `
+  },
+  {
+    num: 7, title: "Diagnostic Assessment in Numeracy",
+    sub: "Identifying learning gaps systematically",
+    content: `
+      <div class="page-header"><h1>🔍 Diagnostic Assessment in Numeracy</h1><p>Finding what children know and don't know</p></div>
+      <div class="content-card">
+        <h2>What is Diagnostic Assessment?</h2>
+        <p>Diagnostic assessment is different from summative assessment (exams, tests). It is used <strong>before and during instruction</strong> to identify specific gaps in a child's understanding. The goal is not to grade — it is to guide teaching.</p>
+        <p>Effective diagnostic assessment answers: Which specific skill is this child missing? Why might they be making this error? What intervention would best address this gap?</p>
+      </div>
+      <div class="content-card">
+        <h2>Types of Numeracy Diagnostic Tools</h2>
+        <h3>Individual Oral Assessment</h3>
+        <p>Sit one-on-one with a child for 10 minutes. Ask them to count objects, read numbers, solve problems out loud. Observe their thinking process, not just the answer.</p>
+        <h3>Written Diagnostic Tasks</h3>
+        <p>Targeted worksheets — like those generated by this app — that probe specific skills. Include both procedural and conceptual questions.</p>
+        <h3>Observation Checklists</h3>
+        <p>While students work, circulate and check off observed behaviors: "counts on from larger number," "uses fingers correctly," "understands place value."</p>
+        <div class="activity-box"><div class="label">💡 5-Minute Class Diagnostic</div><p>Write a 3-digit number on the board (e.g., 347). Ask students to write on their slates: (1) the number of hundreds, (2) the number of tens, (3) the number of ones. This instantly reveals who understands place value. Those who write 3, 4, 7 understand. Those who write 300, 40, 7 partially understand. Those who write random numbers need urgent intervention.</p></div>
+      </div>
+    `
+  },
+  {
+    num: 8, title: "Formative Feedback Strategies",
+    sub: "Giving feedback that actually improves learning",
+    content: `
+      <div class="page-header"><h1>💬 Formative Feedback Strategies</h1><p>Feedback as the engine of learning improvement</p></div>
+      <div class="content-card">
+        <h2>What Makes Feedback Effective?</h2>
+        <p>Not all feedback is equal. Research by John Hattie shows that feedback is one of the most powerful influences on student achievement — but only when delivered correctly. Ineffective feedback can actually harm learning.</p>
+        <h3>Effective Feedback is:</h3>
+        <ul>
+          <li><strong>Specific:</strong> "You added the tens and ones separately — that's exactly right!" not "Good job!"</li>
+          <li><strong>Timely:</strong> Given immediately after the task, not days later</li>
+          <li><strong>Actionable:</strong> Tells the child what to do next, not just what went wrong</li>
+          <li><strong>Growth-focused:</strong> "You're learning to carry the ten — keep practicing" not "You got it wrong"</li>
+        </ul>
+        <div class="highlight-box"><p>Critical distinction: Feedback about the person ("You're smart/stupid") is harmful. Feedback about the work and process ("This approach worked because... / Next time try...") is what drives improvement.</p></div>
+      </div>
+      <div class="content-card">
+        <h2>Peer Feedback in Mathematics</h2>
+        <p>Teaching children to give feedback to each other multiplies the amount of feedback in the classroom without increasing teacher workload. Use structured peer feedback protocols:</p>
+        <ul>
+          <li>"I like how you... because..."</li>
+          <li>"I wonder if you could try..."</li>
+          <li>"Your answer makes sense / doesn't make sense to me because..."</li>
+        </ul>
+        <div class="reflection-box"><div class="label">🤔 Reflection Prompt</div><p>Think about the last time you gave feedback on a child's mathematics work. Was it specific, timely, actionable, and growth-focused? What would you change?</p></div>
+      </div>
+    `
+  },
+  {
+    num: 9, title: "Common Numeracy Learning Gaps",
+    sub: "Identifying and understanding errors",
+    content: `
+      <div class="page-header"><h1>⚠️ Common Numeracy Learning Gaps</h1><p>The most frequent errors and their underlying causes</p></div>
+      <div class="content-card">
+        <h2>Why Children Make Numeracy Errors</h2>
+        <p>Mathematical errors are rarely random — they are <strong>systematic and reveal underlying misconceptions</strong>. Understanding why a child makes an error is as important as knowing that they made one. Each common error type points to a specific gap in conceptual understanding.</p>
+      </div>
+      <div class="content-card">
+        <h2>The 10 Most Common Numeracy Gaps</h2>
+        <h3>1. Rote Counting Without Number Sense</h3>
+        <p>Child recites "1, 2, 3... 20" but cannot tell how many objects are in a group of 7 without counting from 1.</p>
+        <h3>2. Reversal of Digits</h3>
+        <p>Writing 31 for 13, or 52 for 25. This is NOT a vision problem — it indicates weak place value understanding.</p>
+        <h3>3. Place Value Confusion</h3>
+        <p>In 47, thinking the "4" represents "4" rather than "40." Cannot decompose numbers correctly.</p>
+        <h3>4. Addition with Carrying Errors</h3>
+        <p>Adding column by column and writing both digits (e.g., 9+4=13, writing "13" in the ones column rather than carrying the "1").</p>
+        <h3>5. Subtraction Always Smaller from Larger</h3>
+        <p>Regardless of which number is on top, always subtracting the smaller digit from the larger (e.g., 43−28 = 25 instead of 15 because they calculate 8−3=5 instead of recognizing they must borrow).</p>
+        <h3>6. Confusion Between Symbols >, <</h3>
+        <p>Consistently reversing greater-than and less-than symbols, or using = incorrectly.</p>
+        <div class="activity-box"><div class="label">💡 Error Analysis Activity</div><p>Collect worksheets showing common errors. Present anonymized examples to the class: "Someone got this wrong. Can you find the mistake? Can you explain what they were thinking?" Children who analyze errors develop stronger conceptual understanding than those who only practice correct procedures.</p></div>
+      </div>
+    `
+  },
+  {
+    num: 10, title: "Teacher Intervention Strategies",
+    sub: "Targeted support for struggling learners",
+    content: `
+      <div class="page-header"><h1>🎯 Teacher Intervention Strategies</h1><p>Evidence-based approaches for supporting struggling numeracy learners</p></div>
+      <div class="content-card">
+        <h2>The Three-Tier Intervention Model</h2>
+        <p>Based on Response to Intervention (RTI) framework adapted for Indian classrooms:</p>
+        <h3>Tier 1: Universal Instruction</h3>
+        <p>High-quality, research-based mathematics instruction for all students. Includes play-based learning, CPA approach, frequent formative assessment. Addresses 80% of students' needs.</p>
+        <h3>Tier 2: Targeted Group Interventions</h3>
+        <p>Small groups (3–5 students) who need additional support. 20–30 minutes of focused instruction 3–4 times per week on specific skill gaps identified through diagnostic assessment.</p>
+        <h3>Tier 3: Intensive Individual Support</h3>
+        <p>Students with significant learning difficulties. Highly individualized, intensive daily support. May involve special educators or trained community volunteers.</p>
+      </div>
+      <div class="content-card">
+        <h2>Specific Intervention Strategies</h2>
+        <h3>For Number Sense Gaps:</h3>
+        <ul>
+          <li>Daily ten-frame activities — filling, emptying, comparing</li>
+          <li>Subitizing practice with dot cards (start with 1–5, build to 10)</li>
+          <li>Number line activities — "Hop to the number!" games</li>
+        </ul>
+        <h3>For Place Value Gaps:</h3>
+        <ul>
+          <li>Bundle-and-count with sticks: bundle 10 sticks, then 10 bundles = 100</li>
+          <li>Base-10 blocks: build numbers physically before writing them</li>
+          <li>Expanded notation practice: 346 = 300 + 40 + 6</li>
+        </ul>
+        <h3>For Addition/Subtraction Gaps:</h3>
+        <ul>
+          <li>Use the number line: jumping forward (add) and back (subtract)</li>
+          <li>Decompose to friendly numbers: 8+6 = 8+2+4 = 10+4 = 14</li>
+          <li>Estimation before calculation: "Will 23+45 be more or less than 70?"</li>
+        </ul>
+        <div class="reflection-box"><div class="label">🤔 Final Reflection</div><p>Create an intervention plan for 3 students in your class who are most behind. What is each child's specific gap? What Tier 2 strategy will you use? How will you measure progress after 4 weeks?</p></div>
+        <div class="activity-box"><div class="label">💡 Home-School Bridge Activity</div><p>Send home a "Math Bag" each week — a small bag with 20 beans, a tens frame drawn on paper, and an instruction card for parents in the local language. Simple activities: "Count the beans," "Put 13 beans on the frame," "How many more to make 20?" Parents with no math education can do these activities successfully.</p></div>
+      </div>
+    `
+  }
+];
+
+const REMEDIAL_DATA = [
+  { cat: 'manipulative', title: 'Bead Abacus for Place Value', desc: 'Use a simple DIY abacus with colored beads. Left column = hundreds (red), middle = tens (blue), right = ones (yellow). Students build numbers and practice decomposition physically.' },
+  { cat: 'game', title: 'Number War Card Game', desc: 'Shuffle a deck of number cards 0–20. Each player flips one card. Whoever has the larger number wins both cards. The player with the most cards after 5 minutes wins. Builds number comparison fluency.' },
+  { cat: 'home', title: 'Kitchen Counting Homework', desc: 'Ask parents to have children count kitchen items daily: dals, rice grains in a spoon, vegetables. Record in a counting diary. This builds real-world number sense with zero cost.' },
+  { cat: 'classroom', title: 'Ten-Frame Chalkboard Activity', desc: 'Draw a large ten-frame on the chalkboard. Call students one by one to place a chalk mark for their number. Class discusses: "How many more to make 10? How many groups of 5?"' },
+  { cat: 'manipulative', title: 'Bundling Sticks for Addition', desc: 'Use ice cream sticks or collected twigs. Children bundle 10 sticks with rubber band = one ten. Physical bundling before writing addition with carrying makes the "carry" concept concrete and memorable.' },
+  { cat: 'game', title: 'Pattern Necklaces', desc: 'Provide colored beads or macaroni. Students create AB, ABB, ABC patterns on string. They must describe their pattern rule verbally, then continue it. Great for pair work.' },
+  { cat: 'home', title: 'Staircase Number Line at Home', desc: 'Have children draw a number line from 0–20 on stairs using chalk or paper. Each step = one number. They jump addition and subtraction problems up and down the stairs. Active and memorable!' },
+  { cat: 'classroom', title: 'Estimation Jar Activity', desc: 'Fill a transparent jar with small objects (seeds, buttons). Students estimate and write their guess. Count together using groups of 10. Discuss: Whose estimate was closest? What strategy did they use?' },
+  { cat: 'manipulative', title: 'Hundred Square Floor Mat', desc: 'Create a 10×10 grid on a large sheet. Write numbers 1–100. Use as a floor activity where students physically stand on numbers, identify neighbors, find patterns in multiples. Low cost, high impact.' },
+  { cat: 'game', title: 'Addition Dice Race', desc: 'Each pair gets 2 dice. Roll both, add the numbers, move that many spaces on a track. First to reach 100 wins. Simple materials (2 dice + paper track), but profound addition practice with natural motivation.' },
+  { cat: 'home', title: 'Bedtime Number Stories', desc: 'Guide parents to tell math-embedded stories at bedtime: "3 goats went to the field. 2 more followed. How many goats total?" Children solve informally. Builds word problem comfort with parental bonding.' },
+  { cat: 'classroom', title: 'Shape Hunt Around School', desc: 'Take the class on a 15-minute shape hunt around the school campus. Find rectangles, circles, triangles in real architecture. Photograph or sketch them. Connect abstract geometry to the real environment.' }
+];
+
+const PATTERN_DATA = {
+  shape: [
+    { seq: ['🔴','🔵','🔴','🔵','?'], ans: '🔴', opts: ['🔴','🟢','🟡','🔵'] },
+    { seq: ['⭐','⭐','🌙','⭐','⭐','?'], ans: '🌙', opts: ['⭐','🌙','☀️','💫'] },
+    { seq: ['🔷','🔶','🔷','🔷','🔶','?'], ans: '🔷', opts: ['🔷','🔶','🔹','🔸'] },
+    { seq: ['🟩','🟨','🟥','🟩','🟨','?'], ans: '🟥', opts: ['🟩','🟨','🟥','🟦'] },
+  ],
+  number: [
+    { seq: ['2','4','6','8','?'], ans: '10', opts: ['9','10','11','12'] },
+    { seq: ['5','10','15','20','?'], ans: '25', opts: ['22','24','25','30'] },
+    { seq: ['1','3','5','7','?'], ans: '9', opts: ['8','9','10','11'] },
+    { seq: ['10','20','30','?'], ans: '40', opts: ['35','40','45','50'] },
+    { seq: ['100','90','80','?'], ans: '70', opts: ['60','70','75','85'] },
+  ],
+  color: [
+    { seq: ['🔴','🟠','🟡','🔴','🟠','?'], ans: '🟡', opts: ['🔴','🟠','🟡','🟢'] },
+    { seq: ['⬛','⬜','⬛','⬜','?'], ans: '⬛', opts: ['⬛','⬜','🟫','🟥'] },
+  ]
+};
+
+// ===== STATE =====
+let currentScreen = 'home';
+let mathTab = 'add1';
+let mathAnswer = '';
+let mathProblem = {};
+let mathCorrectCount = 0;
+let mathWrongCount = 0;
+let countAnswer = 0;
+let tapCount = 0;
+let patternTab = 'shape';
+let patternIndex = 0;
+let patternScore = 0;
+let patternLevel = 1;
+let measureTab = 'length';
+let pvQuizCorrect = 0;
+let pvQuizAnswers = [];
+let remedialCat = 'all';
+let clockInterval = null;
+
+// Scores stored in localStorage
+function getScores(){
+  try{ return JSON.parse(localStorage.getItem('fnml_scores')||'{}'); }catch(e){ return {}; }
+}
+function saveScores(s){ localStorage.setItem('fnml_scores',JSON.stringify(s)); }
+function addScore(key, correct){
+  let s = getScores();
+  if(!s[key]) s[key]={correct:0,total:0};
+  s[key].total++;
+  if(correct) s[key].correct++;
+  saveScores(s);
+}
+
+// ===== NAVIGATION =====
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  window.scrollTo(0,0);
+  onScreenLoad(id);
+}
+
+function onScreenLoad(id){
+  if(id==='numGridScreen') buildNumberGrid();
+  if(id==='countingScreen') newCountingRound();
+  if(id==='compareScreen') updateComparison();
+  if(id==='placeValueScreen') { updatePlaceValue(0); loadPVQuiz(); }
+  if(id==='mathLabScreen') { setMathTab('add1'); }
+  if(id==='patternScreen') { setPatternTab('shape'); }
+  if(id==='measurementScreen') { setMeasureTab('length'); }
+  if(id==='policyList') buildPolicyList();
+  if(id==='progressScreen') loadProgress();
+  if(id==='remedialScreen') renderRemedial();
+  if(id==='diagnosticScreen') {}
+}
+
+// ===== NUMBER GRID =====
+function buildNumberGrid(){
+  const g = document.getElementById('numberGrid');
+  g.innerHTML = '';
+  for(let i=0;i<=100;i++){
+    const c = document.createElement('div');
+    c.className = 'num-cell';
+    c.textContent = i;
+    c.dataset.n = i;
+    c.onclick = ()=>selectNum(i,c);
+    g.appendChild(c);
+  }
+}
+function selectNum(n,el){
+  document.querySelectorAll('.num-cell').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const sp = document.getElementById('numSpeak');
+  sp.textContent = n;
+  sp.style.animation='none';
+  setTimeout(()=>sp.style.animation='fadeIn 0.3s ease',10);
+  addScore('numgrid',true);
+}
+function highlightMultiples(m){
+  clearGrid();
+  document.querySelectorAll('.num-cell').forEach(c=>{
+    const n=parseInt(c.dataset.n);
+    if(n>0 && n%m===0) c.classList.add('highlight');
+  });
+  showToast(`Multiples of ${m} highlighted! 🎉`);
+}
+function clearGrid(){
+  document.querySelectorAll('.num-cell').forEach(c=>{
+    c.classList.remove('selected','highlight');
+  });
+  document.getElementById('numSpeak').textContent='';
+}
+
+// ===== COUNTING =====
+const COUNTING_EMOJIS = ['🍎','🌟','🐶','🌺','🎈','🦋','🍭','🌙','🎯','🐸'];
+function newCountingRound(){
+  const count = Math.floor(Math.random()*15)+3;
+  countAnswer = count;
+  tapCount = 0;
+  document.getElementById('tapCount').textContent = '0';
+  const emoji = COUNTING_EMOJIS[Math.floor(Math.random()*COUNTING_EMOJIS.length)];
+  document.getElementById('countQuestion').textContent = `How many ${emoji} do you see? Tap each one!`;
+  const grid = document.getElementById('objectsGrid');
+  grid.innerHTML = '';
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className='count-obj';
+    el.textContent=emoji;
+    el.onclick=()=>tapObject(el);
+    grid.appendChild(el);
+  }
+}
+function tapObject(el){
+  if(el.classList.contains('counted')) return;
+  el.classList.add('counted');
+  tapCount++;
+  document.getElementById('tapCount').textContent=tapCount;
+}
+function checkCountAnswer(){
+  if(tapCount===countAnswer){
+    showToast('✅ Correct! You counted '+countAnswer+'!');
+    let s=parseInt(document.getElementById('countScore').textContent||'0');
+    document.getElementById('countScore').textContent=s+1;
+    addScore('counting',true);
+    setTimeout(newCountingRound,1500);
+  } else {
+    showToast('❌ Try again! You tapped '+tapCount+' but there are '+countAnswer);
+    addScore('counting',false);
+  }
+}
+
+// ===== COMPARISON =====
+function updateComparison(){
+  const l=parseInt(document.getElementById('compareLeft').value||0);
+  const r=parseInt(document.getElementById('compareRight').value||0);
+  let sym='=',msg='';
+  if(l>r){sym='>';msg=`${l} is greater than ${r}`;}
+  else if(l<r){sym='<';msg=`${l} is less than ${r}`;}
+  else{sym='=';msg=`${l} equals ${r}`;}
+  document.getElementById('compareSymbol').textContent=sym;
+  document.getElementById('compareResult').textContent=msg;
+  drawNumberLine(l,r);
+}
+function drawNumberLine(a,b){
+  const min=Math.max(0,Math.min(a,b)-5);
+  const max=Math.min(999,Math.max(a,b)+5);
+  const container=document.getElementById('numberLineSvg');
+  const w=Math.min(320,window.innerWidth-60);
+  const nums=[];
+  const step=Math.max(1,Math.floor((max-min)/10));
+  for(let i=min;i<=max;i+=step) nums.push(i);
+  const svg=`<svg width="${w}" height="60" viewBox="0 0 ${w} 60">
+    <line x1="10" y1="30" x2="${w-10}" y2="30" stroke="#1a3a5c" stroke-width="2"/>
+    ${nums.map((n,i)=>{
+      const x=10+(i/(nums.length-1))*(w-20);
+      const isA=n===a||Math.abs(n-a)<step/2;
+      const isB=n===b||Math.abs(n-b)<step/2;
+      const col=isA?'#e74c3c':isB?'#2980b9':'#1a3a5c';
+      return `<line x1="${x}" y1="24" x2="${x}" y2="36" stroke="${col}" stroke-width="${isA||isB?3:1.5}"/>
+      <text x="${x}" y="52" text-anchor="middle" font-size="10" font-weight="${isA||isB?'800':'400'}" fill="${col}">${n}</text>`;
+    }).join('')}
+  </svg>`;
+  container.innerHTML=svg;
+}
+function randomCompare(){
+  const a=Math.floor(Math.random()*100);
+  const b=Math.floor(Math.random()*100);
+  document.getElementById('compareLeft').value=a;
+  document.getElementById('compareRight').value=b;
+  updateComparison();
+}
+
+// ===== PLACE VALUE =====
+function updatePlaceValue(val){
+  val=parseInt(val)||0;
+  document.getElementById('pvNumber').textContent=val;
+  document.getElementById('pvSlider').value=val;
+  const h=Math.floor(val/100);
+  const t=Math.floor((val%100)/10);
+  const o=val%10;
+  const fmt=String(val).padStart(3,'0');
+  document.getElementById('pvDisplay').textContent=fmt;
+  document.getElementById('pvH').textContent=h;
+  document.getElementById('pvT').textContent=t;
+  document.getElementById('pvO').textContent=o;
+  renderBlocks('pvHBlocks',h,'h-block');
+  renderBlocks('pvTBlocks',t,'t-block');
+  renderBlocks('pvOBlocks',o,'o-block');
+  document.getElementById('pvDecompose').textContent=`${val} = ${h*100} + ${t*10} + ${o}`;
+}
+function renderBlocks(id,count,cls){
+  const el=document.getElementById(id);
+  el.innerHTML='';
+  for(let i=0;i<Math.min(count,10);i++){
+    const b=document.createElement('div');
+    b.className=`pv-block ${cls}`;
+    el.appendChild(b);
+  }
+}
+function pvRandom(){
+  const n=Math.floor(Math.random()*999)+1;
+  updatePlaceValue(n);
+}
+function pvDecompose(){
+  const n=parseInt(document.getElementById('pvNumber').textContent);
+  const h=Math.floor(n/100);
+  const t=Math.floor((n%100)/10);
+  const o=n%10;
+  showToast(`${n} = ${h} hundreds + ${t} tens + ${o} ones`);
+}
+function loadPVQuiz(){
+  const n=Math.floor(Math.random()*99)+10;
+  const h=Math.floor(n/100);
+  const t=Math.floor((n%100)/10);
+  const o=n%10;
+  const qTypes=['tens','ones','value'];
+  const qt=qTypes[Math.floor(Math.random()*qTypes.length)];
+  let q='',correctAns;
+  if(qt==='tens'){q=`How many TENS in ${n}?`;correctAns=t;}
+  else if(qt==='ones'){q=`How many ONES in ${n}?`;correctAns=o;}
+  else{q=`What is the value of the tens digit in ${n}?`;correctAns=t*10;}
+  document.getElementById('pvQuizQ').textContent=q;
+  // Generate wrong answers
+  const wrongs=new Set();
+  while(wrongs.size<2){
+    const w=Math.floor(Math.random()*15);
+    if(w!==correctAns) wrongs.add(w);
+  }
+  const opts=[correctAns,...wrongs].sort(()=>Math.random()-0.5);
+  pvQuizAnswers=opts;
+  const btns=document.querySelectorAll('#pvQuizCard .numpad-btn');
+  btns.forEach((b,i)=>{
+    if(opts[i]!==undefined){b.textContent=opts[i];b.style.display='flex';}
+    else b.style.display='none';
+  });
+  document.getElementById('pvFeedback').textContent='';
+}
+function pvAnswer(idx){
+  const chosen=pvQuizAnswers[idx-1];
+  const q=document.getElementById('pvQuizQ').textContent;
+  const n=parseInt(q.match(/\d+/)?.[0]);
+  // Determine correct
+  let correct=false;
+  if(q.includes('TENS')) correct=(chosen===Math.floor((n%100)/10));
+  else if(q.includes('ONES')) correct=(chosen===n%10);
+  else correct=(chosen===Math.floor((n%100)/10)*10);
+  const fb=document.getElementById('pvFeedback');
+  if(correct){
+    fb.textContent='✅ Correct!';fb.style.color='var(--green)';
+    addScore('placevalue',true);
+    setTimeout(loadPVQuiz,1200);
+  } else {
+    fb.textContent='❌ Try again!';fb.style.color='var(--red)';
+    addScore('placevalue',false);
+    setTimeout(loadPVQuiz,1500);
+  }
+}
+
+// ===== MATH LAB =====
+function setMathTab(tab){
+  mathTab=tab;
+  mathAnswer='';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event&&event.target.classList.add('active');
+  document.querySelector('.tab-bar').children[['add1','add2','sub','word'].indexOf(tab)].classList.add('active');
+  newMathProblem();
+}
+function newMathProblem(){
+  let a,b,op='+';
+  if(mathTab==='add1'){a=Math.floor(Math.random()*9)+1;b=Math.floor(Math.random()*9)+1;}
+  else if(mathTab==='add2'){a=Math.floor(Math.random()*50)+10;b=Math.floor(Math.random()*40)+10;}
+  else if(mathTab==='sub'){a=Math.floor(Math.random()*50)+20;b=Math.floor(Math.random()*a)+1;op='-';}
+  else{newWordProblem();return;}
+  mathProblem={a,b,op,ans:op==='+'?a+b:a-b};
+  mathAnswer='';
+  const area=document.getElementById('mathProblemArea');
+  area.innerHTML=`<div class="math-problem">
+    <div class="math-display">${a}<br/>${op} ${b}<div class="math-line"></div></div>
+    <input type="text" class="math-input" id="mathAnsInput" value="" readonly placeholder="?"/>
+    <div id="mathFeedbackDiv"></div>
+  </div>`;
+  document.getElementById('numpadArea').style.display='grid';
+}
+function newWordProblem(){
+  const problems=[
+    {q:'Raju has 12 mangoes. He gives 5 to his friend. How many does he have now?',a:7},
+    {q:'There are 8 red flowers and 6 yellow flowers in the garden. How many flowers in total?',a:14},
+    {q:'A basket has 20 apples. 9 apples are removed. How many remain?',a:11},
+    {q:'Priya reads 7 pages on Monday and 8 pages on Tuesday. How many pages total?',a:15},
+    {q:'A shop has 25 pencils. 13 are sold. How many are left?',a:12},
+    {q:'There are 3 rows of chairs with 6 chairs in each row. How many chairs total?',a:18},
+  ];
+  const p=problems[Math.floor(Math.random()*problems.length)];
+  mathProblem={a:0,b:0,op:'?',ans:p.a,q:p.q};
+  mathAnswer='';
+  document.getElementById('mathProblemArea').innerHTML=`
+    <div class="word-problem"><p>${p.q}</p></div>
+    <div class="math-problem">
+      <div style="font-size:14px;font-weight:700;color:var(--text-mid);margin-bottom:8px;">Enter your answer:</div>
+      <input type="text" class="math-input" id="mathAnsInput" value="" readonly placeholder="?"/>
+      <div id="mathFeedbackDiv"></div>
+    </div>`;
+  document.getElementById('numpadArea').style.display='grid';
+}
+function mathInput(v){
+  if(v==='clear'){mathAnswer=mathAnswer.slice(0,-1);}
+  else if(v==='check'){checkMathAnswer();return;}
+  else if(mathAnswer.length<4){mathAnswer+=v;}
+  const inp=document.getElementById('mathAnsInput');
+  if(inp) inp.value=mathAnswer;
+}
+function checkMathAnswer(){
+  if(!mathAnswer) return;
+  const correct=parseInt(mathAnswer)===mathProblem.ans;
+  const fb=document.getElementById('mathFeedbackDiv');
+  if(correct){
+    fb.innerHTML=`<div class="math-feedback correct">✅ Correct! Answer is ${mathProblem.ans}</div>`;
+    mathCorrectCount++;
+    document.getElementById('mathCorrect').textContent=mathCorrectCount;
+    addScore(mathTab==='sub'?'subtraction':'addition',true);
+    setTimeout(newMathProblem,1500);
+  } else {
+    fb.innerHTML=`<div class="math-feedback wrong">❌ Not quite! The answer is ${mathProblem.ans}</div>`;
+    mathWrongCount++;
+    document.getElementById('mathWrong').textContent=mathWrongCount;
+    addScore(mathTab==='sub'?'subtraction':'addition',false);
+    setTimeout(()=>{mathAnswer='';const i=document.getElementById('mathAnsInput');if(i)i.value='';fb.innerHTML='';},1800);
+  }
+}
+
+// ===== PATTERNS =====
+function setPatternTab(tab){
+  patternTab=tab;
+  patternIndex=0;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const tabs=['shape','number','color'];
+  document.querySelector('#patternScreen .tab-bar').children[tabs.indexOf(tab)].classList.add('active');
+  renderPattern();
+}
+function renderPattern(){
+  const data=PATTERN_DATA[patternTab]||PATTERN_DATA.shape;
+  const p=data[patternIndex%data.length];
+  const row=document.getElementById('patternRow');
+  const opts=document.getElementById('patternOptions');
+  row.innerHTML=p.seq.map(s=>s==='?'?`<div class="pattern-blank">?</div>`:`<div class="pattern-item">${s}</div>`).join('');
+  opts.innerHTML=p.opts.map(o=>`<div class="pattern-opt" onclick="checkPattern('${o}','${p.ans}')">${o}</div>`).join('');
+  document.getElementById('patternFeedback').textContent='';
+}
+function checkPattern(chosen,correct){
+  const fb=document.getElementById('patternFeedback');
+  if(chosen===correct){
+    fb.textContent='✅ Correct!';fb.style.color='var(--green)';
+    patternScore++;
+    document.getElementById('patternScore').textContent=patternScore;
+    addScore('patterns',true);
+    // Update level
+    if(patternScore>0&&patternScore%3===0){
+      patternLevel=Math.min(5,patternLevel+1);
+      document.getElementById('patternLevel').textContent=patternLevel;
+      showToast(`Level up! Now at Level ${patternLevel} 🌟`);
+    }
+    setTimeout(nextPattern,1200);
+  } else {
+    fb.textContent='❌ Try again!';fb.style.color='var(--red)';
+    addScore('patterns',false);
+  }
+}
+function nextPattern(){
+  patternIndex++;
+  renderPattern();
+}
+
+// ===== MEASUREMENT =====
+function setMeasureTab(tab){
+  measureTab=tab;
+  const tabs=['length','weight','clock','calendar'];
+  document.querySelectorAll('#measurementScreen .tab').forEach((t,i)=>{
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  if(clockInterval){clearInterval(clockInterval);clockInterval=null;}
+  const c=document.getElementById('measureContent');
+  if(tab==='length') renderLength(c);
+  else if(tab==='weight') renderWeight(c);
+  else if(tab==='clock') renderClock(c);
+  else renderCalendar(c);
+}
+function renderLength(c){
+  const items=[
+    {name:'🐜 Ant',cm:0.2},
+    {name:'✏️ Pencil',cm:15},
+    {name:'📚 Book',cm:25},
+    {name:'🚪 Door',cm:200},
+    {name:'🏫 Classroom',cm:600},
+  ];
+  c.innerHTML=`<div class="content-card">
+    <h2>📏 Length Comparison</h2>
+    <p style="font-size:13px;color:var(--text-mid);">Drag the slider to set a length and compare objects!</p>
+    <div style="padding:10px 0;">
+      <label style="font-size:13px;font-weight:700;">Your length: <span id="lenVal">50</span> cm</label>
+      <input type="range" class="pv-slider" min="1" max="700" value="50" oninput="updateLen(this.value)" style="margin:8px 0;"/>
+    </div>
+    <div id="lenBars"></div>
+  </div>`;
+  updateLen(50);
+}
+function updateLen(v){
+  const el=document.getElementById('lenVal');
+  if(el) el.textContent=v;
+  const bars=document.getElementById('lenBars');
+  if(!bars) return;
+  const items=[
+    {name:'✏️ Pencil',cm:15},
+    {name:'📚 Book',cm:25},
+    {name:'🏏 Cricket bat',cm:85},
+    {name:'🚗 Car',cm:400},
+    {name:'🏫 Classroom',cm:600},
+  ];
+  bars.innerHTML=items.map(item=>{
+    const pct=Math.min(100,(item.cm/700)*100);
+    const yourPct=Math.min(100,(v/700)*100);
+    const cmp=v>=item.cm?'≥':'<';
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px;">
+        <span>${item.name}</span><span>${item.cm}cm</span>
+      </div>
+      <div style="position:relative;height:14px;background:var(--light-gray);border-radius:7px;overflow:hidden;">
+        <div style="position:absolute;height:100%;background:var(--navy-light);border-radius:7px;width:${pct}%;opacity:0.5;"></div>
+        <div style="position:absolute;height:100%;background:var(--green);border-radius:7px;width:${yourPct}%;transition:width 0.4s;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-mid);margin-top:2px;">Your ${v}cm ${cmp} ${item.name} ${item.cm}cm</div>
+    </div>`;
+  }).join('');
+}
+function renderWeight(c){
+  const items=[
+    {name:'🍎 Apple',g:150},
+    {name:'📚 Textbook',g:400},
+    {name:'💧 1L Water',g:1000},
+    {name:'🎒 School bag',g:3000},
+    {name:'🧒 Child',g:25000},
+  ];
+  c.innerHTML=`<div class="content-card">
+    <h2>⚖️ Weight Estimation</h2>
+    <p style="font-size:13px;color:var(--text-mid);">Guess the order from lightest to heaviest!</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+      ${items.sort(()=>Math.random()-0.5).map(item=>`
+        <div style="background:var(--off-white);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:20px;">${item.name}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--text-mid);">≈ ${item.g>=1000?item.g/1000+'kg':item.g+'g'}</span>
+        </div>`).join('')}
+    </div>
+    <div class="highlight-box" style="margin-top:12px;"><p>💡 1 kilogram = 1000 grams. Compare: a book weighs about 400g — that's less than half a kilogram!</p></div>
+  </div>`;
+}
+function renderClock(c){
+  c.innerHTML=`<div class="content-card">
+    <h2>🕐 Clock Reading</h2>
+    <p style="font-size:13px;color:var(--text-mid);">Live clock — watch the hands move!</p>
+    <div class="clock-face" id="clockFace">
+      <div class="clock-center"></div>
+      <div class="clock-hand hour-hand" id="hourHand"></div>
+      <div class="clock-hand minute-hand" id="minuteHand"></div>
+    </div>
+    <div id="clockTime" style="text-align:center;font-size:28px;font-weight:900;color:var(--navy);margin:10px 0;"></div>
+    <div style="font-size:13px;color:var(--text-mid);text-align:center;">Hour hand (short, dark) | Minute hand (long, blue)</div>
+  </div>
+  <div class="content-card" style="margin-top:12px;">
+    <h2>Reading the Clock</h2>
+    <ul>
+      <li>The <strong>short hand</strong> points to the <strong>hour</strong></li>
+      <li>The <strong>long hand</strong> points to the <strong>minutes</strong></li>
+      <li>When the long hand is on 12, it's exactly on the hour (e.g., 3:00)</li>
+      <li>When the long hand is on 6, it's half past (e.g., 3:30)</li>
+    </ul>
+  </div>`;
+  updateClock();
+  clockInterval=setInterval(updateClock,1000);
+}
+function updateClock(){
+  const now=new Date();
+  const h=now.getHours()%12;
+  const m=now.getMinutes();
+  const s=now.getSeconds();
+  const hDeg=(h/12)*360+(m/60)*30;
+  const mDeg=(m/60)*360+(s/60)*6;
+  const hh=document.getElementById('hourHand');
+  const mh=document.getElementById('minuteHand');
+  if(hh) hh.style.transform=`rotate(${hDeg}deg)`;
+  if(mh) mh.style.transform=`rotate(${mDeg}deg)`;
+  const ct=document.getElementById('clockTime');
+  if(ct){
+    const hr=now.getHours().toString().padStart(2,'0');
+    const mn=m.toString().padStart(2,'0');
+    ct.textContent=`${hr}:${mn}`;
+  }
+}
+function renderCalendar(c){
+  const now=new Date();
+  const y=now.getFullYear();
+  const mo=now.getMonth();
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const first=new Date(y,mo,1).getDay();
+  const daysInMonth=new Date(y,mo+1,0).getDate();
+  let cal=`<div class="content-card">
+    <h2>📅 Calendar — ${months[mo]} ${y}</h2>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;">
+      ${days.map(d=>`<div style="text-align:center;font-size:11px;font-weight:800;color:var(--navy);padding:4px;">${d}</div>`).join('')}
+      ${Array(first).fill('<div></div>').join('')}
+      ${Array.from({length:daysInMonth},(_,i)=>{
+        const day=i+1;
+        const isToday=day===now.getDate();
+        const isSun=(first+i)%7===0;
+        return `<div style="text-align:center;padding:6px 2px;border-radius:6px;font-size:13px;font-weight:${isToday?900:600};background:${isToday?'var(--navy)':'transparent'};color:${isToday?'white':isSun?'var(--red)':'var(--navy)'};">${day}</div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text-mid);">
+      Today is <strong>${now.toDateString()}</strong><br/>
+      It is day <strong>${now.getDate()}</strong> of ${months[mo]}.<br/>
+      There are <strong>${daysInMonth}</strong> days in this month.
+    </div>
+  </div>
+  <div class="content-card" style="margin-top:12px;">
+    <h2>Days & Months</h2>
+    <p><strong>Days in a week:</strong> 7 — Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday</p>
+    <p style="margin-top:8px;"><strong>Months in a year:</strong> 12</p>
+    <p style="margin-top:4px;font-size:12px;color:var(--text-mid);">January (31), February (28/29), March (31), April (30), May (31), June (30), July (31), August (31), September (30), October (31), November (30), December (31)</p>
+  </div>`;
+  c.innerHTML=cal;
+}
+
+// ===== POLICY LIST =====
+function buildPolicyList(){
+  const list=document.getElementById('policyItems');
+  list.innerHTML=POLICY_PAGES.map(p=>`
+    <div class="policy-item" onclick="openPolicy(${p.num-1})">
+      <div class="num">${p.num}</div>
+      <div class="info">
+        <div class="title">${p.title}</div>
+        <div class="sub">${p.sub}</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>`).join('');
+}
+function openPolicy(idx){
+  const p=POLICY_PAGES[idx];
+  document.getElementById('policyDetailTitle').textContent=`Page ${p.num}`;
+  document.getElementById('policyDetailContent').innerHTML=p.content;
+  goTo('policyDetail');
+}
+
+// ===== DIAGNOSTIC =====
+function generateWorksheet(){
+  const grade=document.getElementById('diagGrade').value;
+  const skill=document.getElementById('diagSkill').value;
+  const diff=parseInt(document.getElementById('diagDifficulty').value);
+  if(!grade||!skill||!diff){showToast('⚠️ Please select all options first!');return;}
+
+  const problems=generateProblems(skill,diff,grade);
+  const out=document.getElementById('worksheetOutput');
+  out.innerHTML=`<div class="worksheet">
+    <div class="ws-header">
+      <div class="ws-title">📋 Diagnostic Worksheet</div>
+      <div class="ws-info">Grade ${grade} | ${skill} | Level ${diff} | ${new Date().toLocaleDateString()}</div>
+      <div class="ws-info">Student Name: _________________ | Score: ___ / ${problems.length}</div>
+    </div>
+    ${problems.map((p,i)=>`
+      <div class="ws-problem">
+        <div class="ws-num">${i+1}</div>
+        <div class="ws-q">${p.q}</div>
+        <div class="ws-ans">${p.a}</div>
+      </div>`).join('')}
+  </div>`;
+
+  // Skill gap checklist
+  document.getElementById('skillGapChecklist').innerHTML=`
+    <div class="content-card" style="margin-top:12px;">
+      <h2>✅ Skill Gap Checklist — ${skill}</h2>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:10px;">Use after administration to identify gaps:</div>
+      ${getSkillChecklist(skill).map(item=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--light-gray);">
+          <div style="width:16px;height:16px;border:2px solid var(--navy);border-radius:3px;flex-shrink:0;margin-top:2px;"></div>
+          <div style="font-size:13px;color:var(--text-dark);">${item}</div>
+        </div>`).join('')}
+    </div>`;
+}
+function generateProblems(skill,diff,grade){
+  const probs=[];
+  const count=10;
+  for(let i=0;i<count;i++){
+    if(skill==='counting'){
+      const n=diff===1?Math.floor(Math.random()*20)+1:diff===2?Math.floor(Math.random()*50)+20:Math.floor(Math.random()*100)+50;
+      probs.push({q:`Write the number: ${n} ones = ?`,a:n});
+    } else if(skill==='addition'){
+      const a=diff===1?Math.floor(Math.random()*9)+1:diff===2?Math.floor(Math.random()*50)+10:Math.floor(Math.random()*99)+100;
+      const b=diff===1?Math.floor(Math.random()*9)+1:diff===2?Math.floor(Math.random()*40)+10:Math.floor(Math.random()*99)+100;
+      probs.push({q:`${a} + ${b} = ?`,a:a+b});
+    } else if(skill==='subtraction'){
+      const a=diff===1?Math.floor(Math.random()*9)+5:diff===2?Math.floor(Math.random()*50)+30:Math.floor(Math.random()*200)+100;
+      const b=diff===1?Math.floor(Math.random()*a)+1:diff===2?Math.floor(Math.random()*a)+1:Math.floor(Math.random()*a)+1;
+      probs.push({q:`${a} - ${b} = ?`,a:a-b});
+    } else if(skill==='placevalue'){
+      const n=diff===1?Math.floor(Math.random()*90)+10:diff===2?Math.floor(Math.random()*900)+100:Math.floor(Math.random()*9000)+1000;
+      const place=diff===1?['tens','ones'][i%2]:['hundreds','tens','ones'][i%3];
+      const val=place==='thousands'?Math.floor(n/1000):place==='hundreds'?Math.floor(n/100)%10:place==='tens'?Math.floor(n/10)%10:n%10;
+      probs.push({q:`What is the ${place} digit of ${n}?`,a:val});
+    } else if(skill==='comparison'){
+      const a=Math.floor(Math.random()*99)+1;
+      const b=Math.floor(Math.random()*99)+1;
+      probs.push({q:`Write >, < or = for: ${a} ___ ${b}`,a:a>b?'>':a<b?'<':'='});
+    } else if(skill==='patterns'){
+      const start=Math.floor(Math.random()*10)+1;
+      const step=diff===1?2:diff===2?5:10;
+      const seq=[start,start+step,start+step*2,start+step*3];
+      probs.push({q:`Complete: ${seq.join(', ')}, ___`,a:start+step*4});
+    }
+  }
+  return probs;
+}
+function getSkillChecklist(skill){
+  const checklists={
+    counting:['Child can count objects up to 20 without errors','Child matches numeral to quantity correctly','Child understands "how many" means total count','Child counts on from a given number (not from 1)','Child identifies numbers that come before/after'],
+    addition:['Child understands addition as joining/combining','Child uses concrete objects to add','Child can add single digits mentally','Child uses efficient strategies (count-on, make-10)','Child understands commutativity (3+4 = 4+3)'],
+    subtraction:['Child understands subtraction as taking away','Child understands subtraction as difference','Child can subtract single digits without objects','Child applies subtraction in word problems','Child avoids always subtracting smaller from larger'],
+    placevalue:['Child understands 10 ones = 1 ten','Child can identify tens and ones in 2-digit number','Child can decompose a number (47 = 40 + 7)','Child understands hundreds place','Child can build numbers using blocks/bundles'],
+    comparison:['Child correctly uses > and < symbols','Child can explain WHY one number is greater','Child uses number line to compare','Child compares 3-digit numbers','Child understands that digit position affects value'],
+    patterns:['Child identifies the repeating unit in a pattern','Child can extend a pattern correctly','Child can describe a pattern rule in words','Child identifies growing patterns (1, 3, 5...)','Child creates their own pattern']
+  };
+  return checklists[skill]||['Skill identification','Error analysis','Intervention needed'];
+}
+
+// ===== PROGRESS =====
+function loadProgress(){
+  const s=getScores();
+  const skills={
+    'numgrid':'Number Sense','counting':'Counting','placevalue':'Place Value',
+    'addition':'Addition','subtraction':'Subtraction','patterns':'Patterns'
+  };
+  const bars=[
+    {id:'ns',key:'numgrid'},{id:'pv',key:'placevalue'},{id:'add',key:'addition'},
+    {id:'sub',key:'subtraction'},{id:'pat',key:'patterns'}
+  ];
+  const radarData=[];
+  bars.forEach(b=>{
+    const d=s[b.key]||{correct:0,total:0};
+    const pct=d.total>0?Math.round(d.correct/d.total*100):0;
+    const bar=document.getElementById(`prog-${b.id}`);
+    const pctEl=document.getElementById(`pct-${b.id}`);
+    if(bar) setTimeout(()=>bar.style.width=pct+'%',100);
+    if(pctEl) pctEl.textContent=pct+'%';
+    radarData.push(pct);
+  });
+  drawRadar(radarData);
+
+  // Session stats
+  const total=Object.values(s).reduce((acc,v)=>acc+v.total,0);
+  const correct=Object.values(s).reduce((acc,v)=>acc+v.correct,0);
+  document.getElementById('sessionStats').innerHTML=`
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div style="text-align:center;flex:1;min-width:80px;background:var(--off-white);padding:12px;border-radius:10px;">
+        <div style="font-size:28px;font-weight:900;color:var(--green);">${correct}</div>
+        <div style="font-size:11px;color:var(--text-mid);">Correct Answers</div>
+      </div>
+      <div style="text-align:center;flex:1;min-width:80px;background:var(--off-white);padding:12px;border-radius:10px;">
+        <div style="font-size:28px;font-weight:900;color:var(--accent);">${total}</div>
+        <div style="font-size:11px;color:var(--text-mid);">Total Attempts</div>
+      </div>
+      <div style="text-align:center;flex:1;min-width:80px;background:var(--off-white);padding:12px;border-radius:10px;">
+        <div style="font-size:28px;font-weight:900;color:var(--navy);">${total>0?Math.round(correct/total*100):0}%</div>
+        <div style="font-size:11px;color:var(--text-mid);">Accuracy</div>
+      </div>
+    </div>`;
+}
+function drawRadar(data){
+  const canvas=document.getElementById('radarCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  const cx=w/2,cy=h/2+10;
+  const r=Math.min(w,h)/2-30;
+  const labels=['Number\nSense','Place\nValue','Addition','Subtraction','Patterns'];
+  const n=5;
+  ctx.clearRect(0,0,w,h);
+
+  // Draw web
+  for(let level=1;level<=5;level++){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const angle=(i/n)*2*Math.PI-Math.PI/2;
+      const lr=r*(level/5);
+      const x=cx+lr*Math.cos(angle);
+      const y=cy+lr*Math.sin(angle);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(26,58,92,0.15)';
+    ctx.stroke();
+  }
+
+  // Draw axes
+  for(let i=0;i<n;i++){
+    const angle=(i/n)*2*Math.PI-Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*Math.cos(angle),cy+r*Math.sin(angle));
+    ctx.strokeStyle='rgba(26,58,92,0.2)';
+    ctx.stroke();
+  }
+
+  // Draw data
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const angle=(i/n)*2*Math.PI-Math.PI/2;
+    const lr=r*(v/100);
+    const x=cx+lr*Math.cos(angle);
+    const y=cy+lr*Math.sin(angle);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(39,174,96,0.25)';
+  ctx.fill();
+  ctx.strokeStyle='var(--green)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='#1a3a5c';
+  ctx.font='bold 10px Segoe UI';
+  ctx.textAlign='center';
+  labels.forEach((l,i)=>{
+    const angle=(i/n)*2*Math.PI-Math.PI/2;
+    const lx=cx+(r+22)*Math.cos(angle);
+    const ly=cy+(r+22)*Math.sin(angle);
+    const lines=l.split('\n');
+    lines.forEach((line,li)=>ctx.fillText(line,lx,ly+li*12-((lines.length-1)*6)));
+  });
+}
+function resetProgress(){
+  if(confirm('Reset all progress? This cannot be undone.')){
+    localStorage.removeItem('fnml_scores');
+    loadProgress();
+    showToast('✅ Progress reset!');
+  }
+}
+
+// ===== REMEDIAL =====
+function renderRemedial(){
+  filterRemedialCat(remedialCat);
+}
+function filterRemedialCat(cat){
+  remedialCat=cat;
+  document.querySelectorAll('#remedialScreen .tab').forEach((t,i)=>{
+    t.classList.toggle('active',['all','manipulative','game','home'].indexOf(cat)===i);
+  });
+  filterRemedial();
+}
+function filterRemedial(){
+  const q=(document.getElementById('remedialSearch').value||'').toLowerCase();
+  const list=document.getElementById('remedialList');
+  const filtered=REMEDIAL_DATA.filter(r=>{
+    const matchCat=remedialCat==='all'||r.cat===remedialCat;
+    const matchQ=!q||r.title.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q);
+    return matchCat&&matchQ;
+  });
+  if(filtered.length===0){
+    list.innerHTML='<div style="text-align:center;padding:32px;color:var(--text-light);font-size:14px;">No activities found. Try a different search.</div>';
+    return;
+  }
+  const tagLabels={manipulative:'Manipulative',game:'Game',home:'Home Activity',classroom:'Classroom'};
+  list.innerHTML=filtered.map(r=>`
+    <div class="remedial-card">
+      <span class="tag tag-${r.cat}">${tagLabels[r.cat]||r.cat}</span>
+      <h3>${r.title}</h3>
+      <p>${r.desc}</p>
+    </div>`).join('');
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== OFFLINE DETECTION =====
+window.addEventListener('offline',()=>document.getElementById('offlineBanner').classList.add('show'));
+window.addEventListener('online',()=>document.getElementById('offlineBanner').classList.remove('show'));
+
+// ===== INIT =====
+window.onload=()=>{
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  }
+  if(!navigator.onLine) document.getElementById('offlineBanner').classList.add('show');
+};
+
+</script>
+</body>
+</html>
