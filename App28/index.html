@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1a3a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>FLN Recovery Studio – Mateen Yousuf</title>
+<link rel="manifest" href="manifest.json">
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --deep-blue: #0a1628;
+  --navy: #1a3a6b;
+  --royal: #2563eb;
+  --sky: #3b82f6;
+  --accent-green: #10b981;
+  --light-green: #34d399;
+  --gold: #f59e0b;
+  --white: #f8fafc;
+  --soft: #e2e8f0;
+  --muted: #94a3b8;
+  --danger: #ef4444;
+  --warn: #f97316;
+  --success: #10b981;
+  --card-bg: rgba(26,58,107,0.45);
+  --card-border: rgba(59,130,246,0.3);
+  --glass: rgba(255,255,255,0.06);
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --radius: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--deep-blue);
+  color:var(--white);
+  font-family:var(--font-body);
+  line-height:1.7;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at 20% 20%, rgba(37,99,235,0.15) 0%, transparent 50%),
+             radial-gradient(ellipse at 80% 80%, rgba(16,185,129,0.1) 0%, transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--deep-blue)}
+::-webkit-scrollbar-thumb{background:var(--navy);border-radius:3px}
+
+/* ===== LAYOUT ===== */
+.page{display:none;min-height:100vh;position:relative;z-index:1;animation:fadeIn 0.4s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== HEADER / NAV ===== */
+.top-nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,22,40,0.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--card-border);
+  padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+}
+.nav-logo{font-size:0.85rem;font-weight:700;color:var(--sky);letter-spacing:0.5px}
+.nav-logo span{color:var(--accent-green)}
+.nav-back{
+  background:var(--glass);border:1px solid var(--card-border);
+  color:var(--soft);padding:6px 14px;border-radius:20px;
+  cursor:pointer;font-size:0.8rem;transition:var(--transition);
+  display:flex;align-items:center;gap:6px;
+}
+.nav-back:hover{background:var(--navy);color:var(--white)}
+
+/* ===== TITLE PAGE ===== */
+#page-home{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:0;overflow-y:auto;
+}
+.hero-section{
+  width:100%;padding:40px 20px 30px;
+  background:linear-gradient(180deg,rgba(26,58,107,0.5) 0%,transparent 100%);
+  text-align:center;
+  border-bottom:1px solid var(--card-border);
+}
+.hero-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(37,99,235,0.2));
+  border:1px solid rgba(16,185,129,0.4);
+  color:var(--light-green);font-size:0.72rem;font-weight:600;
+  padding:4px 14px;border-radius:20px;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.hero-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.5rem,5vw,2.4rem);
+  font-weight:700;
+  color:var(--white);
+  line-height:1.25;
+  margin-bottom:8px;
+  text-shadow:0 2px 20px rgba(37,99,235,0.4);
+}
+.hero-title em{color:var(--sky);font-style:normal}
+.hero-subtitle{
+  font-size:0.85rem;color:var(--muted);margin-bottom:24px;letter-spacing:0.3px;
+}
+.author-strip{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:50px;padding:8px 20px;display:inline-flex;
+  margin:0 auto 28px;
+}
+.author-img{
+  width:48px;height:48px;border-radius:50%;
+  object-fit:cover;border:2px solid var(--sky);
+}
+.author-info{text-align:left}
+.author-name{font-weight:700;font-size:0.9rem;color:var(--white)}
+.author-role{font-size:0.72rem;color:var(--accent-green)}
+.badge-row{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:12px;
+}
+.badge{
+  background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);
+  color:var(--sky);font-size:0.68rem;padding:3px 10px;border-radius:12px;
+  font-weight:600;letter-spacing:0.5px;
+}
+
+/* ===== HOME MENU BUTTONS ===== */
+.home-menu{
+  width:100%;max-width:480px;padding:24px 16px;
+  display:flex;flex-direction:column;gap:14px;margin:0 auto;
+}
+.menu-btn{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 22px;border-radius:var(--radius);
+  border:1px solid var(--card-border);
+  background:var(--card-bg);
+  cursor:pointer;transition:var(--transition);
+  text-align:left;width:100%;
+  backdrop-filter:blur(8px);
+}
+.menu-btn:hover{
+  background:rgba(37,99,235,0.25);
+  border-color:var(--sky);
+  transform:translateX(4px);
+  box-shadow:0 4px 20px rgba(37,99,235,0.3);
+}
+.menu-btn:active{transform:translateX(2px) scale(0.99)}
+.menu-icon{
+  width:50px;height:50px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+}
+.menu-btn-text{flex:1}
+.menu-btn-title{font-weight:700;font-size:1rem;color:var(--white);margin-bottom:3px}
+.menu-btn-desc{font-size:0.75rem;color:var(--muted);line-height:1.4}
+.menu-btn-arrow{color:var(--muted);font-size:1.2rem;transition:var(--transition)}
+.menu-btn:hover .menu-btn-arrow{color:var(--sky);transform:translateX(4px)}
+
+/* ===== SECTION PAGES ===== */
+.section-header{
+  padding:24px 20px 16px;
+  border-bottom:1px solid var(--card-border);
+  background:linear-gradient(180deg,rgba(26,58,107,0.4) 0%,transparent 100%);
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.2rem,4vw,1.8rem);
+  font-weight:700;color:var(--white);margin-bottom:6px;
+}
+.section-desc{font-size:0.82rem;color:var(--muted)}
+.section-body{padding:20px 16px;max-width:900px;margin:0 auto}
+
+/* ===== CARDS ===== */
+.card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;margin-bottom:16px;
+  backdrop-filter:blur(8px);
+}
+.card-title{
+  font-size:0.95rem;font-weight:700;color:var(--sky);
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.card-title .icon{font-size:1.1rem}
+.card p{font-size:0.85rem;color:var(--soft);line-height:1.8;margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+
+/* ===== FOUNDATION PAGES NAVIGATOR ===== */
+.foundation-nav{
+  display:flex;flex-wrap:wrap;gap:8px;padding:16px;
+  border-bottom:1px solid var(--card-border);
+}
+.fnav-btn{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--card-border);
+  background:transparent;color:var(--muted);
+  font-size:0.75rem;cursor:pointer;transition:var(--transition);
+}
+.fnav-btn.active{background:var(--royal);border-color:var(--royal);color:var(--white)}
+.fnav-btn:hover:not(.active){background:var(--glass);color:var(--soft)}
+.foundation-content{padding:20px 16px;max-width:800px;margin:0 auto}
+.foundation-content h2{
+  font-size:1.3rem;font-weight:700;color:var(--white);
+  margin-bottom:6px;font-family:var(--font-display);
+}
+.foundation-content .page-num{
+  font-size:0.72rem;color:var(--accent-green);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:16px;display:block;
+}
+.foundation-content .f-section{margin-bottom:20px}
+.foundation-content .f-section h3{
+  font-size:0.95rem;font-weight:700;color:var(--sky);
+  margin-bottom:8px;border-left:3px solid var(--sky);padding-left:10px;
+}
+.foundation-content .f-section p{font-size:0.83rem;color:var(--soft);line-height:1.85;margin-bottom:8px}
+.checklist{list-style:none;padding:0;margin:10px 0}
+.checklist li{
+  font-size:0.82rem;color:var(--soft);padding:5px 0 5px 22px;
+  position:relative;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.checklist li::before{content:'✓';position:absolute;left:0;color:var(--accent-green);font-weight:700}
+.reflection-box{
+  background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
+  border-radius:8px;padding:14px;margin:14px 0;
+}
+.reflection-box .r-label{
+  font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;
+  color:var(--accent-green);font-weight:700;margin-bottom:6px;
+}
+.reflection-box p{font-size:0.82rem;color:var(--soft);font-style:italic}
+.impl-note{
+  background:rgba(37,99,235,0.1);border-left:3px solid var(--royal);
+  padding:12px 14px;border-radius:0 8px 8px 0;margin:14px 0;
+  font-size:0.81rem;color:var(--soft);
+}
+.impl-note strong{color:var(--sky)}
+.found-page-nav{
+  display:flex;justify-content:space-between;padding:16px;
+  border-top:1px solid var(--card-border);
+}
+.found-nav-btn{
+  padding:8px 20px;border-radius:20px;border:1px solid var(--card-border);
+  background:var(--glass);color:var(--soft);cursor:pointer;
+  font-size:0.8rem;transition:var(--transition);
+}
+.found-nav-btn:hover{background:var(--navy);color:var(--white)}
+.found-nav-btn:disabled{opacity:0.3;cursor:default}
+
+/* ===== FORM ELEMENTS ===== */
+label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+input[type=range]{width:100%;accent-color:var(--royal);margin:6px 0}
+.range-labels{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:14px}
+input[type=number],select,input[type=text]{
+  width:100%;background:rgba(255,255,255,0.06);
+  border:1px solid var(--card-border);border-radius:8px;
+  color:var(--white);padding:10px 14px;font-size:0.87rem;
+  outline:none;transition:var(--transition);
+}
+input[type=number]:focus,select:focus,input[type=text]:focus{border-color:var(--sky);background:rgba(37,99,246,0.1)}
+select option{background:var(--deep-blue)}
+.form-row{margin-bottom:16px}
+.btn-primary{
+  background:linear-gradient(135deg,var(--royal),var(--navy));
+  border:1px solid var(--sky);color:var(--white);
+  padding:12px 28px;border-radius:25px;font-weight:700;
+  font-size:0.88rem;cursor:pointer;transition:var(--transition);
+  width:100%;letter-spacing:0.5px;
+}
+.btn-primary:hover{background:linear-gradient(135deg,var(--sky),var(--royal));box-shadow:0 4px 20px rgba(37,99,235,0.5);transform:translateY(-1px)}
+.btn-secondary{
+  background:transparent;border:1px solid var(--card-border);
+  color:var(--soft);padding:10px 22px;border-radius:25px;
+  font-size:0.84rem;cursor:pointer;transition:var(--transition);
+}
+.btn-secondary:hover{background:var(--glass);border-color:var(--soft)}
+
+/* ===== LEVEL INDICATORS ===== */
+.level-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;
+}
+.level-a{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5}
+.level-b{background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.5);color:#fdba74}
+.level-c{background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.5);color:#fde047}
+.level-d{background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#6ee7b7}
+
+/* ===== SCORE DISPLAY ===== */
+.score-ring-wrap{text-align:center;padding:20px 0}
+.score-ring{
+  width:140px;height:140px;border-radius:50%;
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  background:conic-gradient(var(--royal) var(--pct,0%), rgba(255,255,255,0.08) 0%);
+  position:relative;margin-bottom:12px;
+}
+.score-ring::before{
+  content:'';position:absolute;
+  width:110px;height:110px;border-radius:50%;
+  background:var(--deep-blue);
+}
+.score-ring .score-val{position:relative;font-size:2rem;font-weight:900;color:var(--white);line-height:1}
+.score-ring .score-label{position:relative;font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* ===== METRICS GRID ===== */
+.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}
+.metric-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:10px;padding:14px;text-align:center;
+}
+.metric-val{font-size:1.5rem;font-weight:900;color:var(--sky);line-height:1}
+.metric-name{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.metric-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:8px;overflow:hidden}
+.metric-bar-fill{height:100%;border-radius:2px;transition:width 0.8s ease;background:linear-gradient(90deg,var(--royal),var(--accent-green))}
+
+/* ===== CHART ===== */
+.chart-wrap{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.chart-title{font-size:0.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+canvas{width:100% !important;max-width:100%;border-radius:8px}
+
+/* ===== COMPETENCY LADDER ===== */
+.competency-ladder{padding:10px 0}
+.ladder-rung{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  margin-bottom:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);
+  transition:var(--transition);
+}
+.ladder-rung.achieved{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3)}
+.ladder-rung.current{background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.4)}
+.ladder-rung.pending{background:transparent;opacity:0.5}
+.rung-icon{font-size:1.2rem;width:28px;text-align:center}
+.rung-text{flex:1;font-size:0.82rem;color:var(--soft)}
+.rung-status{font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.rung-status.done{background:rgba(16,185,129,0.2);color:var(--accent-green)}
+.rung-status.now{background:rgba(37,99,235,0.2);color:var(--sky)}
+.rung-status.later{background:rgba(255,255,255,0.05);color:var(--muted)}
+
+/* ===== RISK INDICATOR ===== */
+.risk-indicator{
+  padding:14px 18px;border-radius:10px;
+  display:flex;align-items:center;gap:14px;margin:10px 0;
+}
+.risk-high{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4)}
+.risk-med{background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.4)}
+.risk-low{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4)}
+.risk-icon{font-size:1.8rem}
+.risk-text{flex:1}
+.risk-label{font-weight:700;font-size:0.88rem}
+.risk-high .risk-label{color:#fca5a5}
+.risk-med .risk-label{color:#fdba74}
+.risk-low .risk-label{color:#6ee7b7}
+.risk-desc{font-size:0.77rem;color:var(--muted);margin-top:2px}
+
+/* ===== WEEK TRACKER ===== */
+.week-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.week-cell{
+  background:var(--glass);border:1px solid var(--card-border);
+  border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;
+  transition:var(--transition);
+}
+.week-cell.filled{background:rgba(37,99,235,0.2);border-color:var(--sky)}
+.week-cell.filled.good{background:rgba(16,185,129,0.2);border-color:var(--accent-green)}
+.week-num{font-size:0.68rem;color:var(--muted);margin-bottom:4px}
+.week-score{font-size:1.1rem;font-weight:800;color:var(--white)}
+.week-cell.filled .week-score{color:var(--sky)}
+.week-cell.filled.good .week-score{color:var(--accent-green)}
+
+/* ===== RECOVERY PLAN ===== */
+.roadmap-week{
+  border:1px solid var(--card-border);border-radius:10px;
+  margin-bottom:12px;overflow:hidden;
+}
+.roadmap-week-header{
+  background:rgba(37,99,235,0.2);padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;
+}
+.roadmap-week-title{font-weight:700;font-size:0.9rem;color:var(--sky)}
+.roadmap-week-body{padding:14px 16px;font-size:0.82rem;color:var(--soft);line-height:1.8}
+.milestone-item{
+  display:flex;align-items:flex-start;gap:10px;padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.milestone-item:last-child{border-bottom:none}
+.m-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--card-border);cursor:pointer;flex-shrink:0;margin-top:2px}
+.m-check.checked{background:var(--accent-green);border-color:var(--accent-green)}
+.m-text{font-size:0.81rem;color:var(--soft)}
+
+/* ===== SMALL GROUP PLANNER ===== */
+.group-card{
+  background:var(--card-bg);border-radius:var(--radius);padding:16px;
+  margin-bottom:14px;border-left:4px solid var(--royal);
+}
+.group-card.group-a{border-left-color:#ef4444}
+.group-card.group-b{border-left-color:#f97316}
+.group-card.group-c{border-left-color:#10b981}
+.group-title{font-weight:800;font-size:0.95rem;color:var(--white);margin-bottom:4px}
+.group-focus{font-size:0.78rem;color:var(--muted);margin-bottom:12px}
+.activity-list{list-style:none;padding:0}
+.activity-list li{
+  font-size:0.8rem;color:var(--soft);padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;align-items:center;gap:8px;
+}
+.activity-list li::before{content:'▶';color:var(--sky);font-size:0.6rem}
+
+/* ===== EQUITY & WARNING ===== */
+.warning-card{
+  border-radius:10px;padding:16px;margin-bottom:12px;
+  border:1px solid rgba(239,68,68,0.3);
+  background:rgba(239,68,68,0.08);
+}
+.warning-card.medium{
+  border-color:rgba(249,115,22,0.3);background:rgba(249,115,22,0.08);
+}
+.warning-title{font-weight:700;color:#fca5a5;font-size:0.9rem;margin-bottom:6px}
+.warning-card.medium .warning-title{color:#fdba74}
+
+/* ===== REPORT ===== */
+.report-section{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:18px;margin-bottom:14px;
+}
+.report-section-title{
+  font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;
+  color:var(--accent-green);font-weight:700;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--card-border);
+}
+.report-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.06);font-size:0.82rem}
+.report-row:last-child{border-bottom:none}
+.report-row .rr-label{color:var(--muted)}
+.report-row .rr-val{color:var(--white);font-weight:600}
+
+/* ===== FRAMEWORK PAGE ===== */
+.framework-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:18px;margin-bottom:14px;
+}
+.fw-title{font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--white);margin-bottom:8px}
+.fw-badge{
+  display:inline-block;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);
+  color:var(--sky);font-size:0.68rem;padding:2px 10px;border-radius:10px;
+  font-weight:600;margin-bottom:10px;
+}
+.fw-body{font-size:0.82rem;color:var(--soft);line-height:1.8}
+.fw-list{list-style:none;padding:0;margin-top:8px}
+.fw-list li{padding:4px 0 4px 18px;position:relative;font-size:0.81rem;color:var(--soft)}
+.fw-list li::before{content:'◆';position:absolute;left:0;color:var(--gold);font-size:0.55rem;top:7px}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);
+  border-top:1px solid var(--card-border);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+  z-index:100;
+}
+.bnav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 4px;cursor:pointer;transition:var(--transition);
+  border:none;background:transparent;color:var(--muted);
+  font-family:var(--font-body);
+}
+.bnav-btn.active{color:var(--sky)}
+.bnav-btn:hover{color:var(--soft)}
+.bnav-icon{font-size:1.3rem}
+.bnav-label{font-size:0.6rem;font-weight:600;letter-spacing:0.3px}
+
+/* ===== SPACER FOR BOTTOM NAV ===== */
+.page-bottom-spacer{height:80px}
+
+/* ===== OFFLINE INDICATOR ===== */
+.offline-banner{
+  background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.4);
+  color:#fdba74;font-size:0.75rem;text-align:center;padding:6px;
+  display:none;
+}
+body.offline .offline-banner{display:block}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.animate-pulse{animation:pulse 2s infinite}
+.animate-slide{animation:slideUp 0.5s ease forwards}
+
+/* ===== PRINT STYLES ===== */
+@media print{
+  .top-nav,.bottom-nav,.nav-back,.btn-primary,.menu-btn{display:none!important}
+  body{background:white;color:black}
+  .card,.report-section{border:1px solid #ccc;break-inside:avoid}
+}
+
+/* ===== RESPONSIVE ===== */
+@media(min-width:600px){
+  .metrics-grid{grid-template-columns:repeat(4,1fr)}
+  .week-grid{grid-template-columns:repeat(6,1fr)}
+  .section-body{padding:24px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner">📡 You are offline — all features still work locally</div>
+
+<!-- ========== PAGE: HOME ========== -->
+<div id="page-home" class="page active">
+  <div class="hero-section">
+    <div class="hero-badge">🎓 NEP 2020 | FLN Mission | Competency-Based Recovery</div>
+    <h1 class="hero-title">Foundational Learning Recovery &<br><em>Competency Acceleration Studio</em></h1>
+    <p class="hero-subtitle">Offline Edition · Works Without Internet · No Login Required</p>
+    <div class="author-strip">
+      <img src="author.jpg" alt="Mateen Yousuf" class="author-img" onerror="this.style.display='none'">
+      <div class="author-info">
+        <div class="author-name">Mateen Yousuf</div>
+        <div class="author-role">Teacher · School Education Department, Kashmir</div>
+      </div>
+    </div>
+    <div class="badge-row">
+      <span class="badge">Aligned with NEP 2020</span>
+      <span class="badge">FLN Mission</span>
+      <span class="badge">NCF 2023</span>
+      <span class="badge">Offline First</span>
+      <span class="badge">PWA Ready</span>
+    </div>
+  </div>
+
+  <div class="home-menu">
+    <button class="menu-btn" onclick="showPage('page-diagnostic')">
+      <div class="menu-icon" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3)">🔬</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Diagnose Learning Gap</div>
+        <div class="menu-btn-desc">Assess literacy & numeracy levels · Identify below-grade learners</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-recovery')">
+      <div class="menu-icon" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.3)">📋</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Design Recovery Plan</div>
+        <div class="menu-btn-desc">Generate time-bound roadmaps · Weekly milestones</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-tracker')">
+      <div class="menu-icon" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3)">📈</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Track Acceleration Progress</div>
+        <div class="menu-btn-desc">Monitor weekly gains · Catch-up probability · Velocity</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-foundations')">
+      <div class="menu-icon" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3)">📚</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Framework & FLN Reform</div>
+        <div class="menu-btn-desc">20 deep content pages · NEP 2020 · Competency frameworks</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-smallgroup')">
+      <div class="menu-icon" style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.3)">👥</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Small Group Planner</div>
+        <div class="menu-btn-desc">Design intervention groups A, B, C · Assign focus areas</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-dashboard')">
+      <div class="menu-icon" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3)">📊</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Progress Dashboard</div>
+        <div class="menu-btn-desc">Visual analytics · Gap scores · Growth charts</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-equity')">
+      <div class="menu-icon" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3)">⚠️</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Equity & Early Warning</div>
+        <div class="menu-btn-desc">Identify at-risk learners · Gender disparity · Warning index</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-report')">
+      <div class="menu-icon" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.3)">📄</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">Generate FLN Report</div>
+        <div class="menu-btn-desc">Diagnostic summary · Recovery plan · Parent notes</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+    <button class="menu-btn" onclick="showPage('page-framework')">
+      <div class="menu-icon" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3)">🏛️</div>
+      <div class="menu-btn-text">
+        <div class="menu-btn-title">NEP 2020 & NCF 2023 Reference</div>
+        <div class="menu-btn-desc">Policy framework · FLN goals · Reform milestones</div>
+      </div>
+      <div class="menu-btn-arrow">›</div>
+    </button>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: DIAGNOSTIC ========== -->
+<div id="page-diagnostic" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">🔬 <span>Diagnostic Module</span></div>
+    <button class="nav-back" onclick="clearDiagnostic()">↺ Reset</button>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Learning Gap Diagnostic</div>
+    <div class="section-desc">Rate each competency area to generate the Foundational Gap Score</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="card-title"><span class="icon">📖</span>Foundational Literacy Assessment</div>
+      <div class="form-row">
+        <label>Letter Recognition (0–10)</label>
+        <input type="range" id="d-letter" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-letter">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Word Reading (0–10)</label>
+        <input type="range" id="d-word" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-word">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Sentence Comprehension (0–10)</label>
+        <input type="range" id="d-sent" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-sent">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Paragraph Comprehension (0–10)</label>
+        <input type="range" id="d-para" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-para">5</span><span>10 – Mastery</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔢</span>Foundational Numeracy Assessment</div>
+      <div class="form-row">
+        <label>Number Recognition (0–10)</label>
+        <input type="range" id="d-numrec" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-numrec">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Basic Operations (0–10)</label>
+        <input type="range" id="d-ops" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-ops">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Place Value Understanding (0–10)</label>
+        <input type="range" id="d-place" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-place">5</span><span>10 – Mastery</span></div>
+      </div>
+      <div class="form-row">
+        <label>Word Problem Solving (0–10)</label>
+        <input type="range" id="d-word-prob" min="0" max="10" value="5" oninput="updateDiagDisplay()">
+        <div class="range-labels"><span>0 – None</span><span id="v-word-prob">5</span><span>10 – Mastery</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">👤</span>Student Context</div>
+      <div class="form-row">
+        <label>Student Name (Optional)</label>
+        <input type="text" id="d-name" placeholder="Enter student name...">
+      </div>
+      <div class="form-row">
+        <label>Class / Grade</label>
+        <select id="d-grade">
+          <option value="1">Class 1</option>
+          <option value="2">Class 2</option>
+          <option value="3" selected>Class 3</option>
+          <option value="4">Class 4</option>
+          <option value="5">Class 5</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>School Attendance (%)</label>
+        <input type="range" id="d-attend" min="0" max="100" value="75" oninput="document.getElementById('v-attend').textContent=this.value+'%'">
+        <div class="range-labels"><span>0%</span><span id="v-attend">75%</span><span>100%</span></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="runDiagnostic()">🔬 Generate Diagnostic Report</button>
+
+    <div id="diag-result" style="display:none;margin-top:20px">
+      <div class="score-ring-wrap">
+        <div class="score-ring" id="score-ring-el">
+          <div class="score-val" id="fgs-val">--</div>
+          <div class="score-label">Gap Score</div>
+        </div>
+        <div id="level-display"></div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Foundational Gap Score (FGS)</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val" id="lit-score">--</div>
+          <div class="metric-name">Literacy Score</div>
+          <div class="metric-bar"><div class="metric-bar-fill" id="lit-bar" style="width:0%"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="num-score">--</div>
+          <div class="metric-name">Numeracy Score</div>
+          <div class="metric-bar"><div class="metric-bar-fill" id="num-bar" style="width:0%"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="gsi-val">--</div>
+          <div class="metric-name">Gap Severity Index</div>
+          <div class="metric-bar"><div class="metric-bar-fill" id="gsi-bar" style="width:0%;background:linear-gradient(90deg,#ef4444,#f97316)" ></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="aps-val">--</div>
+          <div class="metric-name">Acceleration Potential</div>
+          <div class="metric-bar"><div class="metric-bar-fill" id="aps-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div id="diag-alerts" style="margin:12px 0"></div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🪜</span>Competency Ladder</div>
+        <div class="competency-ladder" id="competency-ladder"></div>
+      </div>
+
+      <button class="btn-primary" onclick="saveDiagnostic()" style="margin-top:8px">💾 Save Diagnostic Data</button>
+      <button class="btn-secondary" onclick="showPage('page-recovery')" style="margin-top:8px;width:100%">→ Design Recovery Plan</button>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: RECOVERY PLAN ========== -->
+<div id="page-recovery" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">📋 <span>Recovery Plan</span></div>
+    <button class="nav-back" onclick="clearRecovery()">↺ Reset</button>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Recovery Plan Design Studio</div>
+    <div class="section-desc">Generate a personalised time-bound roadmap based on diagnostic data</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span>Plan Configuration</div>
+      <div class="form-row">
+        <label>Recovery Duration</label>
+        <select id="rp-duration">
+          <option value="4">4 Weeks – Intensive Sprint</option>
+          <option value="8" selected>8 Weeks – Standard Cycle</option>
+          <option value="12">12 Weeks – Extended Recovery</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Group Size</label>
+        <select id="rp-group">
+          <option value="1">Individual (1:1)</option>
+          <option value="3">Small Group (2–5)</option>
+          <option value="8" selected>Medium Group (6–10)</option>
+          <option value="15">Large Group (11–20)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Daily Instructional Minutes</label>
+        <input type="range" id="rp-minutes" min="20" max="120" value="45" step="5" oninput="document.getElementById('v-minutes').textContent=this.value+' min'">
+        <div class="range-labels"><span>20 min</span><span id="v-minutes">45 min</span><span>120 min</span></div>
+      </div>
+      <div class="form-row">
+        <label>Primary Focus Area</label>
+        <select id="rp-focus">
+          <option value="literacy">Foundational Literacy</option>
+          <option value="numeracy">Foundational Numeracy</option>
+          <option value="both" selected>Both Literacy & Numeracy</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="generateRecoveryPlan()">📋 Generate Recovery Roadmap</button>
+
+    <div id="recovery-result" style="display:none;margin-top:20px">
+      <div class="card">
+        <div class="card-title"><span class="icon">📊</span>Plan Overview</div>
+        <div class="metrics-grid" id="rp-metrics"></div>
+      </div>
+      <div id="roadmap-container"></div>
+      <button class="btn-primary" onclick="saveRecoveryPlan()" style="margin-top:8px">💾 Save Recovery Plan</button>
+      <button class="btn-secondary" onclick="printReport()" style="margin-top:8px;width:100%">🖨️ Print / Export</button>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: TRACKER ========== -->
+<div id="page-tracker" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">📈 <span>Acceleration Tracker</span></div>
+    <button class="nav-back" onclick="clearTracker()">↺ Reset</button>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Progress Acceleration Tracker</div>
+    <div class="section-desc">Log weekly scores to monitor velocity and catch-up probability</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span>Log Weekly Entry</div>
+      <div class="form-row">
+        <label>Week Number</label>
+        <select id="t-week">
+          <option value="1">Week 1</option><option value="2">Week 2</option>
+          <option value="3">Week 3</option><option value="4">Week 4</option>
+          <option value="5">Week 5</option><option value="6">Week 6</option>
+          <option value="7">Week 7</option><option value="8">Week 8</option>
+          <option value="9">Week 9</option><option value="10">Week 10</option>
+          <option value="11">Week 11</option><option value="12">Week 12</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Weekly Literacy Score (0–10)</label>
+        <input type="range" id="t-lit" min="0" max="10" value="5" oninput="document.getElementById('v-t-lit').textContent=this.value">
+        <div class="range-labels"><span>0</span><span id="v-t-lit">5</span><span>10</span></div>
+      </div>
+      <div class="form-row">
+        <label>Weekly Numeracy Score (0–10)</label>
+        <input type="range" id="t-num" min="0" max="10" value="5" oninput="document.getElementById('v-t-num').textContent=this.value">
+        <div class="range-labels"><span>0</span><span id="v-t-num">5</span><span>10</span></div>
+      </div>
+      <button class="btn-primary" onclick="logWeeklyEntry()">+ Log Entry</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📅</span>Weekly Progress Grid</div>
+      <div class="week-grid" id="week-grid"></div>
+    </div>
+
+    <div class="metrics-grid" id="tracker-metrics">
+      <div class="metric-card">
+        <div class="metric-val" id="av-val">--</div>
+        <div class="metric-name">Acceleration Velocity</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="av-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="cup-val">--%</div>
+        <div class="metric-name">Catch-Up Probability</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="cup-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="ot-val">--</div>
+        <div class="metric-name">On-Track Indicator</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="ot-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="cs-val">--</div>
+        <div class="metric-name">Competency Shift</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="cs-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">Weekly Growth Trend</div>
+      <canvas id="tracker-chart" height="220"></canvas>
+    </div>
+
+    <div id="tracker-risk" style="margin-top:8px"></div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: FOUNDATIONS ========== -->
+<div id="page-foundations" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">📚 <span>FLN Foundations</span></div>
+    <span style="font-size:0.75rem;color:var(--muted)" id="page-counter">1/20</span>
+  </nav>
+  <div class="foundation-nav" id="foundation-nav"></div>
+  <div class="foundation-content" id="foundation-content"></div>
+  <div class="found-page-nav">
+    <button class="found-nav-btn" id="prev-btn" onclick="changeFPage(-1)">← Previous</button>
+    <button class="found-nav-btn" id="next-btn" onclick="changeFPage(1)">Next →</button>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: SMALL GROUP ========== -->
+<div id="page-smallgroup" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">👥 <span>Small Group Planner</span></div>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Small-Group Intervention Planner</div>
+    <div class="section-desc">Assign students to intervention groups based on competency levels</div>
+  </div>
+  <div class="section-body">
+    <div class="group-card group-a">
+      <div class="group-title">🔴 Group A – Foundational Alert</div>
+      <div class="group-focus">Letter & Sound Recognition Focus · Level: Below Foundational</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Students scoring below 3/10 in letter recognition or number recognition</p>
+      <ul class="activity-list">
+        <li>Alphabet chart tracing and oral repetition</li>
+        <li>Phoneme-grapheme mapping with manipulatives</li>
+        <li>One-to-one number correspondence activities</li>
+        <li>Picture-word matching games</li>
+        <li>Daily 5-minute oral reading with teacher</li>
+        <li>Number line walking activity (1–20)</li>
+        <li>Storytelling with picture cards</li>
+      </ul>
+      <div style="margin-top:12px">
+        <label style="font-size:0.72rem;margin-bottom:6px;display:block;color:var(--muted)">Assessment: Daily oral check-in · Milestone: Recognise all letters by Week 4</label>
+        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px">
+          <div style="height:100%;width:30%;background:#ef4444;border-radius:3px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-card group-b">
+      <div class="group-title">🟠 Group B – Emerging Learner</div>
+      <div class="group-focus">Word Reading & Basic Comprehension · Level: Emerging</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Students scoring 3–6/10 in literacy or 3–6/10 in numeracy</p>
+      <ul class="activity-list">
+        <li>Guided reading with decodable texts</li>
+        <li>Word wall activities and sight-word practice</li>
+        <li>Addition and subtraction with concrete materials</li>
+        <li>Comprehension question-answer exercises</li>
+        <li>Place value with bundles of sticks (tens & ones)</li>
+        <li>Short paragraph reading aloud daily</li>
+        <li>Number pattern completion (skip counting)</li>
+      </ul>
+      <div style="margin-top:12px">
+        <label style="font-size:0.72rem;margin-bottom:6px;display:block;color:var(--muted)">Assessment: Weekly reading fluency check · Milestone: Read 30 wpm by Week 8</label>
+        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px">
+          <div style="height:100%;width:55%;background:#f97316;border-radius:3px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-card group-c">
+      <div class="group-title">🟢 Group C – Grade Approaching</div>
+      <div class="group-focus">Comprehension & Operations Reinforcement · Level: Near Grade-Ready</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Students scoring 6–8/10 requiring consolidation and acceleration</p>
+      <ul class="activity-list">
+        <li>Paragraph comprehension with inference questions</li>
+        <li>Multi-step word problem solving strategies</li>
+        <li>Independent reading with comprehension journals</li>
+        <li>Mental math and estimation challenges</li>
+        <li>Peer tutoring and collaborative learning tasks</li>
+        <li>Creative writing with grade-level vocabulary</li>
+        <li>Data interpretation and simple graphs</li>
+      </ul>
+      <div style="margin-top:12px">
+        <label style="font-size:0.72rem;margin-bottom:6px;display:block;color:var(--muted)">Assessment: Bi-weekly competency test · Milestone: Grade-level mastery by Week 10</label>
+        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px">
+          <div style="height:100%;width:75%;background:#10b981;border-radius:3px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📅</span>Intervention Schedule Builder</div>
+      <div class="form-row">
+        <label>Select Group</label>
+        <select id="sg-group">
+          <option value="A">Group A – Foundational Alert</option>
+          <option value="B">Group B – Emerging Learner</option>
+          <option value="C">Group C – Grade Approaching</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Session Frequency</label>
+        <select id="sg-freq">
+          <option value="daily">Daily (5 days/week)</option>
+          <option value="4">4 days/week</option>
+          <option value="3">3 days/week</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Session Duration (minutes)</label>
+        <input type="range" id="sg-dur" min="15" max="60" value="30" step="5" oninput="document.getElementById('v-sg-dur').textContent=this.value+' min'">
+        <div class="range-labels"><span>15</span><span id="v-sg-dur">30 min</span><span>60</span></div>
+      </div>
+      <button class="btn-primary" onclick="generateGroupSchedule()">📅 Build Schedule</button>
+      <div id="sg-result" style="margin-top:14px;display:none"></div>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: DASHBOARD ========== -->
+<div id="page-dashboard" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">📊 <span>Progress Dashboard</span></div>
+    <button class="nav-back" onclick="refreshDashboard()">↺ Refresh</button>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Analytics Dashboard</div>
+    <div class="section-desc">Real-time view of all saved diagnostic and tracking data</div>
+  </div>
+  <div class="section-body" id="dashboard-body">
+    <div class="card" style="text-align:center;padding:40px">
+      <div style="font-size:3rem;margin-bottom:12px">📊</div>
+      <p style="color:var(--muted)">Run a diagnostic and log weekly progress to see your dashboard</p>
+      <button class="btn-primary" onclick="showPage('page-diagnostic')" style="margin-top:16px;max-width:240px">Start Diagnostic</button>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: EQUITY ========== -->
+<div id="page-equity" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">⚠️ <span>Early Warning System</span></div>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">Equity & Early Warning System</div>
+    <div class="section-desc">Identify chronic underperformance and at-risk learner patterns</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span>Class-Level Risk Screening</div>
+      <div class="form-row">
+        <label>% Students Below Foundational in Literacy</label>
+        <input type="range" id="eq-lit-pct" min="0" max="100" value="35" oninput="document.getElementById('v-eq-lit').textContent=this.value+'%'">
+        <div class="range-labels"><span>0%</span><span id="v-eq-lit">35%</span><span>100%</span></div>
+      </div>
+      <div class="form-row">
+        <label>% Students Below Foundational in Numeracy</label>
+        <input type="range" id="eq-num-pct" min="0" max="100" value="40" oninput="document.getElementById('v-eq-num').textContent=this.value+'%'">
+        <div class="range-labels"><span>0%</span><span id="v-eq-num">40%</span><span>100%</span></div>
+      </div>
+      <div class="form-row">
+        <label>Average Class Attendance (%)</label>
+        <input type="range" id="eq-attend" min="0" max="100" value="70" oninput="document.getElementById('v-eq-att').textContent=this.value+'%'">
+        <div class="range-labels"><span>0%</span><span id="v-eq-att">70%</span><span>100%</span></div>
+      </div>
+      <div class="form-row">
+        <label>Gender Gap in FLN Performance (%)</label>
+        <input type="range" id="eq-gender" min="0" max="50" value="15" oninput="document.getElementById('v-eq-gen').textContent=this.value+'%'">
+        <div class="range-labels"><span>0%</span><span id="v-eq-gen">15%</span><span>50%</span></div>
+      </div>
+      <div class="form-row">
+        <label>Months of Learning Loss (COVID/Disruption)</label>
+        <input type="range" id="eq-loss" min="0" max="24" value="6" oninput="document.getElementById('v-eq-loss').textContent=this.value+' mo'">
+        <div class="range-labels"><span>0</span><span id="v-eq-loss">6 mo</span><span>24 mo</span></div>
+      </div>
+      <button class="btn-primary" onclick="runEquityAnalysis()">⚠️ Generate Early Warning Report</button>
+    </div>
+
+    <div id="equity-result" style="display:none;margin-top:16px">
+      <div class="card">
+        <div class="card-title"><span class="icon">🚨</span>Early Warning Index</div>
+        <div class="score-ring-wrap">
+          <div class="score-ring" id="ewi-ring">
+            <div class="score-val" id="ewi-val">--</div>
+            <div class="score-label">EWI</div>
+          </div>
+          <p style="font-size:0.78rem;color:var(--muted)">Early Warning Index (0–100, higher = more risk)</p>
+        </div>
+        <div id="equity-warnings"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">💡</span>Recommended Actions</div>
+        <div id="equity-actions"></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: REPORT ========== -->
+<div id="page-report" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">📄 <span>FLN Report</span></div>
+    <button class="nav-back" onclick="printReport()">🖨️ Print</button>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">FLN Recovery Report Generator</div>
+    <div class="section-desc">Comprehensive summary of diagnostic, recovery plan, and projections</div>
+  </div>
+  <div class="section-body" id="report-body">
+    <div id="report-content">
+      <div class="report-section">
+        <div class="report-section-title">🏫 Report Header</div>
+        <div class="report-row"><span class="rr-label">Tool</span><span class="rr-val">FLN Recovery & Competency Acceleration Studio</span></div>
+        <div class="report-row"><span class="rr-label">Developed by</span><span class="rr-val">Mateen Yousuf · School Education Dept., Kashmir</span></div>
+        <div class="report-row"><span class="rr-label">Aligned with</span><span class="rr-val">NEP 2020 · FLN Mission · NCF 2023</span></div>
+        <div class="report-row"><span class="rr-label">Date Generated</span><span class="rr-val" id="report-date">--</span></div>
+      </div>
+      <div id="report-diagnostic-section">
+        <div class="card" style="text-align:center;padding:30px">
+          <p style="color:var(--muted)">No diagnostic data saved yet. Run a diagnostic first.</p>
+          <button class="btn-primary" onclick="showPage('page-diagnostic')" style="margin-top:12px;max-width:200px">Go to Diagnostic</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- ========== PAGE: FRAMEWORK ========== -->
+<div id="page-framework" class="page">
+  <nav class="top-nav">
+    <button class="nav-back" onclick="showPage('page-home')">← Home</button>
+    <div class="nav-logo">🏛️ <span>NEP 2020 Framework</span></div>
+  </nav>
+  <div class="section-header">
+    <div class="section-title">NEP 2020 & NCF 2023 Reference</div>
+    <div class="section-desc">Policy framework, FLN goals, and reform milestones</div>
+  </div>
+  <div class="section-body">
+    <div class="framework-card">
+      <div class="fw-title">National Education Policy 2020 – FLN Mission</div>
+      <div class="fw-badge">NEP 2020 · Section 2.1–2.7</div>
+      <div class="fw-body">
+        <p>NEP 2020 places Foundational Literacy and Numeracy as the most critical and urgent priority of the entire education system. The policy recognises that if children do not attain FLN by Grade 3, the learning gap widens and becomes extremely difficult to close by later grades.</p>
+        <p><strong style="color:var(--sky)">NIPUN Bharat Mission:</strong> The National Initiative for Proficiency in Reading with Understanding and Numeracy (NIPUN Bharat) was launched in 2021 with the target: every child by Grade 3 (by 2026–27) achieves basic reading and arithmetic competency.</p>
+        <ul class="fw-list">
+          <li>Reading with comprehension by end of Grade 3</li>
+          <li>Basic arithmetic operations by end of Grade 3</li>
+          <li>Competency-based progression (not age-based social promotion)</li>
+          <li>Early intervention for all children showing foundational gaps</li>
+          <li>Teacher professional development in FLN pedagogy</li>
+          <li>Integration of play-based and activity-based learning</li>
+          <li>Multilingual approaches to literacy instruction</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="framework-card">
+      <div class="fw-title">NCF 2023 – Foundational Stage (Ages 3–8)</div>
+      <div class="fw-badge">NCF 2023 · Foundational Stage</div>
+      <div class="fw-body">
+        <p>The National Curriculum Framework for the Foundational Stage (NCF-FS) 2022 provides specific competency descriptors for each domain. It emphasises a play-based, inquiry-driven, child-centred pedagogy that builds foundational skills without rote learning or excessive drilling.</p>
+        <ul class="fw-list">
+          <li>Literacy: Oral language → Print awareness → Phonological awareness → Decoding → Comprehension</li>
+          <li>Numeracy: Number sense → Operations → Spatial reasoning → Pattern recognition</li>
+          <li>Cognitive, social-emotional, physical, and cultural development integration</li>
+          <li>Mother-tongue first approach with gradual multilingual transition</li>
+          <li>Formative assessment using observation, portfolios, and conversations</li>
+          <li>Inclusion of all children including those with special learning needs</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="framework-card">
+      <div class="fw-title">Competency Benchmarks by Grade</div>
+      <div class="fw-badge">NIPUN Bharat · FLN Benchmarks</div>
+      <div class="fw-body">
+        <p><strong style="color:var(--sky)">Grade 1 Literacy:</strong> Identify letters, basic phonemes, read simple CVC words, write own name</p>
+        <p><strong style="color:var(--sky)">Grade 2 Literacy:</strong> Read simple sentences, answer literal comprehension questions, write short sentences</p>
+        <p><strong style="color:var(--sky)">Grade 3 Literacy:</strong> Read short paragraphs fluently (45–60 wpm), infer meaning, write short paragraphs</p>
+        <p><strong style="color:var(--sky)">Grade 1 Numeracy:</strong> Count to 99, compare numbers, add/subtract within 20</p>
+        <p><strong style="color:var(--sky)">Grade 2 Numeracy:</strong> Read/write numbers to 999, understand place value, add/subtract 2-digit numbers</p>
+        <p><strong style="color:var(--sky)">Grade 3 Numeracy:</strong> Multiply single-digit numbers, understand fractions, solve simple word problems</p>
+      </div>
+    </div>
+
+    <div class="framework-card">
+      <div class="fw-title">FLN Analytics Formulas Used in This App</div>
+      <div class="fw-badge">Deterministic Local Formulas</div>
+      <div class="fw-body">
+        <p><strong style="color:var(--sky)">Foundational Gap Score (FGS):</strong><br>
+        FGS = ((Lit_Score × 0.5) + (Num_Score × 0.5)) × 10<br>
+        Where Lit_Score and Num_Score are averages of sub-domain ratings (0–10)</p>
+        <p><strong style="color:var(--sky)">Gap Severity Index (GSI):</strong><br>
+        GSI = (1 - (FGS/100)) × 100 × Attendance_Weight<br>
+        Attendance_Weight = 1 + (1 - Attendance/100) × 0.3</p>
+        <p><strong style="color:var(--sky)">Acceleration Velocity (AV):</strong><br>
+        AV = (Current_Score - Baseline_Score) / Weeks_Elapsed</p>
+        <p><strong style="color:var(--sky)">Catch-Up Probability (CUP):</strong><br>
+        CUP = MIN(100, (AV × Remaining_Weeks / Gap_to_Close) × 100)</p>
+        <p><strong style="color:var(--sky)">Early Warning Index (EWI):</strong><br>
+        EWI = (Lit_Gap% × 0.3) + (Num_Gap% × 0.3) + (1-Attendance%) × 20 + Gender_Gap% × 0.5 + Loss_Months × 1.5</p>
+        <p><strong style="color:var(--sky)">Recovery Success Projection (RSP):</strong><br>
+        RSP = MIN(95, FGS + (AV × Plan_Weeks × 1.2))</p>
+      </div>
+    </div>
+
+    <div class="framework-card">
+      <div class="fw-title">APK Conversion Guide</div>
+      <div class="fw-badge">PWA → Android APK</div>
+      <div class="fw-body">
+        <p><strong style="color:var(--sky)">Step 1 – Build Static Files:</strong> Save index.html, manifest.json, service-worker.js, and author.jpg in one folder (e.g. /fln-studio-app)</p>
+        <p><strong style="color:var(--sky)">Step 2 – Test Locally:</strong> Use VS Code Live Server or Python: <em>python -m http.server 8080</em> — open http://localhost:8080</p>
+        <p><strong style="color:var(--sky)">Step 3 – Host Free Online:</strong> Upload to GitHub Pages (github.com → New Repo → Upload files → Settings → Pages) or Netlify Drop (drop.netlify.com)</p>
+        <p><strong style="color:var(--sky)">Step 4 – Convert to APK:</strong> Go to PWABuilder.com → Enter your hosted URL → Download Android package → Open in Android Studio → Build APK</p>
+        <p><strong style="color:var(--sky)">Step 5 – Alternative (WebView APK):</strong> Create new Android Studio project → Add WebView → Set URL to your GitHub Pages link → Add internet permission → Build APK → Install on device</p>
+        <p><strong style="color:var(--sky)">Step 6 – Offline APK:</strong> Bundle all files in /assets/www/ folder in Android project → Set WebView to load from file:///android_asset/www/index.html → No internet required</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-bottom-spacer"></div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bnav-btn active" id="bnav-home" onclick="showPage('page-home')">
+    <span class="bnav-icon">🏠</span><span class="bnav-label">Home</span>
+  </button>
+  <button class="bnav-btn" id="bnav-diag" onclick="showPage('page-diagnostic')">
+    <span class="bnav-icon">🔬</span><span class="bnav-label">Diagnose</span>
+  </button>
+  <button class="bnav-btn" id="bnav-track" onclick="showPage('page-tracker')">
+    <span class="bnav-icon">📈</span><span class="bnav-label">Track</span>
+  </button>
+  <button class="bnav-btn" id="bnav-dash" onclick="showPage('page-dashboard')">
+    <span class="bnav-icon">📊</span><span class="bnav-label">Dashboard</span>
+  </button>
+  <button class="bnav-btn" id="bnav-report" onclick="showPage('page-report')">
+    <span class="bnav-icon">📄</span><span class="bnav-label">Report</span>
+  </button>
+</nav>
+
+<script>
+// ============================================================
+// DATA STRUCTURES & STORAGE
+// ============================================================
+const STORAGE_KEYS = {
+  DIAGNOSTIC: 'fln_diagnosticData',
+  RECOVERY: 'fln_recoveryPlans',
+  PROGRESS: 'fln_weeklyProgress',
+  RISK: 'fln_riskIndicators'
+};
+
+function saveData(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); return true; }
+  catch(e) { console.warn('Storage error:', e); return false; }
+}
+
+function loadData(key) {
+  try {
+    const d = localStorage.getItem(key);
+    return d ? JSON.parse(d) : null;
+  } catch(e) { return null; }
+}
+
+// LOCAL JSON BENCHMARKS
+const flnBenchmarks = {
+  thresholds: { letterRec: 4, wordRead: 4, sentComp: 4, paraComp: 4, numRec: 4, basicOps: 4, placeVal: 4, wordProb: 4 },
+  levels: [
+    { id:'A', name:'Below Foundational', min:0, max:39, color:'#ef4444', desc:'Critical intervention needed immediately' },
+    { id:'B', name:'Emerging', min:40, max:59, color:'#f97316', desc:'Targeted support with daily practice' },
+    { id:'C', name:'Grade Ready', min:60, max:79, color:'#eab308', desc:'Consolidation and regular monitoring' },
+    { id:'D', name:'Advanced', min:80, max:100, color:'#10b981', desc:'Enrichment and peer support roles' }
+  ],
+  weights: { literacy: 0.5, numeracy: 0.5 },
+  subWeights: { letter:0.3, word:0.3, sent:0.2, para:0.2, numrec:0.3, ops:0.3, place:0.2, wordProb:0.2 }
+};
+
+// ============================================================
+// FORMULAS
+// ============================================================
+function calcFGS(scores) {
+  const { letter, word, sent, para, numrec, ops, place, wordProb } = scores;
+  const w = flnBenchmarks.subWeights;
+  const litScore = (letter*w.letter + word*w.word + sent*w.sent + para*w.para) * 10;
+  const numScore = (numrec*w.numrec + ops*w.ops + place*w.place + wordProb*w.wordProb) * 10;
+  const fgs = (litScore * 0.5 + numScore * 0.5);
+  return { fgs: Math.round(fgs), litScore: Math.round(litScore), numScore: Math.round(numScore) };
+}
+
+function calcGSI(fgs, attendance) {
+  const attWeight = 1 + (1 - attendance/100) * 0.3;
+  const gsi = (1 - fgs/100) * 100 * attWeight;
+  return Math.min(100, Math.round(gsi));
+}
+
+function calcAPS(fgs) {
+  if (fgs <= 20) return Math.round(fgs * 1.5);
+  if (fgs <= 40) return Math.round(40 + (fgs-20) * 1.2);
+  return Math.round(Math.min(95, fgs + 10));
+}
+
+function getLevel(fgs) {
+  return flnBenchmarks.levels.find(l => fgs >= l.min && fgs <= l.max) || flnBenchmarks.levels[0];
+}
+
+function calcAccelVelocity(entries) {
+  if (entries.length < 2) return 0;
+  const recent = entries.slice(-Math.min(4, entries.length));
+  const gains = [];
+  for (let i=1; i<recent.length; i++) {
+    const prev = (recent[i-1].lit + recent[i-1].num) / 2;
+    const curr = (recent[i].lit + recent[i].num) / 2;
+    gains.push(curr - prev);
+  }
+  return +(gains.reduce((a,b)=>a+b,0)/gains.length).toFixed(2);
+}
+
+function calcCatchUpProb(baseline, current, target, weeks, totalWeeks) {
+  const gap = Math.max(0, target - current);
+  const remaining = Math.max(1, totalWeeks - weeks);
+  const av = (current - baseline) / Math.max(1, weeks);
+  if (av <= 0) return 15;
+  const projected = current + av * remaining;
+  const prob = (projected / target) * 100;
+  return Math.min(98, Math.max(5, Math.round(prob)));
+}
+
+function calcEWI(litPct, numPct, attendance, genderGap, lossMonths) {
+  const ewi = (litPct * 0.3) + (numPct * 0.3) + ((1 - attendance/100) * 20) + (genderGap * 0.5) + (lossMonths * 1.5);
+  return Math.min(100, Math.round(ewi));
+}
+
+// ============================================================
+// PAGE NAVIGATION
+// ============================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  const map = { 'page-home':'bnav-home','page-diagnostic':'bnav-diag','page-tracker':'bnav-track','page-dashboard':'bnav-dash','page-report':'bnav-report' };
+  if (map[id]) document.getElementById(map[id]).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'page-dashboard') refreshDashboard();
+  if (id === 'page-foundations') initFoundations();
+  if (id === 'page-report') buildReport();
+  if (id === 'page-tracker') initTracker();
+}
+
+// ============================================================
+// DIAGNOSTIC MODULE
+// ============================================================
+function updateDiagDisplay() {
+  ['letter','word','sent','para','numrec','ops','place','word-prob'].forEach(id => {
+    const el = document.getElementById('d-'+id);
+    const vEl = document.getElementById('v-'+id);
+    if (el && vEl) vEl.textContent = el.value;
+  });
+}
+
+function runDiagnostic() {
+  const scores = {
+    letter: +document.getElementById('d-letter').value,
+    word: +document.getElementById('d-word').value,
+    sent: +document.getElementById('d-sent').value,
+    para: +document.getElementById('d-para').value,
+    numrec: +document.getElementById('d-numrec').value,
+    ops: +document.getElementById('d-ops').value,
+    place: +document.getElementById('d-place').value,
+    wordProb: +document.getElementById('d-word-prob').value
+  };
+  const attendance = +document.getElementById('d-attend').value;
+  const { fgs, litScore, numScore } = calcFGS(scores);
+  const gsi = calcGSI(fgs, attendance);
+  const aps = calcAPS(fgs);
+  const level = getLevel(fgs);
+
+  // Update UI
+  document.getElementById('diag-result').style.display = 'block';
+  document.getElementById('fgs-val').textContent = fgs;
+  const pct = fgs + '%';
+  document.getElementById('score-ring-el').style.setProperty('--pct', pct);
+  document.getElementById('level-display').innerHTML = `<span class="level-badge level-${level.id.toLowerCase()}">${level.id} – ${level.name}</span>`;
+
+  // Metrics
+  document.getElementById('lit-score').textContent = litScore;
+  document.getElementById('lit-bar').style.width = litScore+'%';
+  document.getElementById('num-score').textContent = numScore;
+  document.getElementById('num-bar').style.width = numScore+'%';
+  document.getElementById('gsi-val').textContent = gsi;
+  document.getElementById('gsi-bar').style.width = gsi+'%';
+  document.getElementById('aps-val').textContent = aps;
+  document.getElementById('aps-bar').style.width = aps+'%';
+
+  // Alerts
+  const alerts = [];
+  if (scores.letter < 4) alerts.push({type:'high', msg:'🚨 Foundational Alert: Letter recognition critically low. Immediate remediation required.'});
+  if (scores.ops < 4) alerts.push({type:'high', msg:'🚨 Foundational Alert: Basic operations severely below threshold.'});
+  if (scores.word < 4) alerts.push({type:'med', msg:'⚠️ Word reading below threshold. Phonics-based intervention recommended.'});
+  if (scores.numrec < 4) alerts.push({type:'med', msg:'⚠️ Number recognition gap identified. Concrete math activities needed.'});
+  if (attendance < 70) alerts.push({type:'high', msg:'🚨 Attendance Risk: Below 70% attendance compounds learning loss significantly.'});
+  document.getElementById('diag-alerts').innerHTML = alerts.map(a => `
+    <div class="risk-indicator ${a.type==='high'?'risk-high':'risk-med'}">
+      <div class="risk-icon">${a.type==='high'?'🚨':'⚠️'}</div>
+      <div class="risk-text"><div class="risk-label">${a.msg}</div></div>
+    </div>`).join('');
+
+  // Competency Ladder
+  const rungs = [
+    { label:'Letter Recognition', achieved: scores.letter >= 4, score: scores.letter },
+    { label:'Word Reading', achieved: scores.word >= 4, score: scores.word },
+    { label:'Sentence Comprehension', achieved: scores.sent >= 4, score: scores.sent },
+    { label:'Paragraph Comprehension', achieved: scores.para >= 4, score: scores.para },
+    { label:'Number Recognition', achieved: scores.numrec >= 4, score: scores.numrec },
+    { label:'Basic Operations', achieved: scores.ops >= 4, score: scores.ops },
+    { label:'Place Value', achieved: scores.place >= 4, score: scores.place },
+    { label:'Word Problem Solving', achieved: scores.wordProb >= 4, score: scores.wordProb }
+  ];
+  document.getElementById('competency-ladder').innerHTML = rungs.map((r,i) => `
+    <div class="ladder-rung ${r.achieved?'achieved':'current'}">
+      <div class="rung-icon">${r.achieved?'✅':'🔄'}</div>
+      <div class="rung-text">${r.label}</div>
+      <div class="rung-status ${r.achieved?'done':'now'}">${r.score}/10</div>
+    </div>`).join('');
+
+  // Store current session
+  window._currentDiag = { scores, attendance, fgs, litScore, numScore, gsi, aps, level: level.id, name: document.getElementById('d-name').value, grade: document.getElementById('d-grade').value, date: new Date().toLocaleDateString('en-IN') };
+}
+
+function saveDiagnostic() {
+  if (!window._currentDiag) { alert('Please run a diagnostic first.'); return; }
+  const existing = loadData(STORAGE_KEYS.DIAGNOSTIC) || [];
+  existing.push(window._currentDiag);
+  if (saveData(STORAGE_KEYS.DIAGNOSTIC, existing)) {
+    showToast('✅ Diagnostic data saved!');
+  }
+}
+
+function clearDiagnostic() {
+  document.getElementById('diag-result').style.display = 'none';
+  window._currentDiag = null;
+}
+
+// ============================================================
+// RECOVERY PLAN MODULE
+// ============================================================
+function generateRecoveryPlan() {
+  const duration = +document.getElementById('rp-duration').value;
+  const groupSize = +document.getElementById('rp-group').value;
+  const minutes = +document.getElementById('rp-minutes').value;
+  const focus = document.getElementById('rp-focus').value;
+
+  const diagData = window._currentDiag;
+  const fgs = diagData ? diagData.fgs : 50;
+  const gsi = diagData ? diagData.gsi : 50;
+
+  const totalHours = (duration * 5 * minutes / 60).toFixed(1);
+  const weeklyGrowthTarget = Math.round((100 - fgs) / duration);
+  const intensityScore = minutes >= 60 ? 'High' : minutes >= 40 ? 'Medium' : 'Low';
+
+  document.getElementById('rp-metrics').innerHTML = `
+    <div class="metric-card"><div class="metric-val">${duration}</div><div class="metric-name">Weeks</div></div>
+    <div class="metric-card"><div class="metric-val">${totalHours}h</div><div class="metric-name">Total Hours</div></div>
+    <div class="metric-card"><div class="metric-val">+${weeklyGrowthTarget}</div><div class="metric-name">Weekly Target%</div></div>
+    <div class="metric-card"><div class="metric-val">${intensityScore}</div><div class="metric-name">Intensity</div></div>
+  `;
+
+  const roadmapPhases = generateRoadmapPhases(duration, focus, fgs);
+  document.getElementById('roadmap-container').innerHTML = roadmapPhases.map((p,i) => `
+    <div class="roadmap-week">
+      <div class="roadmap-week-header" onclick="toggleWeek(${i})">
+        <div class="roadmap-week-title">📅 ${p.label}</div>
+        <span style="color:var(--muted);font-size:0.8rem">▼</span>
+      </div>
+      <div class="roadmap-week-body" id="rw-${i}">
+        <p style="color:var(--sky);font-weight:700;margin-bottom:8px">🎯 Focus: ${p.focus}</p>
+        ${p.milestones.map(m => `
+          <div class="milestone-item">
+            <div class="m-check" onclick="toggleMilestone(this)"></div>
+            <div class="m-text">${m}</div>
+          </div>`).join('')}
+        <p style="margin-top:10px;font-size:0.78rem;color:var(--muted)">📋 Assessment: ${p.assessment}</p>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('recovery-result').style.display = 'block';
+  window._currentPlan = { duration, groupSize, minutes, focus, fgs, phases: roadmapPhases, date: new Date().toLocaleDateString('en-IN') };
+}
+
+function generateRoadmapPhases(weeks, focus, fgs) {
+  const phases = [];
+  const phaseSize = weeks <= 4 ? 1 : weeks <= 8 ? 2 : 3;
+  const numPhases = Math.ceil(weeks / phaseSize);
+
+  const litMilestones = [
+    ['Baseline oral reading assessment','Letter–sound correspondence review','Phonemic awareness activities (rhyming, blending)','Introduce 20 high-frequency sight words'],
+    ['Guided reading with decodable texts Level A','Word family sorting activities','Daily read-aloud partner practice','Comprehension: who, what, where questions'],
+    ['Independent reading with monitoring','Sentence building with word cards','Paragraph comprehension strategies','Reading fluency timing (30+ wpm target)'],
+    ['Inference and prediction questions','Written response to reading','Reading across subjects (cross-curricular)','End-of-cycle literacy competency assessment']
+  ];
+  const numMilestones = [
+    ['Number recognition 1–100 daily drills','Concrete counting with manipulatives','Addition within 20 using number line','Place value: ones and tens with bundles'],
+    ['Subtraction within 20 – concrete to pictorial','Skip counting by 2s, 5s, 10s','Introduction to place value to 100','Simple addition word problems (1-step)'],
+    ['2-digit addition with regrouping','Multiplication concept with arrays','Subtraction with borrowing – practice','Multi-step word problem strategies'],
+    ['Division as equal sharing','Fraction concepts with real objects','Mental math strategies','End-of-cycle numeracy competency assessment']
+  ];
+
+  for (let i=0; i<numPhases; i++) {
+    const startWk = i*phaseSize+1;
+    const endWk = Math.min((i+1)*phaseSize, weeks);
+    const label = startWk===endWk ? `Week ${startWk}` : `Weeks ${startWk}–${endWk}`;
+    const phaseIdx = Math.min(i, 3);
+
+    let milestones = [];
+    let focusLabel = '';
+    if (focus === 'literacy') { milestones = litMilestones[phaseIdx]; focusLabel = 'Foundational Literacy'; }
+    else if (focus === 'numeracy') { milestones = numMilestones[phaseIdx]; focusLabel = 'Foundational Numeracy'; }
+    else {
+      milestones = [...litMilestones[phaseIdx].slice(0,2), ...numMilestones[phaseIdx].slice(0,2)];
+      focusLabel = 'Literacy & Numeracy Integration';
+    }
+
+    phases.push({
+      label, focus: focusLabel, milestones,
+      assessment: i===numPhases-1 ? 'End-of-cycle competency summative assessment' : 'Formative check-in + teacher observation record'
+    });
+  }
+  return phases;
+}
+
+function toggleWeek(i) {
+  const el = document.getElementById('rw-'+i);
+  el.style.display = el.style.display==='none'?'block':'none';
+}
+
+function toggleMilestone(el) {
+  el.classList.toggle('checked');
+}
+
+function saveRecoveryPlan() {
+  if (!window._currentPlan) { alert('Generate a plan first.'); return; }
+  const existing = loadData(STORAGE_KEYS.RECOVERY) || [];
+  existing.push(window._currentPlan);
+  if (saveData(STORAGE_KEYS.RECOVERY, existing)) showToast('✅ Recovery plan saved!');
+}
+
+function clearRecovery() {
+  document.getElementById('recovery-result').style.display = 'none';
+  window._currentPlan = null;
+}
+
+// ============================================================
+// TRACKER MODULE
+// ============================================================
+let trackerEntries = [];
+
+function initTracker() {
+  trackerEntries = loadData(STORAGE_KEYS.PROGRESS) || [];
+  renderWeekGrid();
+  if (trackerEntries.length > 0) updateTrackerMetrics();
+}
+
+function logWeeklyEntry() {
+  const week = +document.getElementById('t-week').value;
+  const lit = +document.getElementById('t-lit').value;
+  const num = +document.getElementById('t-num').value;
+  const existing = trackerEntries.findIndex(e => e.week===week);
+  if (existing >= 0) trackerEntries[existing] = {week,lit,num};
+  else trackerEntries.push({week,lit,num});
+  trackerEntries.sort((a,b)=>a.week-b.week);
+  saveData(STORAGE_KEYS.PROGRESS, trackerEntries);
+  renderWeekGrid();
+  updateTrackerMetrics();
+  showToast('✅ Week '+week+' entry logged!');
+}
+
+function renderWeekGrid() {
+  const grid = document.getElementById('week-grid');
+  if (!grid) return;
+  let html = '';
+  for (let w=1; w<=12; w++) {
+    const entry = trackerEntries.find(e=>e.week===w);
+    const avg = entry ? ((entry.lit+entry.num)/2).toFixed(1) : null;
+    const isGood = avg && avg >= 7;
+    html += `<div class="week-cell ${entry?'filled':''}${isGood?' good':''}">
+      <div class="week-num">W${w}</div>
+      <div class="week-score">${avg||'–'}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function updateTrackerMetrics() {
+  if (trackerEntries.length === 0) return;
+  const av = calcAccelVelocity(trackerEntries);
+  const baseline = trackerEntries[0] ? (trackerEntries[0].lit+trackerEntries[0].num)/2 : 5;
+  const latest = trackerEntries[trackerEntries.length-1];
+  const current = (latest.lit+latest.num)/2;
+  const cup = calcCatchUpProb(baseline, current, 10, trackerEntries.length, 12);
+  const onTrack = av >= 0.3 ? '✅ On Track' : av >= 0 ? '⚠️ Slow' : '🔴 Regressing';
+  const compShift = current - baseline;
+
+  document.getElementById('av-val').textContent = av >= 0 ? '+'+av : av;
+  document.getElementById('av-bar').style.width = Math.min(100, Math.max(0, (av+2)*25))+'%';
+  document.getElementById('cup-val').textContent = cup+'%';
+  document.getElementById('cup-bar').style.width = cup+'%';
+  document.getElementById('ot-val').textContent = onTrack;
+  document.getElementById('ot-bar').style.width = (av>=0.3?80:av>=0?50:20)+'%';
+  document.getElementById('cs-val').textContent = (compShift>=0?'+':'')+compShift.toFixed(1);
+  document.getElementById('cs-bar').style.width = Math.min(100,Math.max(0,(compShift+5)*10))+'%';
+
+  drawTrackerChart();
+
+  const riskHtml = cup < 40 ?
+    `<div class="risk-indicator risk-high"><div class="risk-icon">🚨</div><div class="risk-text"><div class="risk-label">High Risk: Catch-up probability below 40%</div><div class="risk-desc">Increase session frequency and consider 1:1 intervention</div></div></div>` :
+    cup < 65 ?
+    `<div class="risk-indicator risk-med"><div class="risk-icon">⚠️</div><div class="risk-text"><div class="risk-label">Moderate Progress: Continue monitoring closely</div><div class="risk-desc">Student is making progress but may need additional support</div></div></div>` :
+    `<div class="risk-indicator risk-low"><div class="risk-icon">✅</div><div class="risk-text"><div class="risk-label">On Track: Good catch-up trajectory</div><div class="risk-desc">Continue current interventions and maintain momentum</div></div></div>`;
+  document.getElementById('tracker-risk').innerHTML = riskHtml;
+}
+
+function drawTrackerChart() {
+  const canvas = document.getElementById('tracker-chart');
+  if (!canvas || trackerEntries.length === 0) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 320;
+  canvas.width = W; canvas.height = 220;
+  ctx.clearRect(0,0,W,220);
+
+  const pad = {t:20,r:20,b:40,l:40};
+  const cW = W-pad.l-pad.r, cH = 220-pad.t-pad.b;
+
+  // Background grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i=0; i<=5; i++) {
+    const y = pad.t + cH * (1 - i/5);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle = 'rgba(148,163,184,0.6)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText((i*2), pad.l-26, y+4);
+  }
+
+  const maxW = Math.max(...trackerEntries.map(e=>e.week));
+  const xScale = cW / Math.max(maxW-1, 1);
+
+  const drawLine = (data, color, label) => {
+    if (data.length < 2) return;
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.shadowColor = color; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    data.forEach((pt,i) => {
+      const x = pad.l + (pt.week-1)*xScale;
+      const y = pad.t + cH*(1-pt.val/10);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    // Dots
+    data.forEach(pt => {
+      const x = pad.l + (pt.week-1)*xScale;
+      const y = pad.t + cH*(1-pt.val/10);
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '9px sans-serif';
+      ctx.fillText(pt.val, x-6, y-8);
+    });
+  };
+
+  drawLine(trackerEntries.map(e=>({week:e.week,val:e.lit})), '#3b82f6', 'Literacy');
+  drawLine(trackerEntries.map(e=>({week:e.week,val:e.num})), '#10b981', 'Numeracy');
+
+  // X axis labels
+  ctx.fillStyle = 'rgba(148,163,184,0.7)';
+  ctx.font = '10px sans-serif';
+  trackerEntries.forEach(e => {
+    const x = pad.l + (e.week-1)*xScale;
+    ctx.fillText('W'+e.week, x-8, 220-8);
+  });
+
+  // Legend
+  ctx.fillStyle = '#3b82f6'; ctx.fillRect(W-90, 8, 12, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '10px sans-serif'; ctx.fillText('Literacy', W-75, 14);
+  ctx.fillStyle = '#10b981'; ctx.fillRect(W-90, 20, 12, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText('Numeracy', W-75, 26);
+}
+
+function clearTracker() {
+  trackerEntries = [];
+  saveData(STORAGE_KEYS.PROGRESS, []);
+  renderWeekGrid();
+  showToast('Tracker data cleared');
+}
+
+// ============================================================
+// FOUNDATIONS PAGES
+// ============================================================
+const FOUNDATION_PAGES = [
+  {
+    num: 1, title: 'Why Foundational Learning Matters',
+    sections: [
+      { h: 'The Critical Window of Learning', p: 'Research across neuroscience, developmental psychology, and education consistently shows that the earliest years of schooling – specifically ages 5 to 8 (Grades 1–3) – represent the most critical window for building foundational skills. The human brain during this period has extraordinary neuroplasticity, forming approximately 1 million new neural connections per second. When a child learns to recognise letters, blend sounds, or count objects during this window, these pathways become deeply embedded. If foundational literacy and numeracy are not established before the end of Grade 3, the learning gap does not merely persist – it compounds. Each subsequent year without foundational mastery adds layers of difficulty that become increasingly hard to address.' },
+      { h: 'The Cascade Effect of Learning Gaps', p: 'A child who cannot decode simple words by Grade 3 cannot read science or social studies textbooks in Grade 4. A child who lacks number sense by Grade 3 cannot grasp multiplication or fractions in Grade 4–5. This is not a matter of intelligence or effort – it is a matter of prerequisite knowledge. When foundational knowledge is absent, higher-order learning cannot be built. Teachers in upper primary grades often encounter students who appear to have "learning difficulties" when in reality, they simply were never given the foundational tools in the critical early years.' },
+      { h: 'Why Schools Must Prioritise FLN', p: 'The entire purpose of primary schooling depends on two core outcomes: the ability to read independently and the ability to do basic arithmetic. Every other subject – science, social studies, history, arts – depends on literacy. Every quantitative skill, every career pathway, every financial decision in adulthood depends on numeracy. Schools that skip or superficially address foundational learning in pursuit of syllabus coverage are undermining everything that follows. NEP 2020 makes this explicit: foundational literacy and numeracy are not subjects among others – they are the foundation upon which all other learning rests.' },
+      { h: 'Implementation Notes for Schools', p: 'Schools should conduct a whole-school audit of FLN achievement at the start of each year. Every teacher in Grade 1–5 should know which students have not yet achieved foundational literacy and numeracy milestones. This tool helps schools identify, document, and act on foundational gaps systematically.', isImpl: true }
+    ],
+    checklist: ['Audit FLN achievement at start of academic year','Identify all below-foundational students by Week 2','Assign each student to an appropriate intervention group','Brief all subject teachers on which students have foundational gaps','Communicate with parents of at-risk students within first month'],
+    reflection: 'Consider: How many students in your class/school currently lack basic decoding skills? What structures currently exist to identify and support these students? What would change if every teacher treated FLN as their core professional responsibility?'
+  },
+  {
+    num: 2, title: 'NEP 2020 & the FLN Mission',
+    sections: [
+      { h: 'What NEP 2020 Says About Foundational Learning', p: 'The National Education Policy 2020 dedicates an entire chapter (Chapter 2: Foundational Literacy and Numeracy) to what it calls "the most critical and urgent priority of the education system." The policy states unambiguously: "If this most basic learning – reading, writing, and basic arithmetic – is not achieved by Grade 3, by that point every child must be able to read and comprehend text and perform basic arithmetic operations." This is not aspirational language – it is a policy mandate backed by implementation frameworks, resource allocation, and outcome targets.' },
+      { h: 'NIPUN Bharat: The National Implementation Framework', p: 'In 2021, the Government of India launched NIPUN Bharat (National Initiative for Proficiency in Reading with Understanding and Numeracy) to operationalise the NEP 2020 FLN mandate. The mission sets specific, measurable targets for every grade level through Grade 3. By 2026–27, every child completing Grade 3 should be able to read text at 45–60 words per minute with comprehension, and perform basic arithmetic including addition, subtraction, and simple multiplication. These targets are not aspirational – they are the minimum threshold below which a student cannot be considered foundationally equipped.' },
+      { h: 'The 5-Year Strategic Plan', p: 'NEP 2020 and NIPUN Bharat envision a 5-year transformation: 2021–22 (Baseline assessment and teacher capacity building), 2022–23 (Implementation of FLN-aligned curriculum materials), 2023–24 (Scale-up of remedial interventions), 2024–25 (System-level monitoring and mid-course correction), 2025–26 (Achievement of universal foundational competency targets). Schools operating under the J&K School Education Department are subject to these timelines and targets.' },
+      { h: 'What This Means for Classroom Teachers', p: 'NEP 2020 places primary responsibility for FLN achievement on the classroom teacher, supported by school leadership and the education system. Teachers are expected to: use formative assessment daily to check foundational understanding, adjust instruction based on evidence of student learning, identify and refer struggling students for additional support, maintain accurate records of FLN competency for each student, and communicate regularly with parents about foundational learning progress.', isImpl: true }
+    ],
+    checklist: ['Understand the NIPUN Bharat competency targets for your grade level','Align your assessment practices with FLN benchmarks','Maintain a class-level FLN progress register','Report FLN achievement data to school leadership monthly','Participate in FLN professional development sessions'],
+    reflection: 'Reflect: Are the FLN targets set by NIPUN Bharat known to every teacher in your school? Is there a system to track progress toward these targets at the class, school, and cluster level? What would it take to ensure every child in your school reaches foundational literacy by Grade 3?'
+  },
+  {
+    num: 3, title: 'Consequences of Foundational Gaps',
+    sections: [
+      { h: 'What Happens When Children Miss FLN', p: 'When a child reaches Grade 4 or 5 without foundational literacy and numeracy skills, the consequences are far-reaching and often irreversible without intensive intervention. The learning gap does not stay the same – it widens. In Grade 4, a child without FLN skills cannot read the textbook. In Grade 5, they cannot solve word problems. In Grade 6, they cannot understand historical events described in paragraphs. By Grade 8, they may be functionally illiterate despite years of school attendance. This phenomenon – being in school but not learning – is what global education researchers call "the learning crisis."' },
+      { h: 'Long-Term Economic Impact', p: 'UNESCO and the World Bank have documented extensive evidence linking foundational learning gaps to lifetime earnings loss. A child who fails to achieve basic reading proficiency by age 10 is statistically likely to have significantly lower lifetime income than a peer who achieves the same milestones on schedule. For communities already experiencing poverty, the inability to read and calculate creates a generational poverty trap. Education is the primary mechanism for economic mobility, but only when it delivers actual foundational competencies – not just years of seat time.' },
+      { h: 'Social and Emotional Consequences', p: 'Children who struggle with reading and arithmetic in school do not simply have an academic problem – they have a social and emotional one too. Research consistently shows that students with foundational gaps experience higher rates of school anxiety, lower academic self-concept, avoidance of classroom participation, higher dropout risk, and social isolation from peers who can engage with grade-level content. Teachers who do not identify and address foundational gaps inadvertently allow these social-emotional wounds to deepen every year.' },
+      { h: 'Preventing the Consequences: The Case for Early Intervention', p: 'The most powerful evidence-based insight about foundational gaps is this: they are far easier to prevent and address early than to remediate later. A targeted 8-week intervention in Grade 2 can achieve what would require a full year of intensive support in Grade 5. Early identification and systematic intervention are not optional extras – they are the core work of foundational stage education.', isImpl: true }
+    ],
+    checklist: ['Identify all Grade 3+ students currently below FLN benchmarks','Document how long each gap has persisted','Calculate the urgency level for each student using the Diagnostic Module','Prioritise the most severe and longest-standing gaps for immediate intervention','Create a school-level register of all at-risk learners'],
+    reflection: 'Think about a student you know who struggled academically in upper primary. When did the gap first appear? Could it have been addressed earlier? What would that intervention have needed to look like?'
+  },
+  {
+    num: 4, title: 'Identifying Below-Grade-Level Learners',
+    sections: [
+      { h: 'Why Identification is the First Step', p: 'You cannot address what you have not identified. Many foundational gaps go unrecognised because: (1) teachers assume students at a particular grade level have the prerequisite skills of lower grades; (2) students who are quiet or compliant appear to be "on task" even when they cannot understand the material; (3) assessment practices focus on summative tests rather than ongoing formative observation. Systematic identification of below-grade-level learners is not a bureaucratic exercise – it is the foundational act of care and justice for every child in the classroom.' },
+      { h: 'Identification Methods for Literacy', p: 'Effective identification of literacy gaps uses multiple methods. Oral reading fluency checks (ask the student to read aloud from a grade-appropriate text and measure words per minute with accuracy). Letter recognition assessments (show flashcards of all letters in random order and note which the child cannot identify). Word reading tests (present lists of common words and note which the child cannot read). Comprehension conversations (read a paragraph aloud, then ask simple questions and observe whether the child can answer them). Daily observation (watch who cannot follow written instructions, who skips reading tasks, who needs constant peer support to navigate text).' },
+      { h: 'Identification Methods for Numeracy', p: 'Numeracy gap identification uses: Number recognition checks (show numbers 1–100 randomly and note errors). Oral arithmetic checks (ask the student to solve simple problems mentally, e.g., 7+5, 15–8). Written calculation observation (give a short arithmetic worksheet and observe process, not just results). Word problem response (read a one-step problem aloud and ask the student to solve it). Daily observation (who cannot complete basic computation tasks? who counts on fingers for single-digit addition in Grade 4+?).' },
+      { h: 'Using This Diagnostic Tool', p: 'The Learning Gap Diagnostic Module in this app operationalises these assessment methods into a structured scoring interface. Teachers rate each sub-domain based on direct assessment or careful observation. The system calculates a Foundational Gap Score, classifies the student by level (A–D), and generates targeted alerts. This tool is designed to be completed in 10–15 minutes per student and provides an immediate, actionable profile.', isImpl: true }
+    ],
+    checklist: ['Conduct oral reading fluency check for every student in Grades 1–5','Conduct number recognition and oral arithmetic check for all students','Record results in the Diagnostic Module for each student','Classify every student by FLN level (A–D) by end of first month','Share identification findings with school leadership'],
+    reflection: 'In your current class: do you know which students cannot read a simple sentence independently? Which students cannot add two single-digit numbers? How was this identified? Is there a system to update this information as the year progresses?'
+  },
+  {
+    num: 5, title: 'Literacy Recovery Framework',
+    sections: [
+      { h: 'The Architecture of Reading', p: 'To design an effective literacy recovery programme, teachers need a clear understanding of the architecture of reading – the component skills that, when assembled, produce a competent reader. The Simple View of Reading, supported by decades of cognitive science research, identifies two essential pillars: Decoding (the ability to recognise and sound out written words) and Language Comprehension (the ability to understand the meaning of language). Both pillars must be in place for reading comprehension to occur. Most children with foundational literacy gaps have a weakness in one or both pillars.' },
+      { h: 'Phonological Awareness and Phonics', p: 'The most evidence-supported approach to literacy intervention is systematic phonics instruction. Phonics builds the bridge between oral language (which most children bring to school) and written language (which they must learn to decode). Phonological awareness – the ability to hear and manipulate individual sounds (phonemes) in spoken words – is the prerequisite for phonics learning. Recovery programmes for the most severe literacy gaps (Level A learners) must begin with phonological awareness activities: rhyming, syllable clapping, initial sound identification, and phoneme blending.' },
+      { h: 'A Four-Stage Literacy Recovery Sequence', p: 'Stage 1 – Oral Language and Print Awareness (letter names, book handling, left-to-right reading direction). Stage 2 – Phonological Awareness and Phonics (sound-letter correspondences, blending and segmenting). Stage 3 – Word Reading and Fluency (sight words, decodable texts, oral reading fluency building). Stage 4 – Comprehension and Expression (literal and inferential comprehension, written response). Recovery programmes must start where the student is – not where the curriculum assumes they are.' },
+      { h: 'Multilingual Considerations in Kashmir Context', p: 'Students in Jammu & Kashmir bring diverse language backgrounds to school. Literacy recovery is most effective when it begins in the student\'s home language or the language they know best orally. Research supports a mother-tongue first approach: build oral fluency and print awareness in the familiar language before bridging to the language of instruction. Teachers should use storytelling, rhymes, and familiar vocabulary from students\' home languages as anchors for literacy instruction.', isImpl: true }
+    ],
+    checklist: ['Identify whether each struggling reader has a decoding gap or a comprehension gap','Begin phonological awareness activities for all Level A learners','Teach systematic phonics using structured decodable materials','Conduct daily 5-minute oral reading fluency practice','Use culturally familiar texts and oral storytelling in local languages'],
+    reflection: 'Think about your most struggling readers. Is their difficulty primarily with decoding (sounding out words) or with comprehension (understanding meaning)? Does your current intervention address the correct pillar of reading?'
+  },
+  {
+    num: 6, title: 'Numeracy Recovery Framework',
+    sections: [
+      { h: 'Understanding Number Sense', p: 'The foundation of all mathematical competency is number sense – the intuitive understanding of what numbers mean, how they relate to each other, and how operations change them. A student with weak number sense may be able to execute procedures (like adding columns of numbers) without any intuitive understanding of what the answer means. True mathematical recovery must build genuine number sense, not just procedural mimicry. This means using concrete objects, visual representations, and contextual problems before moving to abstract symbols.' },
+      { h: 'The CPA Progression in Numeracy Recovery', p: 'The most evidence-based approach to numeracy recovery is the Concrete–Pictorial–Abstract (CPA) progression developed by Singapore mathematics educators. Concrete: students manipulate physical objects (stones, sticks, counters) to represent mathematical relationships. Pictorial: students draw diagrams, number lines, and models to represent the same relationships. Abstract: students use symbols, equations, and algorithms. Students with numeracy gaps must begin at the concrete stage regardless of their age or grade. Jumping to abstract procedures without concrete understanding creates procedural learners who cannot solve unfamiliar problems.' },
+      { h: 'Key Numeracy Recovery Targets', p: 'Number recognition and counting (subitising, counting with one-to-one correspondence). Place value understanding (tens and ones, hundreds). Basic operations (addition, subtraction within 100; multiplication concept; division as sharing). Number relationships (more/less/equal; ordering; estimating). Word problem solving (identifying the operation needed; representing the problem concretely; checking the answer). Fraction concepts (equal parts; half; quarter). Each of these is addressed in the Numeracy section of the Diagnostic Module.' },
+      { h: 'Making Maths Concrete in Low-Resource Settings', p: 'Many schools in J&K have limited access to commercial mathematics manipulatives. However, numeracy recovery can be highly effective with locally available materials: pebbles and sticks for counting and place value, dried lentils or seeds for sorting and grouping, bottle caps for operations, graph paper cut into grids, and homemade number cards. Teachers who create a "maths corner" with these materials and use them daily with struggling learners can achieve significant gains without any purchased materials.', isImpl: true }
+    ],
+    checklist: ['Identify whether numeracy gaps are in number sense, operations, or problem solving','Use concrete materials for every new concept with Level A and B learners','Follow the CPA progression strictly – do not rush to abstract','Conduct daily 5-minute mental arithmetic warm-ups','Use local context (market prices, distances, cricket scores) for word problems'],
+    reflection: 'How much of your maths instruction with struggling learners uses concrete materials? When was the last time a struggling learner held objects in their hands to represent a mathematical concept? What prevents this from happening daily?'
+  },
+  {
+    num: 7, title: 'Diagnostic Assessment Design',
+    sections: [
+      { h: 'The Purpose of Diagnostic Assessment', p: 'Diagnostic assessment is fundamentally different from summative assessment. A summative test tells you whether a student has achieved a learning target – a grade, a pass/fail, a rank. A diagnostic assessment tells you why a student is struggling and where exactly the gap is located in the learning progression. For foundational learning recovery, diagnostic information is far more valuable than summative grades. A student who scores 32% on a Class 3 maths test tells you very little about what to teach them next. A diagnostic assessment that reveals they cannot recognise numbers above 20 tells you exactly where to begin.' },
+      { h: 'Principles of Effective Diagnostic Assessment in FLN', p: 'Granularity: assess individual sub-skills, not just global performance. Observation-based: use direct observation and one-on-one oral assessment, not just written tests. Low-stakes: create conditions where students are relaxed and willing to reveal what they don\'t know. Quick and repeatable: should take 5–15 minutes per student and be usable multiple times per term. Actionable: every diagnostic result should directly suggest an instructional response. Longitudinal: track the same dimensions over time to see growth.' },
+      { h: 'Using This App\'s Diagnostic Module', p: 'The Diagnostic Module rates students on 8 key sub-domains (4 literacy, 4 numeracy) on a 0–10 scale based on teacher observation or direct assessment. These ratings feed into deterministic algorithms that calculate the Foundational Gap Score (FGS), Gap Severity Index (GSI), and Acceleration Potential Score (APS). The system then classifies the student into Level A (Below Foundational), B (Emerging), C (Grade Ready), or D (Advanced) and generates targeted intervention alerts for any sub-domain below the threshold of 4/10.' },
+      { h: 'Frequency and Timing of Diagnostic Assessment', p: 'For foundational recovery purposes: Initial baseline diagnostic at the start of intervention, Progress diagnostic every 3–4 weeks during intervention, End-of-cycle diagnostic upon completion of recovery programme. Diagnostic assessment should never be used as a punishment or shared with students in ways that create shame. Results are tools for teacher planning and parent communication – not for labelling or ranking students.', isImpl: true }
+    ],
+    checklist: ['Conduct baseline diagnostic for all students before beginning recovery programme','Document results in this app\'s Diagnostic Module','Set 3–4 week intervals for progress diagnostics','Never share raw diagnostic scores with students in competitive ways','Use diagnostic data to form and regroup intervention groups'],
+    reflection: 'What assessment data do you currently collect that actually tells you where a student\'s understanding breaks down? How quickly does current assessment data translate into changed instruction? What is the gap between assessment and action?'
+  },
+  {
+    num: 8, title: 'Competency-Based Remediation',
+    sections: [
+      { h: 'What Is Competency-Based Remediation?', p: 'Competency-based remediation is the practice of designing instructional interventions that target specific, defined learning competencies rather than covering textbook chapters or completing syllabi. In a competency-based approach, a student moves to the next learning target only when they have demonstrated mastery of the current one. This is fundamentally different from the age/grade-based promotion system in which a student moves to the next class regardless of mastery. NEP 2020 explicitly endorses competency-based progression for the foundational stage.' },
+      { h: 'Mapping Competencies for Recovery', p: 'Effective remediation begins with a clear competency map: a sequence of foundational skills ordered from prerequisite to advanced. For literacy: letter recognition → phoneme awareness → CVC word decoding → sight words → fluent word reading → sentence reading → paragraph comprehension. For numeracy: number recognition → counting → operations concept → operations procedure → place value → word problems. Each step in the map is a competency – a specific, observable skill. Remediation works backward from where the student is currently struggling to find the first unmastered competency, then builds forward from there.' },
+      { h: 'Designing Competency-Targeted Activities', p: 'Once the target competency is identified, every activity in the intervention session should be designed to develop that specific competency. If the target is phoneme blending: the teacher models blending (/b/-/a/-/t/ → "bat"), students practise with picture-sound cards, students try independent blending with teacher feedback. The session is short, focused, and mastery-oriented – not a broad sweep of many topics. This "narrow and deep" approach produces faster mastery than "broad and shallow" coverage.' },
+      { h: 'Mastery Criteria and Progression Gates', p: 'Competency-based remediation requires clear mastery criteria: How do you know when a student has mastered a competency? Common criteria: 80% accuracy across 3 independent assessments, fluency at the expected rate for the age group, generalisation of the skill to new examples the student has not seen before. When mastery criteria are met, the student advances to the next competency in the map. This progression gate system prevents the "moving on before mastery" problem that created the foundational gap in the first place.', isImpl: true }
+    ],
+    checklist: ['Create a written competency sequence for your literacy recovery programme','Create a written competency sequence for your numeracy recovery programme','Identify the exact competency each student is currently working toward','Design session activities around a single target competency','Apply mastery criteria before moving a student to the next competency'],
+    reflection: 'Pick one student who is struggling with literacy. Starting from where they are now, can you map out the exact sequence of competencies they need to master to reach grade level? What is the first competency they have not yet mastered?'
+  },
+  {
+    num: 9, title: 'Small-Group Intervention Model',
+    sections: [
+      { h: 'Why Small Groups Work for FLN Recovery', p: 'The evidence base for small-group instruction in reading and mathematics recovery is robust and consistent. Meta-analyses of reading recovery programmes show that 1-to-3 teacher-student ratios produce effect sizes of 0.6–0.8 standard deviations – equivalent to an additional 8–12 months of learning in a single intervention cycle. Whole-class instruction simply cannot provide the intensive, targeted, responsive interaction that foundational gap recovery requires. Small groups allow teachers to monitor individual responses, adjust pace for individual learners, provide immediate corrective feedback, and create the psychological safety students need to take risks and make mistakes.' },
+      { h: 'Forming Effective Intervention Groups', p: 'Groups should be formed based on diagnostic data – students with similar profiles of foundational gaps should be grouped together. This allows the teacher to use the same instructional activities for the whole group. Groups should be small (2–6 students for maximum effectiveness; up to 10 as a practical compromise). Groups should be flexible and regularly reviewed – as students make progress, they should be regrouped. Groups should not become permanent ability labels – the goal is always to move students up and out of intervention as quickly as possible.' },
+      { h: 'Session Structure for Small-Group Intervention', p: 'Effective intervention sessions follow a consistent structure: (1) Warm-up review (3–5 min): practise a recently mastered skill to build fluency and confidence. (2) Introduction of new learning (5–8 min): teacher models the target competency explicitly. (3) Guided practice (8–10 min): students practise with teacher support and immediate feedback. (4) Independent practice (5 min): students practise independently while teacher observes. (5) Exit assessment (2 min): quick check for mastery of today\'s competency. Consistency in structure builds student confidence and reduces anxiety.' },
+      { h: 'Managing Small Groups Within a Larger Class', p: 'In typical Indian classroom contexts, managing small-group intervention while 30+ other students are present is a significant logistical challenge. Strategies: station rotation (divide class into stations; teacher works with intervention group while others work on independent or peer activities), flexible scheduling (use morning assembly time, break time, or after-school time for intensive small-group sessions), peer learning (pair grade-ready students with emerging students for structured reading partnerships), support staff (engage trained volunteers, parent helpers, or older students as reading partners).', isImpl: true }
+    ],
+    checklist: ['Form intervention groups by Week 2 based on diagnostic data','Assign a consistent meeting time for each group (daily preferred)','Use the structured session format consistently','Regroup students every 3–4 weeks based on progress','Document group composition and session notes'],
+    reflection: 'How many separate intervention groups could you realistically manage in your current teaching situation? What creative solutions could you use to provide intensive small-group instruction without neglecting the rest of the class?'
+  },
+  {
+    num: 10, title: 'Acceleration vs. Repetition',
+    sections: [
+      { h: 'The Problem with Repetition as Remediation', p: 'The most common instinct for teachers dealing with students who have not learned something is to repeat the same instruction again. If a student could not understand the explanation the first time, the assumption is that more of the same will eventually work. This approach is responsible for a significant amount of wasted intervention time. Research shows that simply repeating the same instructional approach at the same pace with the same materials rarely produces different learning outcomes. Students who failed to learn the first time have a specific gap that requires a specific response – not repetition.' },
+      { h: 'What Acceleration Really Means', p: 'Acceleration in the FLN context does not mean rushing students through content or skipping foundational steps. It means: (1) identifying the specific gap and targeting it precisely, (2) using a different instructional approach than what failed the first time, (3) increasing the intensity (time and frequency) of instruction without increasing the pace, (4) using concrete and contextual approaches that build genuine understanding rather than procedural mimicry, (5) providing immediate, specific, corrective feedback rather than general praise or criticism. Acceleration means closing the gap faster by working smarter – not just harder.' },
+      { h: 'Designing Accelerated Instruction', p: 'Accelerated instruction for FLN recovery involves: Identifying the exact point in the learning progression where the breakdown occurred. Selecting a different instructional modality (if written instruction failed, try oral/concrete). Increasing the density of practice (more brief, focused practice distributed across days rather than one long session). Using explicit, direct instruction rather than discovery for foundational skills. Providing multisensory engagement (visual + auditory + kinesthetic together). The Acceleration Velocity metric in this app\'s Tracker Module quantifies how rapidly a student is gaining competency per week – this is the most direct measure of whether the intervention is working.' },
+      { h: 'The Difference Between a Struggling and a Non-Learning Student', p: 'A student who is struggling is making progress, just slowly. A student who is non-learning is not making meaningful gains despite instruction. Non-learning triggers a programme change, not just more of the same. The Early Warning System in this app flags students whose Catch-Up Probability drops below 40% – these students need immediate review of their intervention approach, not simply continued repetition of the existing plan.', isImpl: true }
+    ],
+    checklist: ['Review whether current intervention uses the same or different approach as original instruction','Measure weekly growth to distinguish struggling from non-learning','Change approach when no growth is seen for 2+ consecutive weeks','Use at least two different modalities in every intervention session','Document which approaches produced growth for each student'],
+    reflection: 'Think of a student you have been trying to help with the same approach for several weeks without visible progress. What would a genuinely different approach look like? What is preventing you from trying it?'
+  },
+  {
+    num: 11, title: 'Time-Bound Recovery Cycles',
+    sections: [
+      { h: 'Why Recovery Must Be Time-Bound', p: 'Open-ended intervention without clear timelines is one of the most common failures in remedial education. When there is no defined end point, urgency disappears. Teachers continue low-intensity interventions indefinitely without reviewing whether they are working. Students remain in remedial groups for years without making meaningful progress. A time-bound recovery cycle creates accountability for both teacher and student: within X weeks, the student should achieve Y competency targets. If they have not, the programme is reviewed, not merely continued.' },
+      { h: 'The Three Recovery Cycle Durations', p: '4-Week Intensive Sprint: Used for students with narrow, specific gaps who have adequate baseline skills. High-intensity daily sessions. Suitable for students at Level B/C who need targeted reinforcement. 8-Week Standard Cycle: The standard recovery duration for most FLN gap cases. Allows time for genuine skill building with adequate practice and monitoring. Suitable for Level B students with multi-domain gaps. 12-Week Extended Recovery: Used for students with severe, multi-domain foundational gaps (Level A). Requires higher session frequency (5 days/week) and close monitoring. Mid-cycle review at Week 6 with plan adjustment if needed.' },
+      { h: 'Setting Milestones Within the Cycle', p: 'Each recovery cycle should be divided into 2–3 phases, each with specific competency milestones. Week 1–3 of an 8-week cycle: phonological awareness and letter-sound correspondences. Week 4–6: word reading and basic comprehension. Week 7–8: consolidation and end-of-cycle assessment. Milestones should be SMART: Specific, Measurable, Achievable (within the timeframe), Relevant (to the FLN target), and Time-bound. The Recovery Plan Studio in this app generates these milestones automatically based on the duration and focus area selected.' },
+      { h: 'End-of-Cycle Assessment and Transition Decision', p: 'At the end of each recovery cycle, the teacher should conduct a post-assessment using the same diagnostic framework as the baseline. Compare the Foundational Gap Score at the start and end. Based on the results: Level A → B transition: student has improved but needs another cycle. Level B → C transition: student has achieved emerging competency and needs consolidation support. Level C achievement: student is grade-ready and exits intensive intervention. No progress: programme review and possible referral for specialist assessment.', isImpl: true }
+    ],
+    checklist: ['Select appropriate cycle duration based on gap severity','Set specific milestones for each phase of the cycle','Conduct mid-cycle check-in at the halfway point','Complete post-assessment at end of cycle','Make explicit transition decision: exit, continue, or review'],
+    reflection: 'For a student currently in your intervention programme: What is the defined endpoint? What specific competency should they have mastered by that date? How will you know if the programme needs to change?'
+  },
+  {
+    num: 12, title: 'Teacher Strategies for Catch-Up',
+    sections: [
+      { h: 'High-Impact Instructional Strategies for FLN Recovery', p: 'Research consistently identifies a set of instructional strategies with the highest evidence base for foundational skills recovery. Explicit instruction: teacher clearly models the skill, explains the process step-by-step, and demonstrates thinking aloud. Worked examples: show students fully solved problems and walk through the reasoning before asking them to solve independently. Spaced practice: distribute practice across multiple short sessions rather than one long session (10 minutes daily beats 50 minutes weekly). Interleaved practice: mix different types of problems in a single session to strengthen retrieval. Retrieval practice: begin each session by asking students to recall what was learned in the previous session without looking at notes.' },
+      { h: 'Scaffolding and Gradual Release', p: 'The Gradual Release of Responsibility model (I do → We do → You do together → You do alone) is particularly effective for foundational skills instruction. When teaching phoneme blending: I do – the teacher blends a sound aloud ("Listen: /k/–/æ/–/t/ = cat"). We do – teacher and student blend together. You do together – student pairs practise blending while teacher circulates. You do alone – student blends independently while teacher observes and notes errors. The release of responsibility should be tied to evidence of readiness – not clock time.' },
+      { h: 'Feedback Strategies That Accelerate Learning', p: 'The quality and timing of feedback determines how quickly students progress. Immediate corrective feedback (in the moment, specific to the error) is more effective than delayed general feedback ("you got this wrong"). Specific feedback names the error precisely: not "that\'s wrong" but "you read that word as \'cat\' – look at the middle letter – what sound does \'o\' make here?" Positive error analysis: treat errors as information, not failure. Ask "what made you think that?" to understand the student\'s reasoning before correcting it.' },
+      { h: 'Low-Cost High-Impact Strategies in Resource-Limited Settings', p: 'Flash card drills for letter-sound correspondences. Sand tray writing for motor memory in letter formation. Clapping syllables for phonological awareness. Peer reading partnerships with decodable texts. Chanting multiplication facts to rhythm. Number line races for fact fluency. Story retelling for comprehension monitoring. All of these can be implemented daily with zero cost and significant impact.', isImpl: true }
+    ],
+    checklist: ['Use explicit modelling for every new competency introduced','Apply Gradual Release of Responsibility framework consistently','Provide immediate corrective feedback during guided practice','Use spaced practice (daily short sessions) rather than occasional long sessions','Implement at least one low-cost high-impact strategy daily'],
+    reflection: 'Which of the strategies described above do you use most? Which do you use least? What would it take to incorporate one new high-impact strategy into your intervention sessions this week?'
+  },
+  {
+    num: 13, title: 'Monitoring Recovery Progress',
+    sections: [
+      { h: 'Why Monitoring Is Non-Negotiable', p: 'Intervention without monitoring is activity without accountability. A teacher who conducts recovery sessions faithfully for 8 weeks but never measures whether students are making progress may have invested significant time and energy with no meaningful outcome. Monitoring is what converts effort into evidence and makes it possible to determine whether the intervention is working, what adjustments are needed, and when a student has achieved the targets and can exit the programme.' },
+      { h: 'Formative Assessment During Recovery Sessions', p: 'Daily formative assessment within sessions: observe each student during guided practice – who is getting it right consistently? Who is making the same errors repeatedly? Use exit slips (a 2-question check at the end of a session) to determine who is ready to move forward. Maintain a simple observation record: date, skill targeted, student performance (confident/uncertain/struggling). These daily records accumulate into a powerful longitudinal picture of each student\'s trajectory.' },
+      { h: 'Weekly Progress Measurement', p: 'The Acceleration Tracker in this app is designed for weekly progress logging. Each week, rate the student\'s literacy and numeracy scores on the 0–10 scale based on direct assessment and observation. The system calculates Acceleration Velocity (how fast they are gaining per week), Catch-Up Probability (whether they are on track to close the gap within the programme timeline), and On-Track Indicator (a simple green/amber/red status). These metrics should be reviewed weekly to make instructional decisions.' },
+      { h: 'When to Change the Intervention Programme', p: 'A programme change is warranted when: the Catch-Up Probability drops below 40% and holds there for 2+ weeks; the student shows no measurable gain across 3 consecutive weeks despite full participation; the student appears to have a sensory or cognitive barrier that may require specialist assessment; the student expresses consistent emotional distress or refusal related to the intervention sessions. A programme change does not mean giving up – it means finding a better approach. Document the change and its rationale.', isImpl: true }
+    ],
+    checklist: ['Log weekly scores in the Acceleration Tracker','Review Catch-Up Probability every two weeks','Maintain a daily observation note for each intervention student','Flag non-learning students (no gain in 3 weeks) for programme review','Share progress data with school leadership monthly'],
+    reflection: 'How often do you currently measure whether your intervention students are gaining skills? What would need to change to make weekly progress measurement a sustainable routine?'
+  },
+  {
+    num: 14, title: 'Avoiding Stigma in Remedial Programs',
+    sections: [
+      { h: 'The Stigma Problem in Remedial Education', p: 'One of the most serious unintended consequences of poorly designed remedial programmes is the stigma attached to participation. When students are visibly separated from their peers for "remedial" instruction, labelled with ability-based group names, required to use different materials, or treated by teachers with lowered expectations, the programme causes psychological harm alongside any academic benefit it may provide. Research shows that academically stigmatised students develop learned helplessness, reduced academic self-concept, and increased avoidance behaviour – all of which directly undermine learning.' },
+      { h: 'Designing Stigma-Free Intervention Systems', p: 'Use neutral or positive group names (never "slow learners," "backward class," or ability-ranked labels). Frame intervention as additional support, not remediation: "this is your special reading power session." Group students discreetly – avoid public announcements of group membership. Use the same physical space and materials as the rest of the class where possible. Ensure all students have mixed-ability partner activities so intervention groups are not the only peer interaction for struggling learners. Celebrate effort, process, and growth – never rank students by ability in front of peers.' },
+      { h: 'The Role of Teacher Expectations', p: 'Teacher expectation effects (the "Pygmalion Effect") are among the most well-documented phenomena in educational psychology. Teachers who believe a student is capable unconsciously provide more elaborate explanations, longer wait times, more encouragement, and more detailed feedback – all of which accelerate learning. Teachers who believe a student cannot learn often provide shorter interactions, lower-demand tasks, and less feedback. Students rapidly internalise these expectations and their performance conforms to them. For FLN recovery to work, teachers must genuinely believe – and act as if – every student in their intervention group can and will achieve foundational literacy and numeracy.' },
+      { h: 'Building Student Agency in Recovery', p: 'Students who have agency in their own learning recover faster. Let students track their own progress using simple visual tools. Celebrate small victories publicly. Give students choices within sessions (which word to read first, which problem to try). Ask students what helped them learn and what did not. When students feel like active participants in their own recovery rather than passive recipients of remediation, their engagement, persistence, and ultimately their outcomes improve dramatically.', isImpl: true }
+    ],
+    checklist: ['Audit current intervention language – eliminate all deficit framing','Use positive, neutral group names for all intervention groups','Ensure intervention students participate in mixed-ability activities daily','Model high expectations through the quality and quantity of feedback provided','Create student-visible progress tracking tools that celebrate growth'],
+    reflection: 'How do students in your school perceive participation in remedial programmes? Is it seen as shameful or as a normal, positive form of additional support? What would need to change to shift that perception?'
+  },
+  {
+    num: 15, title: 'Parent Engagement in Recovery',
+    sections: [
+      { h: 'Why Parents Are Partners in FLN Recovery', p: 'Research consistently shows that family involvement in foundational literacy and numeracy development is one of the strongest predictors of learning outcomes. A child whose parent asks them about what they learned in school today, reads with them for even 10 minutes in the evening, or supports their homework with interest and encouragement is far more likely to make rapid progress than a child whose learning life is entirely confined to school hours. For FLN recovery specifically, the 4–5 hours of daily out-of-school time are a significant opportunity that is wasted when parents are not engaged.' },
+      { h: 'Communicating Assessment Results to Parents', p: 'Most parents of struggling learners receive only negative feedback through summative reports, parent-teacher meetings, or complaint-based communication. FLN recovery requires a different approach: share the diagnostic profile in a strengths-based way ("Sana knows 18 of 26 letters and we are working on the remaining 8"). Set shared goals and timelines ("By the end of the month, she should recognise all 26 letters"). Provide simple home activities that parents can do regardless of their own literacy levels. Follow up at agreed intervals with progress updates.' },
+      { h: 'Home Learning Activities for FLN Recovery', p: 'Activities parents can do at home without materials: Read aloud to children daily (even in local language). Ask children to retell a story in their own words. Count objects together during daily activities (chai cups, stairs, vegetables). Ask "one more, one less" number questions in conversation. Point out letters in the environment (shop signs, packaging). Ask children to explain what they learned in school today – oral articulation of learning deepens retention.' },
+      { h: 'Engaging Non-Literate Parents in Foundational Learning', p: 'A significant proportion of parents in rural J&K may have limited literacy themselves. Parent engagement strategies must be inclusive: use phone calls rather than written notes, conduct home visits to demonstrate oral learning activities, train older siblings to serve as home learning partners, provide simple visual activity cards with pictures rather than text instructions. No child\'s recovery should be limited by their parent\'s educational level.', isImpl: true }
+    ],
+    checklist: ['Communicate diagnostic results to every at-risk student\'s parent within first 3 weeks','Provide each parent with 3 simple home activities matched to their child\'s gap','Send brief progress updates to parents monthly (SMS or verbal)','Invite parents to observe an intervention session at least once per term','Train parents of Level A learners in specific oral language activities'],
+    reflection: 'How are parents currently informed about whether their child has foundational gaps? Do parents know what to do at home to support literacy and numeracy development? What is the biggest barrier to meaningful parent engagement in your school context?'
+  },
+  {
+    num: 16, title: 'Equity in Learning Recovery',
+    sections: [
+      { h: 'The Equity Imperative', p: 'Learning recovery is not just an educational challenge – it is an equity challenge. The children most likely to have foundational gaps are also the children most likely to have experienced poverty, instability, limited access to books and educational resources, disrupted schooling due to conflict or disaster, disability, or marginalisation. These children are not failing to learn because of anything inherent to them – they are failing to learn because the system has not adapted to their realities. An equity lens on FLN recovery means recognising and explicitly addressing these systemic barriers, not just adding more instruction.' },
+      { h: 'Gender Equity in FLN Recovery', p: 'In many communities in J&K, girls face additional barriers to foundational learning: early domestic responsibilities that limit study time, social norms that undervalue girls\' education, lower expectations from family and sometimes from teachers, higher rates of school absenteeism. The Early Warning System in this app specifically tracks gender disparity in FLN performance as a monitoring indicator. Schools should regularly disaggregate their FLN data by gender and actively investigate any performance gaps. Girls who show foundational gaps often respond particularly well to same-gender peer learning partnerships and female teacher mentors.' },
+      { h: 'Socioeconomic Equity in Learning Recovery', p: 'Children from lower-income families are more likely to have: limited access to books and reading materials at home, parents who work long hours and cannot support home learning, nutritional deficiencies that affect cognitive function and energy, higher rates of stress and instability that impair learning, no access to private tuition that compensates for school-based gaps. Equitable FLN recovery acknowledges these realities and compensates for them through school-based structures: providing reading materials for home use, offering morning snacks for early arrivals in intervention sessions, scheduling sessions at times that do not conflict with children\'s household responsibilities.' },
+      { h: 'Children with Learning Disabilities in FLN Recovery', p: 'Some children will not respond to standard FLN recovery interventions because they have specific learning disabilities such as dyslexia (difficulty with phonological processing) or dyscalculia (difficulty with number sense). These children are not unmotivated or unintelligent – they have neurological differences that require specialised approaches. Signs that may suggest a learning disability: consistent difficulty with phonological tasks despite intensive phonics instruction, extreme difficulty with number-symbol correspondence despite concrete activities, significant discrepancy between oral language ability and literacy performance. Refer such children for specialist assessment through the district\'s inclusive education cell.', isImpl: true }
+    ],
+    checklist: ['Disaggregate all FLN data by gender, socioeconomic background, and attendance','Identify and explicitly address gender gaps in FLN performance','Provide reading materials for at-risk students to take home','Investigate potential learning disabilities for students who do not respond to standard interventions','Ensure no child is excluded from intervention due to any form of marginalisation'],
+    reflection: 'Who in your class is most likely to fall through the cracks of the school system? What specific barriers do they face? Is your FLN recovery programme designed to reach them, or does it assume a level of resource and stability they do not have?'
+  },
+  {
+    num: 17, title: 'Data-Informed Remedial Planning',
+    sections: [
+      { h: 'Moving from Intuition to Evidence', p: 'Experienced teachers develop strong intuitions about which students are struggling and what they need. These intuitions are valuable – but they are not sufficient for systematic, scalable FLN recovery. Intuition-based decisions tend to favour students who are visible (disruptive, confident, or otherwise demanding of attention) and overlook those who are quiet, compliant, and struggling invisibly. A data-informed approach ensures that every student\'s needs are systematically assessed, documented, and acted upon – not just those who are most visible.' },
+      { h: 'The Data Cycle for FLN Recovery', p: 'Step 1 – Collect: conduct diagnostic assessments and log scores. Step 2 – Analyse: calculate gap scores, severity indices, and acceleration potential. Step 3 – Plan: design recovery interventions based on the analysis. Step 4 – Implement: deliver planned interventions with fidelity. Step 5 – Monitor: log weekly progress data. Step 6 – Review: compare progress to targets; identify non-responders. Step 7 – Adjust: change programme elements that are not working. This cycle should operate at two levels: individual student level (weekly) and class/school level (monthly).' },
+      { h: 'What Data to Collect and How', p: 'Diagnostic sub-domain scores (8 dimensions, 0–10 scale). Foundational Gap Score and level classification. Weekly literacy and numeracy growth scores. Attendance (linked to learning loss calculation). Intervention participation (which students attended which sessions). Programme response (growing, stable, or declining trajectory). This app provides all the data structures needed to collect, store, and analyse these dimensions without any internet connection, using LocalStorage on the device.' },
+      { h: 'Using Data Without Creating Fear', p: 'A critical implementation note: data systems in schools can become tools of surveillance and blame rather than tools of support. Data collected on student FLN gaps should be used exclusively to improve instruction and support students – never to rank, shame, or punish teachers or students. School leaders should create psychological safety around data sharing: celebrate improvement and honest self-reporting more than high scores, and treat data as a collective professional tool rather than an individual performance metric.', isImpl: true }
+    ],
+    checklist: ['Establish a data collection routine (diagnostic + weekly progress)','Review class-level FLN data at staff meetings monthly','Use data to form and regroup intervention groups every 4 weeks','Document programme adjustments and their rationale','Share aggregate (anonymised) FLN data with parents at parent-teacher meetings'],
+    reflection: 'What data do you currently use to make decisions about which students need intervention? How regularly is this data updated? Who else in your school sees this data and uses it for planning?'
+  },
+  {
+    num: 18, title: 'Acceleration Beyond Grade Level',
+    sections: [
+      { h: 'The Goal Is Acceleration, Not Just Recovery', p: 'FLN recovery programmes that succeed in bringing students to grade level have achieved something significant – but they should not stop there. The ultimate goal is not merely to reach the starting line but to continue accelerating. A student who was two years behind grade level in Grade 3 and reaches grade level by the end of Grade 4 through intensive recovery is a success story – but that student now needs continued support to stay on track and ideally to advance beyond grade level. Acceleration thinking means always asking: what is the next competency this student should master?' },
+      { h: 'Enrichment for Level D Learners', p: 'Students who are already at the Advanced level (Level D, FGS 80+) also need attention in the FLN framework – not remediation, but enrichment and extension. These students are ready to serve as peer tutors, which benefits both them and their partners. They are ready for extension texts and complex comprehension tasks. They are ready for multi-step mathematical problem solving and pattern exploration. Neglecting advanced learners in the focus on foundational gaps is both educationally wasteful and a missed opportunity to mobilise classroom resources for whole-class learning.' },
+      { h: 'Sustaining Gains After Intervention Ends', p: 'Research on learning recovery consistently shows that gains made during intensive intervention can erode if the support is completely removed. Maintenance strategies after intensive intervention ends: regular inclusion in whole-class literacy and numeracy activities, ongoing monitoring using the Acceleration Tracker, periodic brief refresher sessions (monthly check-ins), reading habit cultivation through classroom libraries and reading challenges, maths habit cultivation through mental maths routines, and strong communication with next year\'s teacher about the student\'s history and what sustains their progress.' },
+      { h: 'From Recovery to Leadership', p: 'The most powerful long-term outcome of effective FLN recovery is when a student who struggled foundationally becomes a capable, confident learner who actively supports others. Peer tutoring by recovered learners is one of the most effective strategies in the FLN toolkit: it reinforces the tutor\'s own learning while benefiting the tutee. Schools that cultivate a culture where students support each other\'s learning create self-sustaining systems of foundational competency.', isImpl: true }
+    ],
+    checklist: ['Create a post-recovery monitoring plan for every student who exits intervention','Identify advanced learners for peer tutoring roles within 2 months of start of year','Establish classroom reading and maths enrichment activities for Level D students','Communicate recovery history to receiving teachers at year end','Build a culture of learning celebration that motivates continued growth'],
+    reflection: 'What happens to students in your school after they exit a remedial programme? Is there a maintenance plan? Is there a way to harness their progress to support other students? What would a "recovery to leadership" pathway look like in your context?'
+  },
+  {
+    num: 19, title: 'Sustainable FLN Systems',
+    sections: [
+      { h: 'Why Individual Effort Is Not Enough', p: 'The most dedicated, skilled, and caring individual teacher cannot sustain a long-term FLN recovery system alone. Without institutional structures – shared assessment tools, protected time for intervention, consistent professional development, supportive leadership, and system-level data collection – individual teacher efforts are heroic but unsustainable and non-scalable. The goal of FLN system building is to create institutional conditions in which high-quality foundational literacy and numeracy instruction is the default – not the exception created by exceptional individuals.' },
+      { h: 'Building School-Level FLN Structures', p: 'A sustainable FLN system at the school level requires: (1) A shared assessment framework used consistently by all teachers (this app provides one). (2) Protected intervention time in the school timetable (minimum 30 minutes daily). (3) A school-level FLN data register updated monthly. (4) Regular FLN-focused staff meetings where teachers review data and plan together. (5) School leadership that prioritises FLN in resource allocation, scheduling, and professional development. (6) A clearly defined pathway for students from identification through intervention to exit and maintenance.' },
+      { h: 'Professional Development for FLN Competency', p: 'Teachers cannot teach what they do not understand. Building a sustainable FLN system requires ongoing professional development in: diagnostic assessment methods, phonics and phonological awareness instruction, concrete mathematics teaching methods, small-group instructional management, data literacy (reading and using student performance data), and inclusive practices for diverse learners. The Foundation Pages in this app (all 20 chapters) constitute a self-directed professional development resource for teachers working in the FLN space.' },
+      { h: 'Cluster and District-Level FLN Systems', p: 'Individual school FLN efforts are multiplied when connected to cluster and district-level systems: cluster academic resource centres (CARCs) sharing diagnostic tools and intervention materials, district-level FLN data aggregation to identify systemic patterns, cross-school teacher learning communities sharing practices, district-level procurement of FLN teaching materials, and monitoring of school-level FLN achievement data against NIPUN Bharat targets. This app can contribute to cluster-level systems through its printable/exportable report feature.', isImpl: true }
+    ],
+    checklist: ['Advocate for protected intervention time in the school timetable','Propose monthly FLN data review meetings with school leadership','Share this tool with all primary section teachers in your school','Document your FLN practices to contribute to cluster-level sharing','Create a written school FLN policy with clear roles and responsibilities'],
+    reflection: 'What would need to change in your school\'s systems and culture for FLN recovery to become the default rather than an exceptional effort by individual teachers? Who are the allies and what are the barriers?'
+  },
+  {
+    num: 20, title: 'Designing School-Level Recovery Culture',
+    sections: [
+      { h: 'What Is a Recovery Culture?', p: 'A recovery culture in a school is a shared set of beliefs, practices, and institutional norms in which every child\'s foundational learning is treated as a collective responsibility, early identification of gaps is celebrated rather than avoided, intervention is normalised and destigmatised, progress is measured, celebrated, and acted upon, and no child is allowed to fall irreparably behind during the foundational years. Recovery culture does not emerge spontaneously – it is built deliberately by school leaders and teachers who refuse to accept foundational gaps as inevitable or irreversible.' },
+      { h: 'Leadership Behaviours That Build Recovery Culture', p: 'School leaders who build effective FLN recovery cultures: make FLN achievement data visible and discussable in staff meetings, protect intervention time from schedule disruptions, provide teachers with the tools, time, and training to identify and address gaps, celebrate evidence of student growth in foundational skills, model belief that every child can achieve foundational literacy and numeracy, and create accountability for FLN outcomes without creating punitive fear. Leadership walkthrough protocols that look specifically at evidence of FLN practice create positive pressure and professional learning simultaneously.' },
+      { h: 'Teacher Practices That Sustain Recovery Culture', p: 'Teachers who contribute to recovery culture: know their FLN data and use it for planning, conduct daily formative assessment and adjust instruction accordingly, collaborate with colleagues on challenging cases, communicate regularly with parents of at-risk students, celebrate student progress publicly and genuinely, maintain a growth mindset about every learner\'s potential, and treat their professional learning as an ongoing responsibility. This tool is designed to support and sustain exactly these practices.' },
+      { h: 'A Vision for FLN Achievement in Kashmir Schools', p: 'The teachers of the School Education Department of Jammu & Kashmir are working in a context of extraordinary complexity and challenge. Geographic remoteness, harsh winters, periodic disruptions, and resource constraints make educational practice demanding. And yet the children of J&K deserve exactly what every child deserves: a foundational education that equips them to read, calculate, think, and participate in the world. Every child who leaves Grade 3 able to read a paragraph independently and solve a basic arithmetic problem has been given a gift that no external force can take away. This tool is offered in service of that vision.', isImpl: false }
+    ],
+    checklist: ['Conduct a school culture audit: how do staff currently talk about struggling learners?','Share this app with school leadership with a proposal for school-level implementation','Begin tracking one class-level FLN metric consistently for one term','Organise a staff discussion on the school\'s FLN improvement goals','Write a personal commitment to one change you will make this week for your at-risk learners'],
+    reflection: 'What kind of school culture do you want to be part of? What is the one most powerful action you could take this week to move your classroom, department, or school closer to the FLN recovery culture described in this framework?'
+  }
+];
+
+let currentFPage = 0;
+
+function initFoundations() {
+  renderFoundationNav();
+  renderFoundationPage(0);
+}
+
+function renderFoundationNav() {
+  const nav = document.getElementById('foundation-nav');
+  if (!nav) return;
+  nav.innerHTML = FOUNDATION_PAGES.map((p,i) => `
+    <button class="fnav-btn ${i===currentFPage?'active':''}" onclick="renderFoundationPage(${i})">${p.num}</button>`).join('');
+}
+
+function renderFoundationPage(idx) {
+  currentFPage = idx;
+  renderFoundationNav();
+  document.getElementById('page-counter').textContent = `${idx+1}/20`;
+
+  const page = FOUNDATION_PAGES[idx];
+  const content = document.getElementById('foundation-content');
+
+  const sectionsHtml = page.sections.map(s => `
+    <div class="f-section">
+      <h3>${s.h}</h3>
+      <p>${s.p}</p>
+      ${s.isImpl ? `<div class="impl-note"><strong>📌 School Implementation:</strong> ${s.p.substring(0,80)}... See full content above.</div>` : ''}
+    </div>`).join('');
+
+  const checklistHtml = page.checklist ? `
+    <div class="f-section">
+      <h3>✅ Implementation Checklist</h3>
+      <ul class="checklist">${page.checklist.map(c=>`<li>${c}</li>`).join('')}</ul>
+    </div>` : '';
+
+  const reflectionHtml = page.reflection ? `
+    <div class="reflection-box">
+      <div class="r-label">🪞 Reflection Prompt</div>
+      <p>${page.reflection}</p>
+    </div>` : '';
+
+  content.innerHTML = `
+    <span class="page-num">Page ${page.num} of 20 · FLN Foundations</span>
+    <h2>${page.title}</h2>
+    ${sectionsHtml}
+    ${checklistHtml}
+    ${reflectionHtml}
+    <div style="height:16px"></div>
+  `;
+
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === FOUNDATION_PAGES.length - 1;
+  content.scrollTop = 0;
+  content.parentElement.scrollTop = 0;
+}
+
+function changeFPage(dir) {
+  const newIdx = currentFPage + dir;
+  if (newIdx >= 0 && newIdx < FOUNDATION_PAGES.length) renderFoundationPage(newIdx);
+}
+
+// ============================================================
+// EQUITY ANALYSIS
+// ============================================================
+function runEquityAnalysis() {
+  const litPct = +document.getElementById('eq-lit-pct').value;
+  const numPct = +document.getElementById('eq-num-pct').value;
+  const attend = +document.getElementById('eq-attend').value;
+  const genderGap = +document.getElementById('eq-gender').value;
+  const lossMonths = +document.getElementById('eq-loss').value;
+
+  const ewi = calcEWI(litPct, numPct, attend, genderGap, lossMonths);
+
+  document.getElementById('equity-result').style.display = 'block';
+  document.getElementById('ewi-val').textContent = ewi;
+  const pct = ewi+'%';
+  document.getElementById('ewi-ring').style.setProperty('--pct', pct);
+  document.getElementById('ewi-ring').style.background = `conic-gradient(${ewi>70?'#ef4444':ewi>45?'#f97316':'#10b981'} ${pct}, rgba(255,255,255,0.08) 0%)`;
+
+  const warnings = [];
+  if (litPct > 40) warnings.push({type:'high', msg:'Critical literacy gap: Over 40% of students below foundational in literacy'});
+  if (numPct > 40) warnings.push({type:'high', msg:'Critical numeracy gap: Over 40% of students below foundational in numeracy'});
+  if (attend < 75) warnings.push({type:'high', msg:'Attendance crisis: Class attendance below 75% amplifying learning loss'});
+  if (genderGap > 15) warnings.push({type:'med', msg:'Gender disparity detected: Significant performance gap between boys and girls'});
+  if (lossMonths > 6) warnings.push({type:'med', msg:'Extended learning loss: '+lossMonths+' months disruption requires extended recovery cycle'});
+
+  document.getElementById('equity-warnings').innerHTML = warnings.map(w => `
+    <div class="warning-card ${w.type==='med'?'medium':''}">
+      <div class="warning-title">${w.type==='high'?'🚨':'⚠️'} ${w.msg}</div>
+    </div>`).join('') || '<div class="risk-indicator risk-low"><div class="risk-icon">✅</div><div class="risk-text"><div class="risk-label">No critical warnings detected</div></div></div>';
+
+  const actions = [
+    ewi > 70 ? '🚨 Declare school-level FLN emergency and request cluster resource support' : null,
+    litPct > 35 ? '📖 Launch whole-school literacy drive with daily 30-minute reading time' : null,
+    numPct > 35 ? '🔢 Implement daily maths warm-up routine for all classes' : null,
+    attend < 75 ? '📋 Conduct home visits for chronically absent students' : null,
+    genderGap > 10 ? '👧 Form girls-only reading groups with female teacher facilitators' : null,
+    lossMonths > 6 ? '📅 Select 12-week extended recovery cycle for all Level A/B students' : null,
+    '📊 Update FLN registers and share data with cluster academic resource centre',
+    '📞 Contact parents of all at-risk students this week',
+    '🎯 Review and reassign intervention groups based on current diagnostic data'
+  ].filter(Boolean);
+
+  document.getElementById('equity-actions').innerHTML = actions.map(a => `
+    <div class="milestone-item">
+      <div class="m-check" onclick="toggleMilestone(this)"></div>
+      <div class="m-text" style="font-size:0.82rem;color:var(--soft)">${a}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function refreshDashboard() {
+  const diagData = loadData(STORAGE_KEYS.DIAGNOSTIC);
+  const progressData = loadData(STORAGE_KEYS.PROGRESS);
+  const body = document.getElementById('dashboard-body');
+  if (!body) return;
+
+  if (!diagData || diagData.length === 0) {
+    body.innerHTML = `<div class="card" style="text-align:center;padding:40px">
+      <div style="font-size:3rem;margin-bottom:12px">📊</div>
+      <p style="color:var(--muted)">No data yet. Run a diagnostic to populate the dashboard.</p>
+      <button class="btn-primary" onclick="showPage('page-diagnostic')" style="margin-top:16px;max-width:240px">Start Diagnostic</button>
+    </div>`;
+    return;
+  }
+
+  const latest = diagData[diagData.length-1];
+  const entries = progressData || [];
+  const av = calcAccelVelocity(entries);
+  const cup = entries.length > 1 ? calcCatchUpProb(entries[0]?(entries[0].lit+entries[0].num)/2:5, entries[entries.length-1]?(entries[entries.length-1].lit+entries[entries.length-1].num)/2:5, 10, entries.length, 12) : null;
+
+  body.innerHTML = `
+    <div class="card">
+      <div class="card-title"><span class="icon">👤</span>Latest Diagnostic</div>
+      <div class="report-row"><span class="rr-label">Student</span><span class="rr-val">${latest.name||'Not specified'}</span></div>
+      <div class="report-row"><span class="rr-label">Date</span><span class="rr-val">${latest.date}</span></div>
+      <div class="report-row"><span class="rr-label">FGS</span><span class="rr-val">${latest.fgs}/100</span></div>
+      <div class="report-row"><span class="rr-label">Level</span><span class="rr-val"><span class="level-badge level-${latest.level.toLowerCase()}">${latest.level}</span></span></div>
+      <div class="report-row"><span class="rr-label">Literacy</span><span class="rr-val">${latest.litScore}/100</span></div>
+      <div class="report-row"><span class="rr-label">Numeracy</span><span class="rr-val">${latest.numScore}/100</span></div>
+      <div class="report-row"><span class="rr-label">Gap Severity</span><span class="rr-val">${latest.gsi}/100</span></div>
+      <div class="report-row"><span class="rr-label">Diagnostics Saved</span><span class="rr-val">${diagData.length}</span></div>
+    </div>
+    ${entries.length > 0 ? `
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span>Acceleration Summary</div>
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-val">${entries.length}</div><div class="metric-name">Weeks Tracked</div></div>
+        <div class="metric-card"><div class="metric-val">${av >= 0 ? '+'+av : av}</div><div class="metric-name">Velocity/Week</div></div>
+        ${cup ? `<div class="metric-card"><div class="metric-val">${cup}%</div><div class="metric-name">Catch-Up Prob.</div></div>` : ''}
+        <div class="metric-card"><div class="metric-val">${((entries[entries.length-1].lit+entries[entries.length-1].num)/2).toFixed(1)}</div><div class="metric-name">Latest Score</div></div>
+      </div>
+    </div>` : '<div class="card"><p style="color:var(--muted);text-align:center">Log weekly progress in the Tracker to see acceleration data here.</p></div>'}
+    <button class="btn-secondary" onclick="clearAllData()" style="width:100%;margin-top:8px">🗑️ Clear All Data</button>
+  `;
+}
+
+// ============================================================
+// REPORT BUILDER
+// ============================================================
+function buildReport() {
+  document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-IN');
+  const diagData = loadData(STORAGE_KEYS.DIAGNOSTIC);
+  const progressData = loadData(STORAGE_KEYS.PROGRESS) || [];
+  const planData = loadData(STORAGE_KEYS.RECOVERY);
+  const el = document.getElementById('report-diagnostic-section');
+
+  if (!diagData || diagData.length === 0) return;
+  const d = diagData[diagData.length-1];
+  const level = getLevel(d.fgs);
+  const av = calcAccelVelocity(progressData);
+  const rsp = Math.min(95, d.fgs + (av * 8 * 1.2));
+
+  el.innerHTML = `
+    <div class="report-section">
+      <div class="report-section-title">🔬 Diagnostic Summary</div>
+      <div class="report-row"><span class="rr-label">Student Name</span><span class="rr-val">${d.name||'Not specified'}</span></div>
+      <div class="report-row"><span class="rr-label">Class / Grade</span><span class="rr-val">Class ${d.grade}</span></div>
+      <div class="report-row"><span class="rr-label">Assessment Date</span><span class="rr-val">${d.date}</span></div>
+      <div class="report-row"><span class="rr-label">Foundational Gap Score</span><span class="rr-val">${d.fgs}/100</span></div>
+      <div class="report-row"><span class="rr-label">Competency Level</span><span class="rr-val">${level.id} – ${level.name}</span></div>
+      <div class="report-row"><span class="rr-label">Literacy Score</span><span class="rr-val">${d.litScore}/100</span></div>
+      <div class="report-row"><span class="rr-label">Numeracy Score</span><span class="rr-val">${d.numScore}/100</span></div>
+      <div class="report-row"><span class="rr-label">Gap Severity Index</span><span class="rr-val">${d.gsi}/100</span></div>
+      <div class="report-row"><span class="rr-label">Acceleration Potential</span><span class="rr-val">${d.aps}/100</span></div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">⚠️ Identified Gaps</div>
+      ${d.scores.letter < 4 ? '<div class="report-row"><span class="rr-label">🚨</span><span class="rr-val" style="color:#fca5a5">Letter Recognition below threshold</span></div>' : ''}
+      ${d.scores.word < 4 ? '<div class="report-row"><span class="rr-label">🚨</span><span class="rr-val" style="color:#fca5a5">Word Reading below threshold</span></div>' : ''}
+      ${d.scores.ops < 4 ? '<div class="report-row"><span class="rr-label">🚨</span><span class="rr-val" style="color:#fca5a5">Basic Operations below threshold</span></div>' : ''}
+      ${d.scores.numrec < 4 ? '<div class="report-row"><span class="rr-label">🚨</span><span class="rr-val" style="color:#fca5a5">Number Recognition below threshold</span></div>' : ''}
+      ${d.fgs >= 60 ? '<div class="report-row"><span class="rr-label">✅</span><span class="rr-val" style="color:#6ee7b7">No critical threshold breaches</span></div>' : ''}
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">📈 Acceleration Projection</div>
+      <div class="report-row"><span class="rr-label">Current Velocity</span><span class="rr-val">${av >= 0 ? '+'+av : av} per week</span></div>
+      <div class="report-row"><span class="rr-label">Weeks of Data</span><span class="rr-val">${progressData.length}</span></div>
+      <div class="report-row"><span class="rr-label">Recovery Success Projection (8-wk)</span><span class="rr-val">${Math.round(rsp)}/100</span></div>
+      <div class="report-row"><span class="rr-label">Recommended Cycle</span><span class="rr-val">${d.fgs < 40 ? '12-Week Extended' : d.fgs < 60 ? '8-Week Standard' : '4-Week Sprint'}</span></div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">📞 Parent Communication Note</div>
+      <p style="font-size:0.82rem;color:var(--soft);line-height:1.8">
+        Dear Parent/Guardian,<br><br>
+        Your child ${d.name||'(student)'} has been assessed for foundational literacy and numeracy skills. 
+        The assessment shows a Foundational Gap Score of ${d.fgs}/100, placing them at Level ${level.id} (${level.name}). 
+        ${d.fgs < 60 ? 'We are providing targeted additional support to help your child build essential reading and number skills.' : 'Your child is progressing well. We will continue to monitor and support their learning.'}
+        We recommend ${d.fgs < 40 ? 'daily reading practice at home (10 minutes minimum) and oral number activities during daily routines.' : 'regular reading at home and encouraging your child to explain their school learning to you daily.'}
+        <br><br>Please contact us to discuss your child\'s progress at any time.<br><br>
+        Yours sincerely,<br>${'Teacher · School Education Dept., J&K'}
+      </p>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">📋 Monitoring Indicators</div>
+      <div class="report-row"><span class="rr-label">Next Diagnostic Due</span><span class="rr-val">4 weeks from ${d.date}</span></div>
+      <div class="report-row"><span class="rr-label">Group Assignment</span><span class="rr-val">${d.fgs < 40 ? 'Group A – Foundational Alert' : d.fgs < 60 ? 'Group B – Emerging' : 'Group C – Near Grade Ready'}</span></div>
+      <div class="report-row"><span class="rr-label">Weekly Log Required</span><span class="rr-val">Yes – every Monday</span></div>
+      <div class="report-row"><span class="rr-label">Parent Update Frequency</span><span class="rr-val">Monthly</span></div>
+    </div>
+  `;
+}
+
+// ============================================================
+// SMALL GROUP SCHEDULE
+// ============================================================
+function generateGroupSchedule() {
+  const group = document.getElementById('sg-group').value;
+  const freq = document.getElementById('sg-freq').value;
+  const dur = document.getElementById('sg-dur').value;
+  const days = freq === 'daily' ? 'Mon, Tue, Wed, Thu, Fri' : freq === '4' ? 'Mon, Tue, Thu, Fri' : 'Mon, Wed, Fri';
+  const totalMinWeekly = (freq==='daily'?5:freq==='4'?4:3) * dur;
+
+  const el = document.getElementById('sg-result');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title"><span class="icon">📅</span>Group ${group} Schedule</div>
+      <div class="report-row"><span class="rr-label">Group</span><span class="rr-val">Group ${group}</span></div>
+      <div class="report-row"><span class="rr-label">Session Days</span><span class="rr-val">${days}</span></div>
+      <div class="report-row"><span class="rr-label">Session Duration</span><span class="rr-val">${dur} minutes</span></div>
+      <div class="report-row"><span class="rr-label">Weekly Total</span><span class="rr-val">${totalMinWeekly} minutes</span></div>
+      <div class="report-row"><span class="rr-label">Monthly Total</span><span class="rr-val">${totalMinWeekly*4} minutes (~${(totalMinWeekly*4/60).toFixed(1)} hrs)</span></div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:10px">
+        📌 Suggested session time: 7:30–8:00 AM (before first period) or 12:30–1:00 PM (lunch break extension).
+        Ensure session is held in a low-distraction corner of the classroom.
+      </p>
+    </div>
+  `;
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(16,185,129,0.95);color:white;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:9999;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function printReport() {
+  window.print();
+}
+
+function clearAllData() {
+  if (confirm('Clear all saved data? This cannot be undone.')) {
+    Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+    showToast('All data cleared');
+    refreshDashboard();
+  }
+}
+
+// ============================================================
+// PWA & SERVICE WORKER
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+
+window.addEventListener('online', () => document.body.classList.remove('offline'));
+window.addEventListener('offline', () => document.body.classList.add('offline'));
+if (!navigator.onLine) document.body.classList.add('offline');
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initTracker();
+  renderWeekGrid();
+});
+</script>
+</body>
+</html>
