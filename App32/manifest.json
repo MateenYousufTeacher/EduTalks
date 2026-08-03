@@ -1,0 +1,25 @@
+{
+  "name": "NIPUN Bharat – FLN Mission Reader",
+  "short_name": "NIPUN",
+  "description": "National Initiative for Proficiency in Reading with Understanding and Numeracy – NEP 2020 & NCF 2023 aligned foundational literacy and numeracy mission reader by Mateen Yousuf, Teacher, SED J&K",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf8f0",
+  "theme_color": "#1a6fa8",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "en-IN",
+  "categories": ["education", "books"],
+  "icons": [
+    { "src": "icons/icon-72.png",  "sizes": "72x72",  "type": "image/png", "purpose": "maskable any" },
+    { "src": "icons/icon-96.png",  "sizes": "96x96",  "type": "image/png", "purpose": "maskable any" },
+    { "src": "icons/icon-128.png", "sizes": "128x128","type": "image/png", "purpose": "maskable any" },
+    { "src": "icons/icon-144.png", "sizes": "144x144","type": "image/png", "purpose": "maskable any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192","type": "image/png", "purpose": "maskable any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512","type": "image/png", "purpose": "maskable any" }
+  ],
+  "shortcuts": [
+    { "name": "Introduction", "url": "./index.html?chapter=introduction", "description": "Introduction to NIPUN Bharat" },
+    { "name": "Learning Outcomes", "url": "./index.html?chapter=learning-outcomes", "description": "Lakshya and Competency Benchmarks" }
+  ]
+}
