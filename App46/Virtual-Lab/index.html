@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Virtual Simulations — Geography Lab</title>
+<meta name="description" content="Virtual Geography Laboratory — 10 interactive simulations by Dr. Mateen Yousuf">
+<meta name="theme-color" content="#0D47A1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- 1. SPLASH / TITLE SCREEN -->
+  <div class="splash" id="splash">
+    <div class="stars" id="stars"></div>
+    <div class="logo-ring">🧪</div>
+    <h1>Virtual<br>Simulations</h1>
+    <div class="tagline">GEOGRAPHY LABORATORY</div>
+    <div class="credit">
+      Created by<br>
+      <b>Dr. Mateen Yousuf</b><br>
+      Teacher, School Education Department Kashmir
+    </div>
+    <div class="progress"><i></i></div>
+  </div>
+
+  <!-- App bar -->
+  <div class="appbar" id="appbar">
+    <button class="icon-btn" id="btnBack" style="display:none;">←</button>
+    <div class="title" id="appbarTitle">Virtual Simulations<small>Home Dashboard</small></div>
+    <button class="icon-btn" id="btnInfo">ⓘ</button>
+  </div>
+
+  <!-- Screens -->
+  <div class="screen" id="screen"></div>
+
+  <!-- Bottom nav -->
+  <div class="bottomnav" id="bottomnav">
+    <button data-nav="home" class="active"><span class="ico">🏠</span>Home</button>
+    <button data-nav="sims"><span class="ico">🧭</span>Simulations</button>
+    <button data-nav="favorites"><span class="ico">⭐</span>Favorites</button>
+    <button data-nav="history"><span class="ico">🕘</span>History</button>
+    <button data-nav="about"><span class="ico">ℹ️</span>About</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="js/registry.js"></script>
+<script src="js/shared.js"></script>
+<script src="js/simulations/projection.js"></script>
+<script src="js/simulations/gis.js"></script>
+<script src="js/simulations/timezone.js"></script>
+<script src="js/simulations/urban.js"></script>
+<script src="js/simulations/farm.js"></script>
+<script src="js/simulations/transport.js"></script>
+<script src="js/simulations/tourism.js"></script>
+<script src="js/simulations/culture.js"></script>
+<script src="js/simulations/glacier.js"></script>
+<script src="js/simulations/landplanner.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
