@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Economics Laboratory</title>
+<meta name="description" content="Explore Economics Through Interactive Virtual Simulations — a fully offline learning lab by Dr. Mateen Yousuf.">
+<meta name="theme-color" content="#0a1628">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="dark">
+
+<!-- ============================= APP LOADER ============================= -->
+<div class="app-loading" id="appLoading">
+  <div class="loader-ring"></div>
+  <p>Loading Virtual Economics Laboratory…</p>
+</div>
+
+<!-- ============================= OFFLINE BANNER ========================== -->
+<div class="offline-banner" id="offlineBanner">⚡ You're offline — Virtual Economics Laboratory works 100% without internet.</div>
+
+<!-- ============================= SPLASH / TITLE SCREEN ==================== -->
+<div class="splash" id="splash">
+  <canvas id="splashCanvas"></canvas>
+  <div class="splash-content">
+    <div class="splash-kicker">Virtual Simulations Series · Social Science</div>
+    <h1 class="splash-title">Virtual Economics<br>Laboratory</h1>
+    <p class="splash-sub">Explore Economics Through Interactive Virtual Simulations</p>
+
+    <div class="splash-dev">
+      <img src="assets/developer.jpg" alt="Portrait of Dr. Mateen Yousuf, developer of Virtual Economics Laboratory">
+      <div class="splash-dev-text">
+        <div class="by">Created by</div>
+        <div class="name">Dr. Mateen Yousuf</div>
+        <div class="role">Teacher · School Education Department, Kashmir</div>
+      </div>
+    </div>
+    <br>
+    <button class="splash-enter btn" id="enterAppBtn">Enter the Laboratory <span aria-hidden="true">→</span></button>
+    <div class="splash-hint">Installable · 100% Offline · No login required</div>
+  </div>
+</div>
+
+<!-- ============================= APP SHELL ============================= -->
+<div id="app" hidden>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">🧪</div>
+      <div class="brand-text">
+        <b>Econ Laboratory</b>
+        <span>by Dr. Mateen Yousuf</span>
+      </div>
+    </div>
+
+    <nav class="nav-group">
+      <button class="nav-item active" data-route="home"><span class="ic">🏠</span> Home</button>
+      <button class="nav-item" data-route="simulations"><span class="ic">🔬</span> All Simulations</button>
+      <button class="nav-item" data-route="dashboard"><span class="ic">📊</span> Progress Dashboard</button>
+      <button class="nav-item" data-route="handbook"><span class="ic">📘</span> Economics Handbook</button>
+      <button class="nav-item" data-route="quizcentre"><span class="ic">📝</span> Quiz Centre</button>
+      <button class="nav-item" data-route="glossary"><span class="ic">🔎</span> Glossary</button>
+    </nav>
+
+    <div class="nav-group">
+      <div class="nav-label">My Library</div>
+      <button class="nav-item" data-route="bookmarks"><span class="ic">🔖</span> Bookmarks</button>
+      <button class="nav-item" data-route="achievements"><span class="ic">🏆</span> Achievements</button>
+      <button class="nav-item" data-route="settings"><span class="ic">⚙️</span> Settings</button>
+      <button class="nav-item" data-route="about"><span class="ic">👤</span> About Developer</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span id="themeLabel">🌙 Dark Mode</span>
+        <button class="switch" id="themeSwitch" aria-label="Toggle light and dark theme"></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation">☰</button>
+      <div class="search-bar">
+        <span aria-hidden="true">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search simulations, terms, topics…" autocomplete="off">
+      </div>
+      <div class="topbar-right">
+        <div class="pill-stat" title="Learning streak">🔥 <b id="streakStat">0</b> day streak</div>
+        <div class="pill-stat" title="Experience points">⭐ <b id="xpStat">0</b> XP · Lv.<b id="levelStat">1</b></div>
+        <button class="icon-btn" id="fullscreenBtn" title="Full screen">⛶</button>
+      </div>
+    </div>
+
+    <!-- ===================== HOME VIEW ===================== -->
+    <section class="view" id="view-home">
+      <div class="hero-banner">
+        <canvas id="heroCanvas"></canvas>
+        <div class="hero-inner">
+          <div class="eyebrow">10 Premium Interactive Labs</div>
+          <h1>Learn economics by <em>running</em> the economy — not memorising it.</h1>
+          <p>Adjust real variables, watch markets move, manage budgets and banks, and see the graphs redraw instantly. Every lab is a hands-on experiment aligned with NEP 2020 competency-based learning.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-action="continue-learning">▶ Continue Learning</button>
+            <button class="btn btn-secondary" data-route="simulations">Browse all 10 labs</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div><div class="eyebrow">Snapshot</div><h2>Your Economics Dashboard</h2></div>
+      </div>
+      <div class="grid grid-4" id="dashStats"></div>
+
+      <div class="section-head mt-24">
+        <div><div class="eyebrow">Pick up where you left off</div><h2>Continue Learning</h2></div>
+      </div>
+      <div class="grid grid-3" id="continueGrid"></div>
+
+      <div class="section-head mt-24">
+        <div><div class="eyebrow">The Laboratory</div><h2>10 Premium Economics Simulations</h2></div>
+      </div>
+      <div class="grid grid-3" id="homeSimGrid"></div>
+    </section>
+
+    <!-- ===================== ALL SIMULATIONS VIEW ===================== -->
+    <section class="view" id="view-simulations" hidden>
+      <div class="section-head">
+        <div><div class="eyebrow">Laboratory Index</div><h2>All Simulations</h2><p>Ten complete interactive economics experiments, from markets to money.</p></div>
+      </div>
+      <div class="grid grid-3" id="allSimGrid"></div>
+    </section>
+
+    <!-- ===================== SIMULATION DETAIL VIEW ===================== -->
+    <section class="view" id="view-sim" hidden>
+      <div id="simRoot"></div>
+    </section>
+
+    <!-- ===================== PROGRESS DASHBOARD ===================== -->
+    <section class="view" id="view-dashboard" hidden>
+      <div class="section-head"><div><div class="eyebrow">Analytics</div><h2>Progress Dashboard</h2><p>Track mastery across all ten simulations.</p></div></div>
+      <div class="grid grid-4" id="dashStats2"></div>
+      <div class="glass-card mt-24">
+        <h3 class="mt-8" style="margin-bottom:14px;">Simulation Completion</h3>
+        <div id="progressList"></div>
+      </div>
+    </section>
+
+    <!-- ===================== HANDBOOK ===================== -->
+    <section class="view" id="view-handbook" hidden>
+      <div class="section-head"><div><div class="eyebrow">Reference</div><h2>Economics Handbook</h2><p>Core concepts, diagrams and worked examples across the curriculum.</p></div></div>
+      <div class="sim-layout">
+        <div class="controls-panel">
+          <div class="glass-card" id="handbookNav"></div>
+        </div>
+        <div class="glass-card" id="handbookContent"></div>
+      </div>
+    </section>
+
+    <!-- ===================== QUIZ CENTRE ===================== -->
+    <section class="view" id="view-quizcentre" hidden>
+      <div class="section-head"><div><div class="eyebrow">Assessment</div><h2>Quiz Centre</h2><p>10 adaptive questions per simulation — test your understanding.</p></div></div>
+      <div class="grid grid-3" id="quizCentreGrid"></div>
+    </section>
+
+    <!-- ===================== GLOSSARY ===================== -->
+    <section class="view" id="view-glossary" hidden>
+      <div class="section-head"><div><div class="eyebrow">A–Z</div><h2>Illustrated Glossary</h2><p>Search or browse every economics term used in the laboratory.</p></div></div>
+      <div class="glass-card">
+        <div class="search-bar w-full" style="max-width:100%;margin-bottom:16px;">
+          <span aria-hidden="true">🔍</span>
+          <input type="text" id="glossarySearch" placeholder="Search terms…">
+        </div>
+        <div class="az-nav" id="azNav"></div>
+        <div id="glossaryList"></div>
+      </div>
+    </section>
+
+    <!-- ===================== BOOKMARKS ===================== -->
+    <section class="view" id="view-bookmarks" hidden>
+      <div class="section-head"><div><div class="eyebrow">My Library</div><h2>Bookmarks</h2></div></div>
+      <div class="grid grid-3" id="bookmarksGrid"></div>
+    </section>
+
+    <!-- ===================== ACHIEVEMENTS ===================== -->
+    <section class="view" id="view-achievements" hidden>
+      <div class="section-head"><div><div class="eyebrow">Gamification</div><h2>Achievements &amp; Ranks</h2></div></div>
+      <div class="glass-card mb-16" style="margin-bottom:18px;">
+        <div class="flex items-center gap-12">
+          <div class="stat-card" style="flex:1;">
+            <div class="label">Economist Rank</div>
+            <div class="value" id="rankValue">Novice Trader</div>
+            <div class="progress-bar mt-8"><i id="rankProgress" style="width:0%"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-4" id="achievementsGrid"></div>
+    </section>
+
+    <!-- ===================== SETTINGS ===================== -->
+    <section class="view" id="view-settings" hidden>
+      <div class="section-head"><div><div class="eyebrow">Preferences</div><h2>Settings</h2></div></div>
+      <div class="glass-card" style="max-width:560px;">
+        <div id="settingsBody"></div>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT DEVELOPER ===================== -->
+    <section class="view" id="view-about" hidden>
+      <div class="section-head"><div><div class="eyebrow">Credits</div><h2>About the Developer</h2></div></div>
+      <div class="dev-page">
+        <div class="glass-card dev-photo-card">
+          <img src="assets/developer.jpg" alt="Portrait of Dr. Mateen Yousuf">
+          <h3>Dr. Mateen Yousuf</h3>
+          <p>Teacher, School Education Department, Kashmir</p>
+          <div class="flex gap-8 mt-16" style="justify-content:center;flex-wrap:wrap;">
+            <span class="tag micro">Economics Education</span>
+            <span class="tag macro">EdTech</span>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3 style="margin-bottom:10px;">Vision</h3>
+          <p class="muted" style="line-height:1.7;font-size:13.5px;margin-bottom:16px;">
+            Virtual Economics Laboratory was created to move economics teaching away from rote definitions and
+            towards inquiry: students should be able to move a slider, break a market, rebuild a budget, and
+            <em>feel</em> the trade-offs that economic actors face every day. The lab is built entirely offline so
+            it works reliably on shared classroom devices, smart boards and low-end Android phones across
+            Kashmir's schools — no data connection, login or cloud service required.
+          </p>
+          <ul class="summary-list">
+            <li>Experiential, inquiry-based learning over memorisation</li>
+            <li>Financial literacy and responsible economic citizenship for every student</li>
+            <li>Full alignment with NEP 2020 and Competency-Based Learning</li>
+            <li>Entrepreneurship education and evidence-based decision-making</li>
+            <li>Accessible design for CWSN learners and low-end devices</li>
+            <li>A single consistent design language across the whole Virtual Simulations ecosystem</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-note">Virtual Economics Laboratory · Version 1.0 · Built with HTML5, CSS3 &amp; Vanilla JavaScript · 100% Offline PWA</p>
+    </section>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="badge-toast" id="toast">
+  <div class="ic">🏆</div>
+  <div><b id="toastTitle">Achievement unlocked</b><span id="toastBody"></span></div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/econ-models.js"></script>
+<script src="js/simulations/demand-supply.js"></script>
+<script src="js/simulations/market-equilibrium.js"></script>
+<script src="js/simulations/inflation.js"></script>
+<script src="js/simulations/banking.js"></script>
+<script src="js/simulations/gdp.js"></script>
+<script src="js/simulations/budget.js"></script>
+<script src="js/simulations/taxation.js"></script>
+<script src="js/simulations/trade.js"></script>
+<script src="js/simulations/consumer.js"></script>
+<script src="js/simulations/entrepreneurship.js"></script>
+<script src="js/glossary-data.js"></script>
+<script src="js/handbook-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
