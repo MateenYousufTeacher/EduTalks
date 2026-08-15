@@ -1,0 +1,15 @@
+{
+  "name": "Virtual Simulations - Biology Laboratory",
+  "short_name": "VirtualSims Bio",
+  "description": "Offline Virtual Biology Laboratory by Dr. Mateen Yousuf, School Education Department Kashmir",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0D47A1",
+  "theme_color": "#0D47A1",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

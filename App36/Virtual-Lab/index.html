@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Simulations — Biology Laboratory</title>
+<meta name="description" content="Offline Virtual Biology Laboratory by Dr. Mateen Yousuf, School Education Department, Kashmir">
+<meta name="theme-color" content="#0D47A1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= SPLASH SCREEN ================= -->
+  <section id="splash-screen" class="screen active">
+    <div>
+      <h1 class="splash-title">Virtual<span>Simulations</span></h1>
+      <p class="splash-sub">A Virtual Biology Laboratory · Classes VI–XII</p>
+      <div class="splash-photo-wrap">
+        <img src="assets/dr-mateen.jpg" alt="Dr. Mateen Yousuf">
+      </div>
+      <div class="splash-name">Created by Dr. Mateen Yousuf</div>
+      <div class="splash-role">Teacher · School Education Department, Kashmir</div>
+      <button class="splash-enter" id="btn-enter">Enter Laboratory</button>
+      <div class="splash-progress" id="splash-progress">Loading offline laboratory…</div>
+    </div>
+  </section>
+
+  <!-- ================= MAIN SHELL ================= -->
+  <section id="main-shell" class="screen">
+    <header class="topbar" id="topbar">
+      <button class="icon-btn" id="btn-back" style="display:none;" aria-label="Back">←</button>
+      <h1 id="topbar-title">Virtual Simulations</h1>
+      <button class="icon-btn" id="btn-info" aria-label="About">ℹ</button>
+    </header>
+
+    <main id="view-root" class="content" tabindex="-1"></main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-btn active" data-route="home"><span class="ic">🏠</span>Home</button>
+      <button class="nav-btn" data-route="simulations"><span class="ic">🧪</span>Simulations</button>
+      <button class="nav-btn" data-route="favorites"><span class="ic">⭐</span>Favorites</button>
+      <button class="nav-btn" data-route="profile"><span class="ic">👤</span>Profile</button>
+    </nav>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/simulations.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
