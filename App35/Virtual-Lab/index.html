@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Biology Laboratory — Dr. Mateen Yousuf</title>
+<meta name="description" content="Explore Life Through Interactive Virtual Simulations">
+<meta name="theme-color" content="#0D47A1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ SPLASH / TITLE SCREEN ============ -->
+<section id="splash" class="screen active">
+  <canvas id="splashCanvas"></canvas>
+  <div class="splash-inner">
+    <div class="splash-text">
+      <span class="splash-eyebrow">🧪 Offline Progressive Web App</span>
+      <h1 class="splash-title">Virtual<br>Biology<br>Laboratory</h1>
+      <p class="splash-subtitle">Explore Life Through Interactive Virtual Simulations — ten laboratory-grade experiments in your browser, no internet required.</p>
+
+      <div class="dev-credit">
+        <img src="assets/developer.jpg" alt="Portrait of Dr. Mateen Yousuf">
+        <div class="dev-credit-text">
+          <div class="label">Created by</div>
+          <div class="name">Dr. Mateen Yousuf</div>
+          <div class="role">Teacher · School Education Department, Kashmir</div>
+        </div>
+      </div>
+
+      <button class="enter-btn" onclick="enterApp()">Enter Laboratory →</button>
+    </div>
+
+    <div class="splash-portrait">
+      <div class="ring"></div>
+      <img src="assets/developer.jpg" alt="Dr. Mateen Yousuf">
+      <div class="badge">Dr. Mateen Yousuf</div>
+    </div>
+  </div>
+  <div class="splash-foot">Classes VI–XII · Teachers · DIET Faculty · Science Clubs — 100% Offline</div>
+</section>
+
+<!-- ============ HOME DASHBOARD ============ -->
+<section id="home" class="screen">
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> Virtual Biology Lab</div>
+    <div class="searchbar">
+      <span>🔍</span>
+      <input id="searchInput" type="text" placeholder="Search simulations, topics, terms…">
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="themeBtn" title="Toggle theme">🌓</button>
+      <button class="icon-btn" id="installBtn" style="display:none" onclick="installApp()" title="Install App">⬇</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="hero">
+      <div class="hero-orb"></div>
+      <h1>Welcome back, Explorer 🌿</h1>
+      <p>Ten premium interactive simulations covering cells, plants, the human body, genetics and ecosystems — built for classroom teaching and self-paced discovery.</p>
+      <div class="stats">
+        <div class="stat"><b id="statXP">0</b><span>Total XP</span></div>
+        <div class="stat"><b id="statDone">0/10</b><span>Labs Completed</span></div>
+        <div class="stat"><b id="statStreak">1</b><span>Day Streak</span></div>
+        <div class="stat"><b id="statRank">Curious Beginner</b><span>Explorer Rank</span></div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>🔬 10 Premium Simulations</h2></div>
+    <div class="grid" id="simGrid"></div>
+
+    <div class="section-title"><h2>★ Bookmarked</h2></div>
+    <div class="grid" id="bookmarkGrid"></div>
+
+    <div class="section-title"><h2>📚 Study Tools</h2></div>
+    <div class="grid">
+      <div class="card" onclick="showScreen('handbook')" style="cursor:pointer">
+        <div class="icon" style="background:#1976D2">📘</div>
+        <h3>Biology Handbook</h3>
+        <p>Quick-reference notes on organelles, systems & classification.</p>
+      </div>
+      <div class="card" onclick="showScreen('anatomy')" style="cursor:pointer">
+        <div class="icon" style="background:#E53935">🫀</div>
+        <h3>Interactive Human Anatomy</h3>
+        <p>Explore all 8 organ systems layer by layer.</p>
+      </div>
+      <div class="card" onclick="showScreen('glossary')" style="cursor:pointer">
+        <div class="icon" style="background:#43A047">🔤</div>
+        <h3>Glossary</h3>
+        <p>Illustrated A–Z of biological terms with examples.</p>
+      </div>
+      <div class="card" onclick="showScreen('quizcentre')" style="cursor:pointer">
+        <div class="icon" style="background:#FFB300">📝</div>
+        <h3>Quiz Centre</h3>
+        <p>Test yourself across every simulation topic.</p>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottomnav">
+    <button class="active" data-target="home"><span class="ic">🏠</span>Home</button>
+    <button data-target="handbook"><span class="ic">📘</span>Handbook</button>
+    <button data-target="anatomy"><span class="ic">🫀</span>Anatomy</button>
+    <button data-target="achievements"><span class="ic">🏆</span>Awards</button>
+    <button data-target="about"><span class="ic">👤</span>About</button>
+  </nav>
+</section>
+
+<!-- ============ SIMULATION SCREEN ============ -->
+<section id="simscreen" class="screen">
+  <div class="sim-header">
+    <button class="backbtn" onclick="backToHome()">←</button>
+    <h2 id="simTitle">Simulation</h2>
+  </div>
+  <div id="simBody"></div>
+</section>
+
+<!-- ============ BIOLOGY HANDBOOK ============ -->
+<section id="handbook" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>Biology Handbook</h2></div>
+  <main class="container">
+    <div class="grid">
+      <div class="panel"><h3><span class="tag"></span>Cell Organelles</h3><p style="font-size:13px;line-height:1.7">Nucleus — control centre, holds DNA.<br>Mitochondria — powerhouse, releases energy via respiration.<br>Chloroplast — site of photosynthesis (plants only).<br>Golgi body — packages & ships proteins.<br>Ribosomes — protein synthesis.<br>Vacuole — storage of water, ions, waste.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Human Organ Systems</h3><p style="font-size:13px;line-height:1.7">Digestive, Respiratory, Circulatory, Nervous, Excretory, Endocrine, Skeletal, Muscular — each maintains homeostasis and works with the others.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Plant Tissues</h3><p style="font-size:13px;line-height:1.7">Xylem — transports water & minerals upward (dead cells).<br>Phloem — transports food, mainly sugars (living cells).<br>Meristem — actively dividing growth tissue.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Genetics Basics</h3><p style="font-size:13px;line-height:1.7">Gene — unit of heredity. Allele — version of a gene. Dominant allele masks recessive in heterozygotes. Genotype = genetic makeup; Phenotype = observable trait.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Classification Levels</h3><p style="font-size:13px;line-height:1.7">Kingdom → Phylum → Class → Order → Family → Genus → Species.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Measurement Units</h3><p style="font-size:13px;line-height:1.7">Cell size: micrometres (µm). Heart rate: beats per minute (bpm). Blood pressure: mmHg. Body temperature: °C.</p></div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ ANATOMY EXPLORER ============ -->
+<section id="anatomy" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>Interactive Human Anatomy</h2></div>
+  <main class="container" id="anatomyBody"></main>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section id="glossary" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>Glossary</h2></div>
+  <main class="container" id="glossaryBody"></main>
+</section>
+
+<!-- ============ QUIZ CENTRE ============ -->
+<section id="quizcentre" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>Quiz Centre</h2></div>
+  <main class="container">
+    <p style="color:var(--text-soft); margin-bottom:16px">Each simulation carries its own 10-question adaptive quiz. Open any simulation and scroll to the Mini Quiz panel to attempt it.</p>
+    <div class="grid" id="quizGrid"></div>
+  </main>
+</section>
+
+<!-- ============ ACHIEVEMENTS ============ -->
+<section id="achievements" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>Achievements</h2></div>
+  <main class="container">
+    <div class="hero"><h1>🏆 Your Lab Journey</h1><p>Earn XP by completing simulations and quizzes. Reach Master Biologist rank!</p>
+      <div class="stats">
+        <div class="stat"><b id="ach_xp">0</b><span>Total XP</span></div>
+        <div class="stat"><b id="ach_rank">Curious Beginner</b><span>Current Rank</span></div>
+      </div>
+    </div>
+    <div class="grid" id="badgeGrid"></div>
+  </main>
+</section>
+
+<!-- ============ ABOUT / DEVELOPER PAGE ============ -->
+<section id="about" class="screen">
+  <div class="sim-header"><button class="backbtn" onclick="backToHome()">←</button><h2>About the Developer</h2></div>
+  <main class="container">
+    <div class="panel" style="display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+      <img src="assets/developer.jpg" alt="Dr. Mateen Yousuf" style="width:160px;height:160px;object-fit:cover;border-radius:24px;box-shadow:var(--shadow-lg);">
+      <div style="flex:1; min-width:240px;">
+        <h2 style="font-size:26px;">Dr. Mateen Yousuf</h2>
+        <p style="color:var(--text-soft); margin-top:4px;">Teacher, School Education Department, Kashmir</p>
+        <div class="badge-row" style="margin-top:12px;">
+          <span class="b">NEP 2020 Aligned</span><span class="b">Competency-Based Learning</span><span class="b">Constructivist Pedagogy</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:18px;">
+      <div class="panel"><h3><span class="tag"></span>Vision</h3><p style="font-size:13px;line-height:1.7">To transform biology education from passive memorisation into active, inquiry-based exploration — giving every student, regardless of resources, access to a fully-equipped virtual laboratory.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Why Virtual Laboratories</h3><p style="font-size:13px;line-height:1.7">Virtual labs let students repeat experiments safely, manipulate variables freely, and visualise microscopic and internal processes that a physical classroom lab cannot show.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Pedagogy</h3><p style="font-size:13px;line-height:1.7">Built on constructivist and competency-based principles: students form hypotheses, test them, observe outcomes, and construct understanding through guided discovery — directly aligned with NEP 2020.</p></div>
+      <div class="panel"><h3><span class="tag"></span>Environmental & Scientific Literacy</h3><p style="font-size:13px;line-height:1.7">Modules on ecosystems and plant biology build environmental awareness alongside core scientific literacy and lab skills.</p></div>
+    </div>
+  </main>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script src="js/simulations/cell.js"></script>
+<script src="js/simulations/photosynthesis.js"></script>
+<script src="js/simulations/digestive.js"></script>
+<script src="js/simulations/respiratory.js"></script>
+<script src="js/simulations/circulatory.js"></script>
+<script src="js/simulations/nervous.js"></script>
+<script src="js/simulations/planttransport.js"></script>
+<script src="js/simulations/genetics.js"></script>
+<script src="js/simulations/ecosystem.js"></script>
+<script src="js/simulations/reproduction.js"></script>
+<script src="js/extras.js"></script>
+</body>
+</html>
