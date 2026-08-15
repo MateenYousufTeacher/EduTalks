@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Stellar Spectroscope — Virtual Astronomy Laboratory</title>
+<meta name="description" content="Decode starlight and discover what stars are made of. An interactive stellar spectroscopy laboratory.">
+<meta name="theme-color" content="#0a1128">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="starfield"></div>
+<div id="app">
+
+  <!-- ============ SPLASH ============ -->
+  <section id="screen-splash" class="screen active">
+    <div class="splash-ring">
+      <svg class="splash-prism" viewBox="0 0 24 24" fill="none" stroke="#26C6DA" stroke-width="1.4">
+        <path d="M12 2 L20 8 L17 21 L7 21 L4 8 Z" stroke-linejoin="round"/>
+        <path d="M4 8 H20" stroke-opacity=".5"/>
+        <path d="M12 2 L12 21" stroke-opacity=".3"/>
+      </svg>
+    </div>
+    <h1 class="splash-title">Virtual<br>Simulations</h1>
+    <p class="splash-subtitle">STELLAR SPECTROSCOPE — Decode Starlight and Discover What Stars Are Made Of</p>
+    <p class="splash-meta">Simulation 01 · Virtual Astronomy Laboratory Series<br>
+       Created by <b>Dr. Mateen Yousuf</b><br>Teacher, School Education Department Kashmir</p>
+    <button class="btn-enter" id="btn-enter-lab">Enter Observatory</button>
+    <div class="splash-tag">100% Offline · Works Without Internet</div>
+  </section>
+
+  <!-- ============ HOME DASHBOARD ============ -->
+  <section id="screen-home" class="screen">
+    <div class="appbar">
+      <div class="appbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
+      </div>
+      <div class="appbar-titles">
+        <p class="appbar-title">Virtual Simulations</p>
+        <p class="appbar-subtitle">Stellar Spectroscope Laboratory</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="home-hero">
+        <svg class="home-hero-icon" viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="20" width="40" height="10" rx="2" fill="url(#g1)"/>
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0D47A1"/><stop offset=".5" stop-color="#26C6DA"/><stop offset="1" stop-color="#FFB300"/>
+          </linearGradient></defs>
+          <circle cx="24" cy="10" r="5" fill="#FFECB3"/>
+        </svg>
+        <div>
+          <h2>Read the Light of a Star</h2>
+          <p>Every star broadcasts its temperature and chemistry in the light it emits. Split that light with a spectroscope, and the story becomes readable.</p>
+        </div>
+      </div>
+
+      <div class="stat-strip" id="home-stats"></div>
+
+      <div class="section-label">Choose an Activity</div>
+      <div class="mode-grid">
+        <button class="mode-card blue" data-goto="lab" data-mode="free">
+          <span class="m-tag">01</span>
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 2 3h16a2 2 0 0 0 2-3l-6-10V3"/></svg></span>
+          <h3>Free Exploration</h3>
+          <p>Select any star, split its light, and identify elements at your own pace.</p>
+        </button>
+        <button class="mode-card green" data-goto="lab" data-mode="guided">
+          <span class="m-tag">02</span>
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <h3>Guided Experiment</h3>
+          <p>A step-by-step walkthrough of the Sun's spectrum with expert narration.</p>
+        </button>
+        <button class="mode-card amber" data-goto="challenge">
+          <span class="m-tag">03</span>
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M9 21h6M10 15l-1.5 6M14 15l1.5 6M4 4h16v4a8 8 0 0 1-16 0V4Z"/></svg></span>
+          <h3>Challenge Mode</h3>
+          <p>An unknown star. Analyse its spectrum and identify its elements for a score.</p>
+        </button>
+        <button class="mode-card blue" data-goto="compare">
+          <span class="m-tag">04</span>
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 3 3 5-8"/></svg></span>
+          <h3>Compare Spectra</h3>
+          <p>Overlay two stars' spectra side by side and spot the differences.</p>
+        </button>
+      </div>
+
+      <div class="section-label">Learn</div>
+      <div class="mode-grid">
+        <button class="mode-card green" data-goto="about">
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+          <h3>Concept &amp; Vocabulary</h3>
+          <p>What is spectroscopy, and how do astronomers read starlight?</p>
+        </button>
+        <button class="mode-card blue" data-goto="notebook">
+          <span class="m-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></span>
+          <h3>Observation Notebook</h3>
+          <p>Review lines you've identified and your written notes.</p>
+        </button>
+      </div>
+    </div>
+
+    <nav class="bottom-nav" id="bottom-nav"></nav>
+  </section>
+
+  <!-- ============ LAB (Free Exploration / Guided) ============ -->
+  <section id="screen-lab" class="screen">
+    <div class="appbar">
+      <button class="back-btn" data-back><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="appbar-titles">
+        <p class="appbar-title" id="lab-title">Free Exploration</p>
+        <p class="appbar-subtitle" id="lab-subtitle">Select a star to begin</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-reset-lab">Reset</button>
+    </div>
+
+    <div class="lab-content">
+
+      <!-- guided banner (only visible in guided mode) -->
+      <div class="panel" id="guide-panel" style="display:none;">
+        <div class="guide-step-track" id="guide-track"></div>
+        <p class="guide-text" id="guide-text"></p>
+        <p class="guide-sub" id="guide-sub"></p>
+        <div class="row end" style="margin-top:12px;">
+          <button class="btn btn-secondary btn-sm" id="guide-back">Back</button>
+          <button class="btn btn-primary btn-sm" id="guide-next">Next</button>
+        </div>
+      </div>
+
+      <div class="panel" id="star-select-panel">
+        <div class="panel-title"><span class="dot"></span>Star Selector</div>
+        <div class="star-select-row" id="star-select-row"></div>
+        <div class="star-info-line" id="star-info-line"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Spectrum Display</div>
+        <div class="spectrum-wrap">
+          <div class="spectrum-canvas-holder">
+            <canvas id="spectrum-canvas" width="900" height="90"></canvas>
+          </div>
+          <div class="wl-scale">
+            <span>380nm</span><span>450nm</span><span>500nm</span><span>550nm</span><span>600nm</span><span>650nm</span><span>700nm</span><span>750nm</span>
+          </div>
+        </div>
+        <p class="spectrum-hint">💡 Click a dark absorption line on the spectrum to identify it.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Intensity Graph</div>
+        <canvas id="intensity-canvas" width="900" height="180"></canvas>
+        <p class="small text-mid" style="margin-top:6px;">Brightness of starlight across the visible spectrum. Dips mark wavelengths absorbed by elements in the star's outer atmosphere.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Element Identification</div>
+        <div id="line-info-empty" class="line-info-empty">Click a spectral line above, or tap an element chip below to preview its expected lines.</div>
+        <div class="line-info" id="line-info" style="display:none;"></div>
+        <p class="significance-text" id="significance-text"></p>
+        <hr class="sep">
+        <p class="small text-mid" style="margin-bottom:8px;">Toggle elements to preview where their lines <i>would</i> fall on the spectrum:</p>
+        <div class="element-grid" id="element-toggle-grid"></div>
+      </div>
+
+      <div class="panel" id="explain-panel">
+        <div class="panel-title"><span class="dot"></span>Explanation</div>
+        <p class="small text-mid" id="explain-text"></p>
+      </div>
+
+    </div>
+
+    <nav class="bottom-nav" id="bottom-nav-lab"></nav>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section id="screen-compare" class="screen">
+    <div class="appbar">
+      <button class="back-btn" data-back><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="appbar-titles">
+        <p class="appbar-title">Compare Spectra</p>
+        <p class="appbar-subtitle">Overlay two stars and spot the differences</p>
+      </div>
+    </div>
+    <div class="lab-content">
+      <div class="panel">
+        <div class="compare-cols">
+          <div>
+            <div class="compare-col-title">Star A</div>
+            <div class="star-select-row" id="compare-select-a"></div>
+          </div>
+          <div>
+            <div class="compare-col-title">Star B</div>
+            <div class="star-select-row" id="compare-select-b"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Overlaid Intensity Graph</div>
+        <canvas id="compare-canvas" width="900" height="220"></canvas>
+        <div class="overlay-legend">
+          <span><span class="dot-line" style="background:#26C6DA;"></span><span id="legend-a">Star A</span></span>
+          <span><span class="dot-line" style="background:#FFB300;"></span><span id="legend-b">Star B</span></span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>What's Different?</div>
+        <p class="small text-mid" id="compare-diff-text">Choose two stars above to see a comparison.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHALLENGE ============ -->
+  <section id="screen-challenge" class="screen">
+    <div class="appbar">
+      <button class="back-btn" data-back><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="appbar-titles">
+        <p class="appbar-title">Challenge Mode</p>
+        <p class="appbar-subtitle">Identify the unknown star's elements</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-new-challenge">New</button>
+    </div>
+    <div class="lab-content">
+      <div class="challenge-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M9 21h6M10 15l-1.5 6M14 15l1.5 6M4 4h16v4a8 8 0 0 1-16 0V4Z"/></svg>
+        <div>
+          <h3>Which elements are present in this star?</h3>
+          <p>Study the spectrum below, select every element you believe is present, then submit your analysis.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Unknown Spectrum <span class="badge temp" id="challenge-temp-badge" style="margin-left:auto;"></span></div>
+        <div class="spectrum-canvas-holder">
+          <canvas id="challenge-spectrum-canvas" width="900" height="90"></canvas>
+        </div>
+        <canvas id="challenge-intensity-canvas" width="900" height="160" style="margin-top:10px;"></canvas>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Your Analysis</div>
+        <div class="element-grid" id="challenge-element-grid"></div>
+        <div class="row" style="margin-top:14px;">
+          <button class="btn btn-amber" id="btn-submit-challenge">Submit Analysis</button>
+          <button class="btn btn-secondary" id="btn-reveal-challenge">Reveal Star</button>
+        </div>
+        <div id="challenge-feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NOTEBOOK ============ -->
+  <section id="screen-notebook" class="screen">
+    <div class="appbar">
+      <div class="appbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+      </div>
+      <div class="appbar-titles">
+        <p class="appbar-title">Observation Notebook</p>
+        <p class="appbar-subtitle">Your notes and logged spectral lines</p>
+      </div>
+    </div>
+    <div class="lab-content">
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Write a Note</div>
+        <textarea class="notebook-textarea" id="notebook-input" placeholder="Record an observation, e.g. 'Betelgeuse shows broad TiO bands — much cooler than Sirius.'"></textarea>
+        <div class="row end" style="margin-top:10px;">
+          <button class="btn btn-primary" id="btn-save-note">Save Note</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Entries</div>
+        <div id="notebook-entries"></div>
+      </div>
+    </div>
+    <nav class="bottom-nav" id="bottom-nav-notebook"></nav>
+  </section>
+
+  <!-- ============ PROGRESS ============ -->
+  <section id="screen-progress" class="screen">
+    <div class="appbar">
+      <div class="appbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 3 3 5-8"/></svg>
+      </div>
+      <div class="appbar-titles">
+        <p class="appbar-title">Progress</p>
+        <p class="appbar-subtitle">Your laboratory record</p>
+      </div>
+    </div>
+    <div class="lab-content">
+      <div class="progress-grid" id="progress-grid"></div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Stars Explored</div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="stars-explored-fill"></div></div>
+        <p class="small text-mid" id="stars-explored-text" style="margin-top:8px;"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Challenge History</div>
+        <div id="challenge-history"></div>
+      </div>
+
+      <div class="panel">
+        <button class="btn btn-danger btn-block" id="btn-reset-progress">Reset All Progress</button>
+      </div>
+    </div>
+    <nav class="bottom-nav" id="bottom-nav-progress"></nav>
+  </section>
+
+  <!-- ============ ABOUT / EXPLANATION ============ -->
+  <section id="screen-about" class="screen">
+    <div class="appbar">
+      <button class="back-btn" data-back><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="appbar-titles">
+        <p class="appbar-title">Concept &amp; Vocabulary</p>
+        <p class="appbar-subtitle">How astronomers read starlight</p>
+      </div>
+    </div>
+    <div class="lab-content">
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>The Core Idea</div>
+        <p class="small text-mid" style="line-height:1.7;">
+          When white light passes through a prism, it spreads into a continuous rainbow — a <b>continuous spectrum</b>.
+          A star's surface produces light this way too. But starlight must first pass through the star's cooler outer
+          atmosphere, where atoms of different elements absorb very specific wavelengths of light, each one tuned to the
+          exact energy needed to excite an electron. This carves thin dark gaps — <b>absorption lines</b> — into the
+          rainbow at wavelengths unique to each element, like a fingerprint. By measuring where those gaps fall, astronomers
+          identify which elements are present, and by measuring how strong the gaps are, they can even estimate the star's
+          surface temperature.
+        </p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Key Vocabulary</div>
+        <div id="vocab-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Frequently Asked</div>
+        <div id="faq-list"></div>
+      </div>
+
+      <div class="about-credit">
+        <b>Stellar Spectroscope</b> — Virtual Astronomy Laboratory, Simulation 01<br>
+        Created by Dr. Mateen Yousuf · Teacher, School Education Department Kashmir
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script src="storage.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
