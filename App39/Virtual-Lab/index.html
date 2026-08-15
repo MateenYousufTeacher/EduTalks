@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Earth Science Laboratory</title>
+<meta name="description" content="10 premium interactive Earth Science simulations — offline PWA by Dr. Mateen Yousuf">
+<meta name="theme-color" content="#1B3A2B">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================= SPLASH / TITLE SCREEN ============================= -->
+<div id="splash">
+  <canvas class="strata-bg" id="strataBg"></canvas>
+  <div class="splash-inner">
+    <div>
+      <div class="splash-eyebrow">Offline Progressive Web App · 10 Simulations</div>
+      <h1 class="splash-title">Virtual Earth<br><span>Science Laboratory</span></h1>
+      <p class="splash-subtitle">Explore Earth's dynamic systems — rocks, soil, earthquakes, volcanoes, plate tectonics, fossils and deep time — through hands-on, inquiry-based virtual simulations.</p>
+
+      <div class="splash-dev glass">
+        <img src="images/developer.jpg" alt="Photo of Dr. Mateen Yousuf">
+        <div>
+          <div class="splash-dev-name">Developed by Dr. Mateen Yousuf</div>
+          <div class="splash-dev-role">Teacher · School Education Department, Kashmir</div>
+        </div>
+      </div>
+
+      <button class="btn-enter" id="enterAppBtn">🧭 Enter the Laboratory</button>
+    </div>
+
+    <div class="splash-photo-card">
+      <img src="images/developer.jpg" alt="Dr. Mateen Yousuf">
+      <div class="tag">
+        <div class="n">Dr. Mateen Yousuf</div>
+        <div class="r">Teacher, School Education Department, Kashmir</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= APP SHELL ============================= -->
+<div id="app">
+
+  <div class="topbar">
+    <button class="icon-btn hamburger" id="hamburger">☰</button>
+    <div class="brand"><span class="logo">E</span> Virtual Earth Science Lab</div>
+    <div class="search">🔍 <input id="searchInput" placeholder="Search simulations, e.g. volcano, fossil, plate…"></div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">🌓</button>
+      <button class="icon-btn" data-nav="about" title="About Developer">👤</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ===================== SIDE NAV ===================== -->
+    <nav class="sidenav" id="sidenav">
+      <div class="nav-item active" data-nav="home"><span class="ic">🏠</span> Home Dashboard</div>
+      <div class="nav-item" data-nav="handbook"><span class="ic">📘</span> Earth Science Handbook</div>
+      <div class="nav-item" data-nav="gallery"><span class="ic">💎</span> Rock &amp; Mineral Gallery</div>
+      <div class="nav-item" data-nav="quizcentre"><span class="ic">🧪</span> Quiz Centre</div>
+      <div class="nav-item" data-nav="glossary"><span class="ic">🔤</span> Glossary</div>
+      <div class="nav-item" data-nav="about"><span class="ic">👤</span> About Developer</div>
+
+      <div class="nav-section-label">10 Simulations</div>
+      <div id="simNavList"></div>
+
+      <div class="progress-card glass">
+        <div class="lbl"><span class="level-label">Lv.1</span><span class="xp-label">0 XP</span></div>
+        <div class="bar"><i class="progress-fill" style="width:0%"></i></div>
+        <div class="small muted progress-label" style="margin-top:6px;">0/10 modules</div>
+      </div>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="main">
+
+      <!-- HOME -->
+      <section class="screen active" id="screen-home">
+        <div class="hero-banner glass">
+          <h1>Investigate Earth's rocks, hazards &amp; deep time — one variable at a time.</h1>
+          <p>Ten fully interactive laboratories let you adjust real scientific variables and watch cause and effect unfold, exactly as a field geologist would investigate it.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><b>10</b><span>Interactive Simulations</span></div>
+            <div class="hero-stat"><b>100%</b><span>Works Offline</span></div>
+            <div class="hero-stat"><b>VI–XII</b><span>Curriculum Aligned</span></div>
+            <div class="hero-stat"><b>NEP 2020</b><span>&amp; NCF Ready</span></div>
+          </div>
+        </div>
+
+        <div class="section-head"><h2>▶ Continue Exploring</h2><a data-nav="home">See all</a></div>
+        <div class="grid-cards" id="continueRow"></div>
+
+        <div class="section-head"><h2>🧭 All Simulations</h2></div>
+        <div class="grid-cards" id="simGridAll"></div>
+      </section>
+
+      <!-- SIMULATION (populated dynamically) -->
+      <section class="screen" id="screen-simulation"></section>
+
+      <!-- HANDBOOK -->
+      <section class="screen" id="screen-handbook">
+        <div class="section-head"><h2>📘 Earth Science Handbook</h2></div>
+        <p class="muted">A quick-reference guide to the core concepts behind every simulation.</p>
+        <div class="info-grid" id="handbookHost" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- GALLERY -->
+      <section class="screen" id="screen-gallery">
+        <div class="section-head"><h2>💎 Rock &amp; Mineral Gallery</h2></div>
+        <p class="muted">Common rocks and minerals with the properties used to identify them.</p>
+        <div class="info-grid" id="galleryHost" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- QUIZ CENTRE -->
+      <section class="screen" id="screen-quizcentre">
+        <div class="section-head"><h2>🧪 Quiz Centre</h2></div>
+        <p class="muted">Jump straight to any module's quiz and track your best scores.</p>
+        <div class="grid-cards" id="quizCentreHost" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- GLOSSARY -->
+      <section class="screen" id="screen-glossary">
+        <div class="section-head"><h2>🔤 Glossary</h2></div>
+        <div class="search glass" style="max-width:420px; margin-bottom:16px;">🔍 <input id="glossarySearch" placeholder="Search terms…"></div>
+        <div class="info-grid" id="glossaryHost"></div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="screen" id="screen-about">
+        <div class="section-head"><h2>👤 About the Developer</h2></div>
+        <div id="aboutHost"></div>
+      </section>
+
+      <footer class="appfoot">Virtual Earth Science Laboratory · Created by Dr. Mateen Yousuf, Teacher, School Education Department, Kashmir · 100% Offline PWA</footer>
+    </main>
+  </div>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <div class="bottomnav">
+    <button class="active" data-nav="home"><span class="ic">🏠</span>Home</button>
+    <button data-nav="handbook"><span class="ic">📘</span>Handbook</button>
+    <button data-nav="quizcentre"><span class="ic">🧪</span>Quiz</button>
+    <button data-nav="gallery"><span class="ic">💎</span>Gallery</button>
+    <button data-nav="about"><span class="ic">👤</span>About</button>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/simulations/rockcycle.js"></script>
+<script src="js/simulations/soil.js"></script>
+<script src="js/simulations/weathering.js"></script>
+<script src="js/simulations/erosion.js"></script>
+<script src="js/simulations/fossil.js"></script>
+<script src="js/simulations/earthquake.js"></script>
+<script src="js/simulations/volcano.js"></script>
+<script src="js/simulations/plates.js"></script>
+<script src="js/simulations/minerals.js"></script>
+<script src="js/simulations/timeline.js"></script>
+<script src="js/app.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
