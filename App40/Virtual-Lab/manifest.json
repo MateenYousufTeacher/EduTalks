@@ -1,0 +1,15 @@
+{
+  "name": "Virtual Earth Science Laboratory",
+  "short_name": "Earth Lab",
+  "description": "Ten interactive Earth Science simulations covering rocks, soil, hazards and deep time. Works fully offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0D47A1",
+  "theme_color": "#0D47A1",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
