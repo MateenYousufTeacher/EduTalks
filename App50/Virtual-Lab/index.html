@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Physics Laboratory</title>
+<meta name="description" content="10 premium offline interactive physics simulations for Classes 6-12">
+<meta name="theme-color" content="#0D47A1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ SPLASH / TITLE SCREEN ============ -->
+  <section id="splash" class="view active">
+    <div class="splash-content">
+      <div class="splash-eyebrow">⚛ Classes 6–12 · Offline Ready</div>
+      <h1 class="splash-title">Virtual<span>Physics Laboratory</span></h1>
+      <p class="splash-sub">Explore Physics through Interactive Experiments</p>
+
+      <div class="dev-card">
+        <img class="dev-photo" src="assets/developer.jpg" alt="Dr. Mateen Yousuf">
+        <div class="dev-meta">
+          <div class="label">Created by</div>
+          <div class="name">Dr. Mateen Yousuf</div>
+          <div class="role">Teacher · School Education Department, Kashmir</div>
+        </div>
+      </div>
+
+      <button class="btn-enter" id="btnEnter">Enter the Lab <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ============ HOME DASHBOARD ============ -->
+  <section id="home" class="view">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">⚗</div>
+        <div class="brand-text"><b>Virtual Physics Lab</b><span>Dr. Mateen Yousuf</span></div>
+      </div>
+      <button class="icon-btn" id="btnDarkHome" title="Toggle dark mode">🌙</button>
+    </header>
+
+    <div class="searchbar-wrap">
+      <div class="searchbar">
+        <span>🔍</span>
+        <input id="searchHome" type="search" placeholder="Search simulations… (press Enter)">
+      </div>
+    </div>
+
+    <div class="home-hero">
+      <h2>Welcome back!</h2>
+      <p>Continue exploring the laws that shape our universe.</p>
+      <div class="hero-progress">
+        <div class="bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+        <small id="progressText">0 of 10 simulations explored</small>
+      </div>
+    </div>
+
+    <div class="section-title"><h3>Quick Access</h3></div>
+    <div class="quick-grid">
+      <button class="quick-item" data-goto="simulations"><span class="qi-icon" style="background:var(--deep-blue)">🧪</span>Simulations</button>
+      <button class="quick-item" data-goto="simulations"><span class="qi-icon" style="background:var(--primary-blue)">🗂</span>Categories</button>
+      <button class="quick-item" data-goto="favorites"><span class="qi-icon" style="background:#E4574C">⭐</span>Favorites</button>
+      <button class="quick-item" data-goto="history"><span class="qi-icon" style="background:var(--green)">🕓</span>History</button>
+    </div>
+
+    <div class="section-title"><h3>Categories</h3></div>
+    <div class="category-scroll" id="homeCategoryScroll"></div>
+
+    <div class="section-title"><h3>All Simulations</h3><span class="link" data-goto="simulations">See all</span></div>
+    <div class="sim-grid" id="homeSimGrid"></div>
+  </section>
+
+  <!-- ============ SIMULATION LIST ============ -->
+  <section id="simulations" class="view">
+    <header class="topbar">
+      <button class="icon-btn back" data-goto="home">←</button>
+      <div class="brand-text"><b>Simulations</b><span id="simCountLabel">10 experiments</span></div>
+      <button class="icon-btn" id="btnDarkList" title="Toggle dark mode">🌙</button>
+    </header>
+    <div class="searchbar-wrap">
+      <div class="searchbar">
+        <span>🔍</span>
+        <input id="searchList" type="search" placeholder="Search simulations… (press Enter)">
+      </div>
+    </div>
+    <div class="category-scroll" id="listCategoryScroll" style="margin-top:4px"></div>
+    <div class="sim-grid" id="listSimGrid"></div>
+  </section>
+
+  <!-- ============ FAVORITES ============ -->
+  <section id="favorites" class="view">
+    <header class="topbar">
+      <button class="icon-btn back" data-goto="home">←</button>
+      <div class="brand-text"><b>Favorites</b><span>Your starred experiments</span></div>
+      <span></span>
+    </header>
+    <div class="sim-grid" id="favSimGrid"></div>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section id="history" class="view">
+    <header class="topbar">
+      <button class="icon-btn back" data-goto="home">←</button>
+      <div class="brand-text"><b>History</b><span>Recently explored</span></div>
+      <span></span>
+    </header>
+    <div class="sim-grid" id="historySimGrid"></div>
+  </section>
+
+  <!-- ============ SIMULATION SCREEN ============ -->
+  <section id="simscreen" class="view">
+    <header class="topbar">
+      <button class="icon-btn back" data-goto="simulations">←</button>
+      <div class="brand-text"><b id="simTitle">Simulation</b><span id="simSubject">Physics</span></div>
+      <button class="icon-btn" id="btnFavSim" title="Add to favorites">☆</button>
+    </header>
+
+    <div class="sim-header">
+      <span class="eyebrow" id="simTag">MECHANICS</span>
+      <h2 id="simHeading">Motion</h2>
+      <p id="simDesc">Investigate distance, speed and time.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="experiment">Simulate</button>
+      <button class="tab-btn" data-tab="controls">Controls</button>
+      <button class="tab-btn" data-tab="theory">Theory</button>
+      <button class="tab-btn" data-tab="instructions">Instructions</button>
+    </div>
+
+    <div class="tab-panel active" id="panel-experiment">
+      <div class="stage" id="simStage">
+        <!-- canvas injected here -->
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-controls">
+      <div id="controlsHost"></div>
+    </div>
+
+    <div class="tab-panel" id="panel-theory">
+      <div id="theoryHost"></div>
+    </div>
+
+    <div class="tab-panel" id="panel-instructions">
+      <div id="instructionsHost"></div>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-btn active" data-goto="home"><span class="ic">🏠</span>Home</button>
+    <button class="nav-btn" data-goto="simulations"><span class="ic">🧪</span>Simulations</button>
+    <button class="nav-btn" data-goto="favorites"><span class="ic">⭐</span>Favorites</button>
+    <button class="nav-btn" data-goto="profile"><span class="ic">👤</span>Profile</button>
+  </nav>
+
+  <!-- ============ TOAST ============ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ============ PROFILE / ABOUT MODAL ============ -->
+  <div class="modal-backdrop" id="profileModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <img src="assets/developer.jpg" alt="Dr. Mateen Yousuf" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--deep-blue)">
+        <div>
+          <h3>Dr. Mateen Yousuf</h3>
+          <small>Teacher · School Education Department, Kashmir</small>
+        </div>
+      </div>
+      <div class="info-card">
+        <h4>About this app</h4>
+        <p style="font-size:13.5px;color:var(--text-muted)">Virtual Physics Laboratory brings 10 interactive, offline-capable physics experiments to students of Classes 6–12, built entirely to run without an internet connection once installed.</p>
+      </div>
+      <div class="toggle-row">
+        <span>Dark mode</span>
+        <label class="switch"><input type="checkbox" id="btnDarkProfile"><span class="slider-toggle"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Install app to home screen</span>
+        <button class="btn btn-secondary btn-sm" id="btnInstall">Install</button>
+      </div>
+      <div class="toggle-row">
+        <span>Reset progress &amp; favorites</span>
+        <button class="btn btn-tertiary btn-sm" id="btnReset" style="color:#C0392B">Reset</button>
+      </div>
+      <button class="btn btn-secondary btn-block" id="btnCloseProfile" style="margin-top:10px">Close</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/sims/motion.js"></script>
+<script src="js/sims/newton.js"></script>
+<script src="js/sims/friction.js"></script>
+<script src="js/sims/gravity.js"></script>
+<script src="js/sims/energy.js"></script>
+<script src="js/sims/pressure.js"></script>
+<script src="js/sims/heat.js"></script>
+<script src="js/sims/optics.js"></script>
+<script src="js/sims/circuit.js"></script>
+<script src="js/sims/magnetism.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
