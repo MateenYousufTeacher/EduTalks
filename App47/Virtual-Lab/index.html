@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual History Laboratory — Dr. Mateen Yousuf</title>
+<meta name="description" content="Experience History Through Interactive Virtual Simulations. An offline Progressive Web App by Dr. Mateen Yousuf.">
+<meta name="theme-color" content="#3D141C">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+  <div id="app"></div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/sims/harness.js"></script>
+  <script src="js/sims/utils.js"></script>
+  <script src="js/sims/stoneage.js"></script>
+  <script src="js/sims/indus.js"></script>
+  <script src="js/sims/egypt.js"></script>
+  <script src="js/sims/medindia.js"></script>
+  <script src="js/sims/mughal.js"></script>
+  <script src="js/sims/industrial.js"></script>
+  <script src="js/sims/frenchrev.js"></script>
+  <script src="js/sims/freedom.js"></script>
+  <script src="js/sims/ww2.js"></script>
+  <script src="js/sims/constitution.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+      });
+    }
+  </script>
+</body>
+</html>
