@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Political Science Laboratory</title>
+<meta name="description" content="Experience Democracy Through Interactive Virtual Simulations — an offline civic education laboratory by Dr. Mateen Yousuf.">
+<meta name="theme-color" content="#0D47A1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="dark">
+
+<div id="app">
+
+  <!-- ============ SPLASH / TITLE SCREEN ============ -->
+  <section id="screen-splash" class="screen active">
+    <svg class="splash-bg-anim" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g opacity="0.5">
+        <path d="M120 620 L120 420 M160 620 L160 440 M200 620 L200 420 M240 620 L240 440 M280 620 L280 420" stroke="#26C6DA" stroke-width="2"/>
+        <path d="M90 620 L310 620 L310 600 L90 600 Z" fill="#0D2352"/>
+        <path d="M100 600 L200 500 L300 600 Z" fill="#0D2352" stroke="#26C6DA" stroke-width="2"/>
+      </g>
+      <g opacity="0.35">
+        <circle cx="640" cy="180" r="70" fill="none" stroke="#FFB300" stroke-width="2"/>
+        <circle cx="640" cy="180" r="4" fill="#FFB300"/>
+        <g id="chakra-spokes"></g>
+      </g>
+    </svg>
+    <div class="splash-content">
+      <span class="brand-eyebrow">Virtual Simulations Series · Political Science</span>
+      <h1 class="brand-title">Virtual Political <span class="accent">Science Laboratory</span></h1>
+      <p class="brand-sub">Experience Democracy Through Interactive Virtual Simulations</p>
+
+      <div class="glass dev-card">
+        <img class="dev-photo" src="assets/images/developer.jpg" alt="Portrait of Dr. Mateen Yousuf">
+        <div class="dev-info">
+          <div class="dev-label">Created by</div>
+          <div class="dev-name">Dr. Mateen Yousuf</div>
+          <div class="dev-role">Teacher · School Education Department, Kashmir</div>
+        </div>
+      </div>
+
+      <div class="splash-cta">
+        <button class="btn btn-primary" id="btn-enter">🏛️ Enter the Laboratory</button>
+        <button class="btn btn-ghost" id="btn-splash-about">About the Developer</button>
+      </div>
+    </div>
+    <div class="splash-foot">100% Offline · No login · No internet required</div>
+  </section>
+
+  <!-- ============ HOME ============ -->
+  <section id="screen-home" class="screen">
+    <div class="topbar">
+      <h2>Virtual Political Science Lab</h2>
+      <button class="icon-btn" id="btn-theme-toggle" title="Toggle theme">🌓</button>
+      <button class="icon-btn" data-goto="screen-settings" title="Settings">⚙️</button>
+    </div>
+
+    <div class="home-hero glass">
+      <h1>Welcome back, Civic Explorer 👋</h1>
+      <p>Ten interactive simulations. Zero internet required. Explore how democracy, governance and the Constitution actually work — by doing, not just reading.</p>
+      <div class="hero-stats" id="home-hero-stats"></div>
+    </div>
+
+    <div class="search-bar glass">
+      <span>🔍</span>
+      <input type="text" id="search-input" placeholder="Search simulations — e.g. election, judiciary, federalism…">
+    </div>
+
+    <div class="chip-row">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="new">Not Started</button>
+      <button class="chip" data-filter="progress">In Progress</button>
+      <button class="chip" data-filter="done">Completed</button>
+    </div>
+
+    <div id="recent-row-wrap" style="display:contents;">
+      <div class="section-title" id="recent-title" style="display:none;"><h3>▶ Continue Learning</h3></div>
+      <div class="grid-cards" id="recent-row"></div>
+    </div>
+
+    <div class="section-title"><h3>🏛️ 10 Political Science Simulations</h3></div>
+    <div class="grid-cards" id="sim-grid"></div>
+
+    <div class="section-title"><h3>📚 Explore the Lab</h3></div>
+    <div class="tile-row">
+      <div class="glass tile" data-goto="screen-constitution"><span class="tile-icon">📖</span><h5>Constitution Handbook</h5><span>Interactive reference</span></div>
+      <div class="glass tile" data-goto="screen-glossary"><span class="tile-icon">📚</span><h5>Glossary</h5><span>Illustrated civic terms</span></div>
+      <div class="glass tile" data-goto="screen-quizcentre"><span class="tile-icon">🎯</span><h5>Quiz Centre</h5><span>Test your knowledge</span></div>
+      <div class="glass tile" data-goto="screen-achievements"><span class="tile-icon">🏅</span><h5>Achievements</h5><span>Badges & civic levels</span></div>
+    </div>
+
+    <div style="height:20px;"></div>
+  </section>
+
+  <!-- ============ SIMULATION WORKSPACE ============ -->
+  <section id="screen-sim" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" id="btn-sim-back">←</button>
+      <h2 id="sim-title-bar">Simulation</h2>
+      <button class="icon-btn" id="btn-fullscreen" title="Full screen">⛶</button>
+    </div>
+    <div id="sim-container"></div>
+  </section>
+
+  <!-- ============ CONSTITUTION HANDBOOK ============ -->
+  <section id="screen-constitution" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>📖 Constitution Handbook</h2>
+      <span></span>
+    </div>
+    <p style="padding:14px 16px 0;font-size:13px;color:var(--text-secondary);">An interactive, simplified reference to key constitutional concepts — tap any section to expand.</p>
+    <div id="constitution-list" style="padding:14px 16px;"></div>
+  </section>
+
+  <!-- ============ GLOSSARY ============ -->
+  <section id="screen-glossary" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>📚 Glossary</h2>
+      <span></span>
+    </div>
+    <div class="search-bar glass" style="margin:14px 16px 0;">
+      <span>🔍</span>
+      <input type="text" id="glossary-search" placeholder="Search civic terms…">
+    </div>
+    <div class="alpha-nav" id="alpha-nav"></div>
+    <div id="glossary-list" style="padding:0 16px;"></div>
+  </section>
+
+  <!-- ============ QUIZ CENTRE ============ -->
+  <section id="screen-quizcentre" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>🎯 Quiz Centre</h2>
+      <span></span>
+    </div>
+    <p style="padding:14px 16px 0;font-size:13px;color:var(--text-secondary);">Every simulation includes an adaptive mini quiz. Pick one below to jump straight to it.</p>
+    <div class="grid-cards" id="quizcentre-grid" style="padding:14px 16px;"></div>
+  </section>
+
+  <!-- ============ ACHIEVEMENTS ============ -->
+  <section id="screen-achievements" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>🏅 Achievements</h2>
+      <span></span>
+    </div>
+    <p id="ach-summary" style="padding:14px 16px 0;font-size:13px;color:var(--text-secondary);"></p>
+    <div class="badge-grid" style="padding:14px 16px;" id="badge-grid"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="screen-settings" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>⚙️ Settings</h2>
+      <span></span>
+    </div>
+    <div class="glass card" style="margin:14px 16px;" id="settings-list"></div>
+    <div style="padding:0 16px;">
+      <button class="btn-sm" data-goto="screen-about">ℹ️ About the Developer</button>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT DEVELOPER ============ -->
+  <section id="screen-about" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" data-goto="screen-home">←</button>
+      <h2>About the Developer</h2>
+      <span></span>
+    </div>
+    <div class="glass about-hero" style="margin:14px 16px;">
+      <img class="dev-photo" src="assets/images/developer.jpg" alt="Portrait of Dr. Mateen Yousuf">
+      <h2>Dr. Mateen Yousuf</h2>
+      <p class="role">Teacher · School Education Department, Kashmir</p>
+    </div>
+    <div class="glass card" style="margin:0 16px;">
+      <h4>🎯 Vision</h4>
+      <p>The Virtual Political Science Laboratory was created to help students <b>experience</b> democracy and governance rather than simply read about them — building constitutional literacy, critical thinking and responsible citizenship through hands-on, inquiry-based simulation.</p>
+    </div>
+    <div class="glass card" style="margin:0 16px;">
+      <h4>📐 Design Principles</h4>
+      <ul>
+        <li>Inquiry-based, competency-based learning aligned with NEP 2020</li>
+        <li>Every module is a genuine simulation — not a static slideshow</li>
+        <li>100% offline, installable, and accessible on low-end devices</li>
+        <li>Constitutionally accurate, politically neutral, curriculum-aligned content</li>
+      </ul>
+    </div>
+    <div style="height:16px;"></div>
+  </section>
+
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-item active" data-screen="screen-home"><span class="nav-ic">🏠</span>Home</button>
+    <button class="nav-item" data-screen="screen-quizcentre"><span class="nav-ic">🎯</span>Quiz</button>
+    <button class="nav-item" data-screen="screen-constitution"><span class="nav-ic">📖</span>Handbook</button>
+    <button class="nav-item" data-screen="screen-achievements"><span class="nav-ic">🏅</span>Badges</button>
+    <button class="nav-item" data-screen="screen-settings"><span class="nav-ic">⚙️</span>Settings</button>
+  </div>
+</nav>
+
+<div id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/quiz-engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/simulations-core.js"></script>
+<script src="js/simulations/sim-01-democracy.js"></script>
+<script src="js/simulations/sim-02-election.js"></script>
+<script src="js/simulations/sim-03-parliament.js"></script>
+<script src="js/simulations/sim-04-executive.js"></script>
+<script src="js/simulations/sim-05-judiciary.js"></script>
+<script src="js/simulations/sim-06-constitution.js"></script>
+<script src="js/simulations/sim-07-federalism.js"></script>
+<script src="js/simulations/sim-08-local.js"></script>
+<script src="js/simulations/sim-09-policy.js"></script>
+<script src="js/simulations/sim-10-lawmaking.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
