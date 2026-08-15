@@ -1,0 +1,16 @@
+{
+  "name": "Virtual Simulations — History Laboratory",
+  "short_name": "Virtual Sims",
+  "description": "An offline interactive history laboratory by Dr. Mateen Yousuf, Teacher, School Education Department Kashmir.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0D47A1",
+  "theme_color": "#0D47A1",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
