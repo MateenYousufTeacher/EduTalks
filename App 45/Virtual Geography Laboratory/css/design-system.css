@@ -1,0 +1,112 @@
+/* ============================================================
+   VIRTUAL GEOGRAPHY LABORATORY — MASTER DESIGN SYSTEM
+   Consistent with the Virtual Simulations series design language
+   ============================================================ */
+
+:root{
+  /* ---- Core UI palette (master system) ---- */
+  --deep-blue:#0D47A1;
+  --primary-blue:#1976D2;
+  --cyan:#26C6DA;
+  --green:#43A047;
+  --amber:#FFB300;
+  --light-blue:#E3F2FD;
+  --light-gray:#F5F7FA;
+  --dark-gray:#212121;
+
+  /* ---- Extended geography palette ---- */
+  --ocean-deep:#073B6B;
+  --ocean:#0E6BA8;
+  --earth-brown:#8D6748;
+  --forest-green:#2E7D32;
+  --sky-blue:#64B5F6;
+  --desert-sand:#E3C089;
+  --snow-white:#FBFEFF;
+  --volcanic-gray:#4A4A4E;
+  --lava:#FF5722;
+
+  /* ---- Semantic ---- */
+  --bg:var(--light-gray);
+  --surface:#FFFFFF;
+  --surface-glass:rgba(255,255,255,0.65);
+  --border:#E1E6EC;
+  --text:var(--dark-gray);
+  --text-muted:#5C6672;
+  --text-inverse:#FFFFFF;
+  --success:var(--green);
+  --warning:var(--amber);
+  --danger:#E53935;
+  --info:var(--cyan);
+
+  /* ---- Gradients ---- */
+  --grad-hero:linear-gradient(135deg,#04122B 0%, #0D47A1 45%, #1976D2 75%, #26C6DA 100%);
+  --grad-card:linear-gradient(135deg, var(--primary-blue), var(--cyan));
+  --grad-earth:linear-gradient(135deg, var(--forest-green), var(--earth-brown));
+  --grad-amber:linear-gradient(135deg,#FFB300,#FF8F00);
+
+  /* ---- Typography ---- */
+  --font-display:'Poppins', 'Nunito Sans', sans-serif;
+  --font-body:'Nunito Sans', 'Poppins', sans-serif;
+
+  --h1-size:36px; --h1-lh:44px; --h1-w:700;
+  --h2-size:28px; --h2-lh:36px; --h2-w:600;
+  --h3-size:22px; --h3-lh:28px; --h3-w:600;
+  --body-size:16px; --body-lh:24px; --body-w:400;
+  --small-size:14px; --small-lh:20px; --small-w:400;
+
+  /* ---- Radii / shadow / spacing ---- */
+  --r-sm:10px; --r-md:16px; --r-lg:24px; --r-pill:999px;
+  --shadow-sm:0 2px 8px rgba(13,71,161,0.08);
+  --shadow-md:0 8px 24px rgba(13,71,161,0.12);
+  --shadow-lg:0 16px 48px rgba(13,71,161,0.18);
+  --glass-blur:blur(16px);
+
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:24px; --space-6:32px; --space-7:48px; --space-8:64px;
+
+  --nav-h:64px;
+  --bottomnav-h:64px;
+  --transition:220ms cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="dark"]{
+  --bg:#0B1220;
+  --surface:#131C2E;
+  --surface-glass:rgba(19,28,46,0.65);
+  --border:#233047;
+  --text:#EAF1FB;
+  --text-muted:#9FB0C9;
+  --light-gray:#0B1220;
+  --light-blue:#122A47;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  transition:background var(--transition), color var(--transition);
+}
+h1,h2,h3,h4{ font-family:var(--font-display); margin:0; color:var(--text); }
+h1{ font-size:var(--h1-size); line-height:var(--h1-lh); font-weight:var(--h1-w); }
+h2{ font-size:var(--h2-size); line-height:var(--h2-lh); font-weight:var(--h2-w); }
+h3{ font-size:var(--h3-size); line-height:var(--h3-lh); font-weight:var(--h3-w); }
+p,li,span,label,input,button,select,textarea{ font-family:var(--font-body); }
+p{ font-size:var(--body-size); line-height:var(--body-lh); font-weight:var(--body-w); color:var(--text); margin:0 0 var(--space-3); }
+small,.small{ font-size:var(--small-size); line-height:var(--small-lh); color:var(--text-muted); }
+a{ color:var(--primary-blue); text-decoration:none; }
+button{ font-family:var(--font-body); cursor:pointer; }
+img{ max-width:100%; display:block; }
+::selection{ background:var(--cyan); color:#fff; }
+
+.hidden{ display:none !important; }
+.container{ max-width:1200px; margin:0 auto; padding:0 var(--space-5); }
+
+/* Scrollbar */
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background:var(--primary-blue); border-radius:var(--r-pill); opacity:.5;}
+::-webkit-scrollbar-track{ background:transparent; }
